@@ -1,0 +1,53 @@
+@CHARSET "UTF-8";
+
+#addMedicationLink {
+	float: left;	
+	padding-top: 8px;
+    vertical-align: bottom;
+}
+
+#buttonDiv {
+	margin-top: 3px;	
+	margin-bottom: 7px;
+}
+
+#addNewRegimenDialog .box {
+	height: 315px;
+}
+
+.padding {
+	padding-top: 5px;
+	padding-left: 15px;
+	font-size: 14px;
+	padding-bottom: 5px;
+	vertical-align: bottom;	
+}
+
+.error {
+	font-color: red;
+}
+
+#medicationButtonSpan {
+	text-align: left;
+}
+
+.regimenPortletCurrent div.boxHeader  {
+	background-color: #1AAC9B;
+	border: 1px solid #1AAC9B;
+}
+
+.regimenPortletCurrent div.box {
+	border: 1px solid #1AAC9B;
+}
+
+h2#regimenPortlet {
+	font-weight: bold;
+	font-size: 14px;
+}	
+
+select {
+	height: 25px;
+	border-radius: 5px;
+	background-color: #F8F8F8;
+	
+}
