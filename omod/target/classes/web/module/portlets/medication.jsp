@@ -6,7 +6,20 @@
 
 jQuery(document).ready(function() {
 	
-
+	/* make Drug sets option selected */
+	jQuery("#drugSets").prop("checked", true);
+	
+	jQuery.ajax({
+		url: "/openmrs/ws/rest/v1/user?v=custom:(uuid,username,person)&amp;roles=PMDT Treatment Supporter",
+		dataType: 'json'
+		}).done(function(data ) {
+			/* console.log(data.results[0].username);
+			console.log(data.results.length); */
+			userData = data;
+			
+	});
+	
+	
 	jQuery('#addMedicationButton').click(function(){ 
 			jQuery('#addNewRegimenDialog').dialog('open');
 			
@@ -23,7 +36,7 @@ jQuery(document).ready(function() {
 		autoOpen: false,
 		modal: true,
 		title: '<spring:message code="medication.regimen.addMedication" javaScriptEscape="true"/>',
-		height: 480,
+		height: 510,
 		width: '100%',
 		zIndex: 100,
 		buttons: { '<spring:message code="general.add"/>': function() { handleAddMedication(); },
@@ -56,7 +69,18 @@ jQuery(document).ready(function() {
 		
 		jQuery('.openmrs_error').hide();
 		
-		fetchDrugs();
+		
+	});
+	
+	jQuery('#drugSets').click(function(){ 
+		jQuery('#drugSetList').prop('disabled', false);
+		$("#drugs").prop("checked", false);
+		
+	});
+	
+	jQuery('#drugs').click(function(){ 
+		jQuery('#drugSetList').prop('disabled', 'disabled');
+		$("#drugSets").prop("checked", false);
 	});
 	
 });
@@ -108,7 +132,7 @@ jQuery(document).ready(function() {
 	
 	<div class="box">
 	<div id="openmrs_error" class="openmrs_error"></div>
-	<form id="addOrderSet" name="addMedication" method="post" action="${pageContext.request.contextPath}/module/orderextension/addOrderSet.form">
+	<form id="addOrderSet" name="addMedication" method="post" action="${pageContext.request.contextPath}/module/medicationlog/addOrderSet.form">
 			
 			<table>
 				<tr>
@@ -120,7 +144,7 @@ jQuery(document).ready(function() {
 							<option value="" selected="selected"></option>
 							
  							<%-- <c:forEach items="${model.orderSets}" var="orderSet"> 
- 								<option value="${orderSet.id}"> 
+ 								<option class="capitalize" value="${orderSet.id}"> 
  									${orderSet.name}</option> 
  							</c:forEach> --%> 
 
@@ -133,79 +157,111 @@ jQuery(document).ready(function() {
 			</table>
 		</form>
 		
-		<form id="addIndividualDrug" name="addIndividualDrug" method="post" action="${pageContext.request.contextPath}/module/orderextension/addDrugOrder.form">
+		<form id="addIndividualDrug" name="addIndividualDrug" method="post" action="${pageContext.request.contextPath}/module/medicationlog/addDrugOrder.form">
 			<input type="hidden" name="patientId" value="${model.patient.patientId}">
 			<input type="hidden" name="returnPage" value="${model.redirect}&patientId=${model.patient.patientId}"/>	
 			<table>
+				<tr class="drugDetails">
+					<th class="padding"><spring:message code="medication.regimen.drugSelectionHeading" />:</th>
+				</tr>
 				<tr>
-					<td class="padding"><spring:message code="medication.regimen.individualDrug" />*: </td>
-					<td>	<select name="drugCombo" id="drugCombo" data-placeholder="<spring:message code="orderextension.regimen.chooseOption" />" style="width:350px;" onChange="fetchDrugs()">
+				<td class="padding"><spring:message code="medication.regimen.drugSelection" />: <input type="radio" id="drugSets" name="selection" value="<spring:message code="medication.regimen.drugSetsOption" />" ><spring:message code="medication.regimen.drugSetsOption" />  <input type="radio"  id="drugs"name="selection" value="<spring:message code="medication.regimen.drugsOption" />" ><spring:message code="medication.regimen.drugsOption" />
+					</td>
+				</tr>
+				<tr>
+				<td class="padding" id="drugSetRow"> <label id="drugSetLabel"><spring:message code="medication.regimen.drugSetLabel" /></label>: 
+				<select class="capitalize" name="indication" id="drugSetList">
+						<option value="">Select option</option>
+							<c:forEach var="drugSet" items="${model.drugSets}">
+								<option class="capitalize" value="${drugSet.conceptId}">${drugSet.name}</option>
+							</c:forEach>
+						</select>
+					</td>
+					<td class="padding"><spring:message code="medication.regimen.drugLabel" />*: </td>
+					<td> <input id="suggestBox" name="drugCombo" list="drugsList" />
+				<datalist id="drugsList">
+				    <option value="Amikacin">
+				    <option value="Rifampicin">
+				    <option value="Ciprox">
+				    <option value="Amoxicillin">
+				    <option value="Isoniazid">
+				    <option value="Ciprofloxacin">
+				</datalist>
+					<%-- <select name="drugCombo" id="drugCombo" class="capitalize" data-placeholder="<spring:message code="medication.regimen.chooseOption" />" style="width:350px;">
 							<option value="" selected="selected"></option>
 							
 							<c:forEach items="${model.drugs}" var="drug">
-								<option value="${drug.conceptId}">${drug.name}</option>
+								<option class="capitalize" value="${drug.conceptId}">${drug.name}</option>
 							</c:forEach>
-						</select>
+						</select> --%>
 					</td>
 					<td id="drugName" class="padding"></td>
 					<td id="routeInfo" class="padding"></td>
 				</tr>
 			</table>
-			<table>
+			<table> 
 				<tr class="drugDetails">
 					<th class="padding"><spring:message code="medication.regimen.patientPrescription" />:</th>
 				</tr>
 				<tr class="drugDetails">
-					<td class="padding"><spring:message code="DrugOrder.dose" />*:  <input type="text" name="dose" id="dose" size="10"/><span id="units"></span></td>
+					<td class="padding"><spring:message code="DrugOrder.dose" />*: <input type="text" name="dose" id="dose" size="10"/> <select name="doseUnits" id="doseUnits" class="capitalize">
+						<option value="">Select option</option>
+							<c:forEach var="doseUnit" items="${model.doseUnits}">
+								<option class="capitalize" value="${doseUnit.conceptId}">${doseUnit.name}</option>
+							</c:forEach>
+						</select>
+					</td>
+					
 					
 					<td class="padding"><spring:message code="DrugOrder.frequency"/>:			
-						<select name="frequencyDay" id="frequencyDay">
-						<option value="" selected="selected"></option>
-							<c:forEach items="${model.frequencies}" var="drug">
-								<option value="${frequencies.conceptId}">${frequencies.name}</option>
+						<select name="frequencyDay" id="frequencyDay" class="capitalize">
+						<option value="">Select option</option>
+							<c:forEach var="frequency" items="${model.frequencies}">
+								<option class="capitalize" value="${frequency.conceptId}">${frequency.name}</option>
 							</c:forEach>
 <%-- 							<% for ( int i = 1; i <= 10; i++ ) { %> --%>
 <%-- 								<option value="<%= i %>/<spring:message code="DrugOrder.frequency.day" />"><%= i %>/<spring:message code="DrugOrder.frequency.day" /></option> --%>
 <%-- 							<% } %> --%>
-<%-- 							<option value="<spring:message code="orderextension.regimen.onceOnlyDose" />"><spring:message code="orderextension.regimen.onceOnlyDose" /></option> --%>
+<%-- 							<option value="<spring:message code="medication.regimen.onceOnlyDose" />"><spring:message code="medication.regimen.onceOnlyDose" /></option> --%>
 						</select>
-						<span> - </span>
+						<%-- <span> - </span>
 						<select name="frequencyWeek" id="frequencyWeek">
 							<openmrs:globalProperty var="drugFrequencies" key="dashboard.regimen.displayFrequencies" listSeparator="," />
 							<c:if test="${empty drugFrequencies}">
 								<option disabled>&nbsp; <spring:message code="DrugOrder.add.error.missingFrequency.interactions" arguments="dashboard.regimen.displayFrequencies"/></option>
 							</c:if>
 							<c:if test="${not empty drugFrequencies}">
-								<option value=""></option>
+								<option value="">Select option</option>
 								<c:forEach var="drugFrequency" items="${drugFrequencies}">
 									<option value="${drugFrequency}">${drugFrequency}</option>
 								</c:forEach>
 							</c:if>											
-						</select>
+						</select> --%>
 					</td>
-					<td class="padding"><input type="checkbox" name="asNeeded" id="asNeeded" value="asNeeded"><spring:message code='medication.orderset.DrugOrderSetMember.asNeeded'/></td>
+					<td class="padding"><input type="checkbox" name="asNeeded" id="asNeeded" value="asNeeded"><spring:message code='medication.orderset.drugOrderSetMember.asNeeded'/></td>
 				</tr>
 				
 				</table>
 				<table>
 				<tr class="drugDetails">
-					<td class="padding"><spring:message code="medication.regimen.route" />: <select name="route" id="route">
-						<option value="" selected="selected"></option>
-							<c:forEach items="${model.routes}" var="drug">
-								<option value="${routes.conceptId}">${routes.name}</option>
+					<td class="padding"><spring:message code="medication.regimen.route" />: <select name="route" id="route" class="capitalize">
+						<option value="">Select option</option>
+							<c:forEach var="route" items="${model.routes}">
+								<option class="capitalize" value="${route.conceptId}">${route.name}</option>
 							</c:forEach>
 						</select>
 					</td>
 					
-					<td class="padding"><spring:message code="medication.regimen.duration"/>: <input type="text" name="duration" id="duration" size="10"/> 
+					<td class="padding"><spring:message code="medication.regimen.duration"/>: <input type="number" name="duration" id="duration" size="2"/> 
 					<select name="durationUnits" id="durationUnits">
-						<option value="" selected="selected"></option>
-							<c:forEach items="${model.durationUnits}" var="drug">
-								<option value="${durationUnits.conceptId}">${durationUnits.name}</option>
+							<option value="">Select option</option>
+							<c:forEach var="duration" items="${model.durationUnits}">
+								<option  value="${duration.conceptId}">${duration.name}</option>
 							</c:forEach>
-					</select>  
+					</select> 
 					
 					</td>
+					
 					<!--	maps on order.instructions  -->
 					<td class="padding"><spring:message code="medication.regimen.dosingInstructions"/>: <textarea rows="2" cols="40" name="dosingInstructions" id="dosingInstructions"></textarea>
 					</td>
@@ -223,10 +279,10 @@ jQuery(document).ready(function() {
 		    
 		    <table>
 				<tr	class="drugDetails">
-					<td class="padding"><spring:message code="medication.regimen.reasonForOrder" />: <select name="orderReasons" id="orderReasonCombo">
+					<td class="padding"><spring:message code="medication.regimen.reasonForOrder" />: <select name="orderReasons" id="orderReasonCombo" class="capitalize">
 							<option value="" selected="selected"></option>
 							<c:forEach items="${model.orderReasons}" var="orderReason">
-								<option value="${orderReasons.conceptId}">${orderReasons.displayString}</option>
+								<option class="capitalize" value="${orderReason.conceptId}">${orderReason.displayString}</option>
 							</c:forEach>
 						</select>
 					</td>
@@ -235,14 +291,16 @@ jQuery(document).ready(function() {
 					</td>
 					
 				</tr>
+				
 			</table>
 			
-			<table>	
+			<table>
+				
 				<tr class="drugDetails">
 					<!-- 				maps on drug_order.dosing_instructions  -->
 					
 					<td class="padding"><spring:message code="medication.regimen.administrationInstructions" />: <textarea rows="2" cols="40" name="adminInstructions" id="adminInstructions"></textarea></td>
-				</tr>							
+				</tr>
 			</table> 
 		</form>
 		

@@ -42,13 +42,6 @@ public class MedicationLogServiceImpl extends BaseOpenmrsService implements Medi
 		//				OrderService orderService = Context.getOrderService();
 		//				OrderGroup og = new OrderGroup();
 		
-		//		DrugOrder drugOrder = new DrugOrder();
-		
-		//		orderService.saveOrder(drugOrder, null);
-		
-		//				OrderSetService orderSetService = Context.getOrderSetService();
-		
-		//		orderSetService.saveOrderSet(arg0);
 		
 		this.userService = userService;
 	}

@@ -1,23 +1,86 @@
 @CHARSET "UTF-8";
 
+
+/* Style the tab */
+#buttonDiv {
+    /* overflow: hidden;
+    border: 1px solid #ccc;
+    background-color: #f1f1f1; */
+    margin-top: 3px;	
+	margin-bottom: 7px;
+}
+
+/* Style the buttons inside the tab */
+/* #buttonDiv input {
+    background-color: inherit;
+    float: left;
+    border: none;
+    outline: none;
+    cursor: pointer;
+    padding: 5px 5px ;
+    transition: 0.3s;
+    font-size: 17px;
+} */
+
+/* Change background color of buttons on hover */
+/* #buttonDiv input:hover {
+    background-color: #ddd;
+} */
+
+/* Create an active/current tablink class */
+/* #buttonDiv input.active {
+    background-color: #ccc;
+} */
+
+/* Style the tab content */
+/* .tabcontent {
+    display: none;
+    padding: 6px 12px;
+    -webkit-animation: fadeEffect 1s;
+    animation: fadeEffect 1s;
+} */
+
+/* Fade in tabs */
+/* @-webkit-keyframes fadeEffect {
+    from {opacity: 0;}
+    to {opacity: 1;}
+}
+ */
+/* @keyframes fadeEffect {
+    from {opacity: 0;}
+    to {opacity: 1;}
+} */
+
+
+
+
+
+.lowercase {text-transform: lowercase; }
+.uppercase { text-transform: uppercase; }
+.capitalize { text-transform: capitalize; }
+
+* {
+	font-family: 'Arial' !important;
+}
+
 #addMedicationLink {
 	float: left;	
 	padding-top: 8px;
     vertical-align: bottom;
 }
 
-#buttonDiv {
+/* #buttonDiv {
 	margin-top: 3px;	
 	margin-bottom: 7px;
-}
+} */
 
 #addNewRegimenDialog .box {
-	height: 315px;
+	height: 350px;
 }
 
 .padding {
 	padding-top: 5px;
-	padding-left: 15px;
+	padding-left: 5px;
 	font-size: 14px;
 	padding-bottom: 5px;
 	vertical-align: bottom;	
@@ -46,8 +109,24 @@ h2#regimenPortlet {
 }	
 
 select {
-	height: 25px;
+	height: 22px;
 	border-radius: 5px;
 	background-color: #F8F8F8;
+	border-style: groove !important;
 	
 }
+
+#suggestBox {
+    height: 18px;
+    border-radius: 5px;
+    background-color: #F8F8F8;
+    border-style: groove !important;
+    font-size: 1.2em !important;
+}
+
+#duration {
+	width: 50px;
+	padding-right: 2px;
+}
+
+
