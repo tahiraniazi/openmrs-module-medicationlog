@@ -75,17 +75,21 @@ public class MedicationLogActivator extends BaseModuleActivator {
 		ensureOrderFrequencies(Context.getOrderService(), Context.getConceptService(), Context.getAdministrationService()
 		        .getGlobalPropertyObject(MEDICATION_FREQUENCIES_CONCEPT_UUID).getPropertyValue());
 		
+		// hard coding drug type property to check if server proceeds
+		maybeSetGP(administrationService, MEDICATION_DRUG_TYPE_CONCEPT_UUID, "43029b8a-cbed-4085-a650-44f209d683d3");
+		
 		// creating DRUG TYPE concept
-		List<Concept> drugTypeMembers = new ArrayList<Concept>();
-		drugTypeMembers.add(createConcept("TUBERCULOSIS DRUGS", "Misc", "N/A"));
-		drugTypeMembers.add(createConcept("NON TB DRUGS", "Misc", "N/A"));
-		
-		Concept drugType = createConcept("DRUG TYPE", "Question", "N/A");
-		
-		if (!(drugType == null)) {
-			addSetMembers(drugType, drugTypeMembers);
-			maybeSetGP(administrationService, MEDICATION_DRUG_TYPE_CONCEPT_UUID, drugType.getUuid());
-		}
+		//		List<Concept> drugTypeMembers = new ArrayList<Concept>();
+		//		drugTypeMembers.add(createConcept("TUBERCULOSIS DRUGS", "Misc", "N/A"));
+		//		drugTypeMembers.add(createConcept("NON TB DRUGS", "Misc", "N/A"));
+		//		
+		//		Concept drugType = createConcept("DRUG TYPE", "Question", "N/A");
+		//		
+		//		if (!(drugType == null)) {
+		//			addSetMembers(drugType, drugTypeMembers);
+		//			//			maybeSetGP(administrationService, MEDICATION_DRUG_TYPE_CONCEPT_UUID, drugType.getUuid());
+		//			maybeSetGP(administrationService, MEDICATION_DRUG_TYPE_CONCEPT_UUID, "43029b8a-cbed-4085-a650-44f209d683d3");
+		//		}
 		
 	}
 	

@@ -12,6 +12,7 @@
 package org.openmrs.module.medicationlog.web.controller;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
@@ -22,11 +23,11 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
+import org.openmrs.module.medicationlog.MedicationLogActivator;
 import org.openmrs.DrugOrder;
 import org.openmrs.Patient;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.medicationlog.MedicationLogActivator;
 import org.openmrs.web.controller.PortletController;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
@@ -40,8 +41,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequestMapping("**/medication.portlet")
 public class MedicationPortletController extends PortletController {
-	
-	ConceptService conceptService = Context.getConceptService();
 	
 	private static final Log log = LogFactory.getLog(MedicationPortletController.class);
 	
@@ -67,58 +66,88 @@ public class MedicationPortletController extends PortletController {
 		// MEDICATION FREQUENCY > 160855 > 160855AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 		String frequencyUuid = Context.getAdministrationService().getGlobalProperty(
 		    "medication.medicationFrequenciesConceptUuid");
-		Concept frequencySet = conceptService.getConceptByUuid(frequencyUuid);
+		Concept frequencySet = Context.getConceptService().getConceptByUuid(frequencyUuid);
 		List<Concept> frequencies = frequencySet.getSetMembers();
 		log.info("Frequency concepts are " + frequencies);
 		model.put("frequencies", frequencies);
 		
-		String drugTypeUuid = Context.getAdministrationService().getGlobalProperty(
-		    MedicationLogActivator.MEDICATION_DRUG_TYPE_CONCEPT_UUID);
-		Concept drugTypeSet = conceptService.getConceptByUuid(drugTypeUuid);
-		List<Concept> drugTypes = drugTypeSet.getSetMembers();
-		log.info("Drug type concepts are " + drugTypes);
+		// String drugTypeUuid =
+		// Context.getAdministrationService().getGlobalProperty(
+		// MedicationLogActivator.MEDICATION_DRUG_TYPE_CONCEPT_UUID);
+		// Concept drugTypeSet =
+		// Context.getConceptService().getConceptByUuid(drugTypeUuid);
+		// List<Concept> drugTypes = drugTypeSet.getSetMembers();
+		// log.info("Drug type concepts are " + drugTypes);
 		// model.put("drugTypes", drugTypes);
 		
-		//		String administrationReasonUuid = Context.getAdministrationService().getGlobalProperty(
-		//		    MedicationLogActivator.MEDICATION_ORDER_REASON_CONCEPT_UUID);
-		//		if (administrationReasonUuid != null && !administrationReasonUuid.isEmpty()) {
-		//			Concept orderReason = conceptService.getConceptByUuid(administrationReasonUuid);
-		//			Collection<ConceptAnswer> reasonCollection = orderReason.getAnswers(false);
-		//			ArrayList<Concept> reasons = new ArrayList<Concept>();
-		//			
-		//			for (ConceptAnswer reason : reasonCollection) {
-		//				reasons.add(reason.getAnswerConcept());
-		//				
-		//			}
-		//			log.info("Order reason concepts are " + reasons);
-		//			model.put("orderReasons", reasons);
-		//		}
+		// Concept administrationReason =
+		// Context.getConceptService().getConceptByUuid(MedicationLogActivator.MEDICATION_ADMINISTRATION_REASON_CONCEPT_UUID);
+		// Concept orderReason =
+		// Context.getConceptService().getConceptByUuid("a351615f-1a76-49b3-9813-a078cf31cc82");
+		// Collection<ConceptAnswer> reasonCollection =
+		// orderReason.getAnswers(false);
+		// ArrayList<Concept> reasons = new ArrayList<Concept>();
+		//
+		// for (ConceptAnswer reason : reasonCollection) {
+		// reasons.add(reason.getAnswerConcept());
+		//
+		// }
+		// log.info("Order reason concepts are " + reasons);
+		// model.put("orderReasons", reasons);
+		
+		String orderReasonUuid = Context.getAdministrationService().getGlobalProperty(
+		    MedicationLogActivator.MEDICATION_ORDER_REASON_CONCEPT_UUID);
+		
+		log.info("===================== Order reason UUid is " + orderReasonUuid);
+		log.info("==============================================================");
+		
+		if (orderReasonUuid != null && !orderReasonUuid.isEmpty()) {
+			Concept orderReason = Context.getConceptService().getConceptByUuid(orderReasonUuid);
+			Collection<ConceptAnswer> reasonCollection = orderReason.getAnswers(false);
+			ArrayList<Concept> reasons = new ArrayList<Concept>();
+			
+			for (ConceptAnswer reason : reasonCollection) {
+				reasons.add(reason.getAnswerConcept());
+				
+			}
+			log.info("============ Order reason concepts are " + reasons);
+			model.put("orderReasons", reasons);
+		}
 		
 		// reading drug set classes global property (it indicates the types of
 		// concept sets required e.g LabSet, ConvSet). Get the comma-separated
 		// values and fetch these concepts by class and then generate the final
 		// list of the drug set concepts
 		
-		//		String drugClasses = Context.getAdministrationService().getGlobalProperty(
-		//		    MedicationLogActivator.MEDICATION_DRUG_SETS_PROPERTY);
-		//		
-		//		List<String> classes = new ArrayList<String>();
+		String drugClasses = Context.getAdministrationService().getGlobalProperty(
+		    MedicationLogActivator.MEDICATION_DRUG_SETS_PROPERTY);
+		
+		List<String> classes;
 		List<Concept> drugSets = new ArrayList<Concept>();
-		//		
-		//		// search drug sets based on drug classes specified in advance settings
-		//		if (drugClasses != null && !drugClasses.isEmpty()) {
-		//			classes = Arrays.asList(drugClasses.split(",").toString().trim());
-		//			drugSets = getDrugSets(classes);
-		//		}
-		//		// else search concept sets for all Set classes like ConvSet, MedSet
-		//		// etc.
-		//		else {
-		//			drugClasses = "LabSet, MedSet, ConvSet";
-		//			classes = Arrays.asList(drugClasses.split(",").toString().trim());
-		//			drugSets = getDrugSets(classes);
-		//		}
-		//		
+		
+		// search drug sets based on drug classes specified in advance settings
+		if (drugClasses != null && !drugClasses.isEmpty()) {
+			if (drugClasses.contains(",")) {
+				classes = Arrays.asList(drugClasses.split(","));
+			} else {
+				classes = new ArrayList<String>();
+				classes.add(drugClasses);
+			}
+			drugSets = getDrugSets(classes);
+		}
+		// else search concept sets for all Set classes like ConvSet, MedSet etc.
+		else {
+			drugClasses = "LabSet, MedSet, ConvSet";
+			classes = Arrays.asList(drugClasses.split(",").toString().trim());
+			drugSets = getDrugSets(classes);
+		}
+		
 		model.put("drugSets", drugSets);
+		
+		// put order sets in model
+		
+		// put drugs in model
+		
 	}
 	
 	public List<Concept> getDrugSets(List<String> classes) {
@@ -126,7 +155,8 @@ public class MedicationPortletController extends PortletController {
 		List<Concept> allSetConcepts = new ArrayList<Concept>();
 		
 		for (String className : classes) {
-			List<Concept> setConcepts = conceptService.getConceptsByClass(conceptService.getConceptClassByName(className));
+			List<Concept> setConcepts = Context.getConceptService().getConceptsByClass(
+			    Context.getConceptService().getConceptClassByName(className.trim()));
 			allSetConcepts.addAll(setConcepts);
 		}
 		
