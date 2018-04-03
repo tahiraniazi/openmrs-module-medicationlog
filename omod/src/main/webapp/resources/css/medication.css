@@ -75,7 +75,7 @@
 } */
 
 #addNewRegimenDialog .box {
-	height: 350px;
+	height: 380px;
 }
 
 .padding {
@@ -116,12 +116,13 @@ select {
 	
 }
 
-#suggestBox {
+#drugSuggestBox {
     height: 18px;
     border-radius: 5px;
     background-color: #F8F8F8;
     border-style: groove !important;
     font-size: 1.2em !important;
+    width: 300px !important;
 }
 
 #duration {

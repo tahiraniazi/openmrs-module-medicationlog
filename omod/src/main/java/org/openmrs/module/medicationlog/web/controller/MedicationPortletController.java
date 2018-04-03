@@ -14,6 +14,8 @@ package org.openmrs.module.medicationlog.web.controller;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Date;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -70,30 +72,6 @@ public class MedicationPortletController extends PortletController {
 		List<Concept> frequencies = frequencySet.getSetMembers();
 		log.info("Frequency concepts are " + frequencies);
 		model.put("frequencies", frequencies);
-		
-		// String drugTypeUuid =
-		// Context.getAdministrationService().getGlobalProperty(
-		// MedicationLogActivator.MEDICATION_DRUG_TYPE_CONCEPT_UUID);
-		// Concept drugTypeSet =
-		// Context.getConceptService().getConceptByUuid(drugTypeUuid);
-		// List<Concept> drugTypes = drugTypeSet.getSetMembers();
-		// log.info("Drug type concepts are " + drugTypes);
-		// model.put("drugTypes", drugTypes);
-		
-		// Concept administrationReason =
-		// Context.getConceptService().getConceptByUuid(MedicationLogActivator.MEDICATION_ADMINISTRATION_REASON_CONCEPT_UUID);
-		// Concept orderReason =
-		// Context.getConceptService().getConceptByUuid("a351615f-1a76-49b3-9813-a078cf31cc82");
-		// Collection<ConceptAnswer> reasonCollection =
-		// orderReason.getAnswers(false);
-		// ArrayList<Concept> reasons = new ArrayList<Concept>();
-		//
-		// for (ConceptAnswer reason : reasonCollection) {
-		// reasons.add(reason.getAnswerConcept());
-		//
-		// }
-		// log.info("Order reason concepts are " + reasons);
-		// model.put("orderReasons", reasons);
 		
 		String orderReasonUuid = Context.getAdministrationService().getGlobalProperty(
 		    MedicationLogActivator.MEDICATION_ORDER_REASON_CONCEPT_UUID);
@@ -164,7 +142,8 @@ public class MedicationPortletController extends PortletController {
 			if (concept.isSet() && concept.getSetMembers().size() > 0) {
 				List<Concept> setMembers = concept.getSetMembers();
 				for (Concept setMember : setMembers) {
-					if (setMember.getConceptClass().getName().equalsIgnoreCase("Drug")) {
+					if (setMember.getConceptClass().getName().equalsIgnoreCase("Drug") && !setMember.getRetired()
+					        && Context.getConceptService().getDrugsByConcept(setMember).size() > 0) {
 						if (!drugSets.contains(concept))
 							drugSets.add(concept);
 						break;
@@ -180,18 +159,41 @@ public class MedicationPortletController extends PortletController {
 	/*
 	 * saves a new drug order
 	 */
-	@RequestMapping(value = "/addDrugOrder", method = RequestMethod.POST)
+	@RequestMapping(value = "/addDrugOrder.form", method = RequestMethod.POST)
 	public String addDrugOrder(ModelMap model, @RequestParam(value = "patientId", required = true) Integer patientId,
 	        @RequestParam(value = "drug", required = true) Integer drugId,
-	        @RequestParam(value = "dose", required = true) Double dose) {
+	        @RequestParam(value = "dose", required = true) Double dose,
+	        @RequestParam(value = "doseUnit", required = true) Integer doseUnit,
+	        @RequestParam(value = "frequency", required = false) String frequency,
+            @RequestParam(value = "startDateDrug", required = true) Date startDateDrug,
+            @RequestParam(value = "stopDateDrug", required = false) Date stopDateDrug,
+            @RequestParam(value = "asNeeded", required = false) String asNeeded,
+            @RequestParam(value = "instructions", required = false) String instructions,
+            @RequestParam(value = "adminInstructions", required = false) String adminInstructions,
+            @RequestParam(value = "returnPage", required = true) String returnPage) {
 		
-		Patient patient = Context.getPatientService().getPatient(patientId);
-		DrugOrder drugOrder = new DrugOrder();
-		drugOrder.setPatient(patient);
+		DrugOrder drugOrder = setUpDrugOrder(patientId, drugId, dose, doseUnit, frequency, startDateDrug, stopDateDrug, asNeeded, instructions, adminInstructions);
 		
 		// save drug order
+		Context.getOrderService().saveOrder(drugOrder, null);
 		
 		return "redirect";
+	}
+	
+	private DrugOrder setUpDrugOrder(Integer patientId, Integer drugId, Double dose, Integer doseUnit, String frequency, 
+			Date startDateDrug, Date stopDateDrug, String asNeeded, String instructions,
+            String adminInstructions) {
+		
+		Patient patient = Context.getPatientService().getPatient(patientId);
+		
+		DrugOrder drugOrder = new DrugOrder();
+		
+		drugOrder.setPatient(patient);
+		drugOrder.setDose(dose);
+		drugOrder.setDoseUnits(Context.getConceptService().getConcept(doseUnit));
+		// set other attributes
+		
+		return drugOrder;
 	}
 	
 }

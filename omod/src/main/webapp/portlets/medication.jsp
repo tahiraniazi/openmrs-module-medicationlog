@@ -1,10 +1,13 @@
 <%@ include file="/WEB-INF/template/include.jsp"%>
 
-<openmrs:htmlInclude file="/moduleResources/medicationlog/medication.css" />
+<openmrs:htmlInclude file="/moduleResources/medicationlog/css/medication.css" />
+<!-- <openmrs:htmlInclude file="/moduleResources/medicationlog/js/jquery-3.3.1.js" /> -->
 
 <script type="text/javascript">
 
 jQuery(document).ready(function() {
+	
+	var drugsList = null;
 	
 	/* make Drug sets option selected */
 	jQuery("#drugSets").prop("checked", true);
@@ -18,7 +21,6 @@ jQuery(document).ready(function() {
 			userData = data;
 			
 	});
-	
 	
 	jQuery('#addMedicationButton').click(function(){ 
 			jQuery('#addNewRegimenDialog').dialog('open');
@@ -36,10 +38,10 @@ jQuery(document).ready(function() {
 		autoOpen: false,
 		modal: true,
 		title: '<spring:message code="medication.regimen.addMedication" javaScriptEscape="true"/>',
-		height: 510,
+		height: 550,
 		width: '100%',
 		zIndex: 100,
-		buttons: { '<spring:message code="general.add"/>': function() { handleAddMedication(); },
+		buttons: { '<spring:message code="general.add"/>': function() { submitOrder(); },
 				   '<spring:message code="general.cancel"/>': function() { $j(this).dialog("close"); }
 		}
 	});
@@ -69,21 +71,137 @@ jQuery(document).ready(function() {
 		
 		jQuery('.openmrs_error').hide();
 		
-		
 	});
 	
 	jQuery('#drugSets').click(function(){ 
 		jQuery('#drugSetList').prop('disabled', false);
-		$("#drugs").prop("checked", false);
-		
+		jQuery("#drugs").prop("checked", false);
 	});
 	
 	jQuery('#drugs').click(function(){ 
 		jQuery('#drugSetList').prop('disabled', 'disabled');
-		$("#drugSets").prop("checked", false);
+		jQuery("#drugSets").prop("checked", false);
+		
+		var url = "${pageContext.request.contextPath}/module/medicationlog/ajax/getAllDrugs.form"; 
+		jQuery.getJSON(url, function(result) {
+				console.log(result.length);
+				console.log(result);
+				
+				var datalist = document.getElementById("drugOptions");
+				var dataListLength = datalist.options.length;
+				if(dataListLength > 0 ) {
+					jQuery("#drugOptions option").remove();
+				}
+				
+				if(result.length > 0) {
+					jQuery(result).each(function() {
+				            drugsOption = "<option value=\"" + this.name + "\">" + this.id + "</option>";
+				            console.log(this.id + " " + result.name);
+				            jQuery('#drugOptions').append(drugsOption);
+					});
+				}
+		});
+	});
+	
+	jQuery('#drugSetList').change(function() {
+		
+		var selected = jQuery(this).val();
+		
+		jQuery("#drugSuggestBox").val("");
+		
+		if(jQuery("#drugSetList").prop("selectedIndex") > 0)
+		{
+			var url = "${pageContext.request.contextPath}/module/medicationlog/ajax/getDrugsByDrugSet.form?conceptId=" + selected; 
+			jQuery.getJSON(url, function(result) {
+					console.log(result);
+					
+					var datalist = document.getElementById("drugOptions");
+					var dataListLength = datalist.options.length;
+					if(dataListLength > 0 ) {
+						jQuery("#drugOptions option").remove();
+					}
+					
+					if(result.length > 0) {
+						jQuery(result).each(function() {
+					            drugsOption = "<option value=\"" + this.name + "\">" + this.id + "</option>";
+					            console.log(this.id + " " + result.name);
+					            jQuery('#drugOptions').append(drugsOption);
+						});
+					}
+			});
+		}
 	});
 	
 });
+
+function submitOrder() {
+	
+	if(jQuery('#addOrderSet').is(":visible") == true)
+	{
+		var error = "";
+		
+		error = "Error submitting drug order.";
+		
+		if(error != "")
+		{
+			jQuery('.openmrs_error').show();
+			jQuery('.openmrs_error').html(error);
+		}
+		else
+		{
+			jQuery('#addOrderSet').submit();
+		}
+	}
+	if(jQuery('#addIndividualDrug').is(":visible") == true)
+	{
+		
+		var error = "";
+		
+		var selectedDrug = jQuery("#drugSuggestBox").val();
+		if(selectedDrug == "")
+		{
+			error = " <spring:message code='medication.regimen.drugError' /> ";
+		}
+		else 
+		{
+			var startDate = jQuery("#startDateDrug").val();
+			
+			if(startDate == "")
+			{
+				error = error + " <spring:message code='medication.regimen.startDateError' /> ";
+			}
+			
+			var dose = jQuery("#dose").val();
+			
+			if(dose == "")
+			{
+				error = error + " <spring:message code='medication.regimen.doseError' /> ";
+
+			}
+			else
+			{
+				alert("Checking dose unit");
+				var selectedDoseUnit = jQuery("#doseUnits").attr("selectedIndex");
+				alert("dose unit is " + selectedDoseUnit);
+				if(selectedDoseUnit == 0)
+				{
+					alert("dose unit is " + selectedDoseUnit);
+					error = " <spring:message code='medication.regimen.doseUnitError' /> ";
+				}
+			}
+		}
+		
+		if(error != "")
+		{
+			jQuery('.openmrs_error').show();
+			jQuery('.openmrs_error').html(error);
+		}
+		else
+		{
+			jQuery('#addIndividualDrug').submit();
+		}
+	}
+}
 
 </script>
 
@@ -165,12 +283,12 @@ jQuery(document).ready(function() {
 					<th class="padding"><spring:message code="medication.regimen.drugSelectionHeading" />:</th>
 				</tr>
 				<tr>
-				<td class="padding"><spring:message code="medication.regimen.drugSelection" />: <input type="radio" id="drugSets" name="selection" value="<spring:message code="medication.regimen.drugSetsOption" />" ><spring:message code="medication.regimen.drugSetsOption" />  <input type="radio"  id="drugs"name="selection" value="<spring:message code="medication.regimen.drugsOption" />" ><spring:message code="medication.regimen.drugsOption" />
+				<td class="padding"><spring:message code="medication.regimen.drugSelection" />: <input type="radio" id="drugSets" name="selection" value="<spring:message code="medication.regimen.drugSetsOption" />" ><spring:message code="medication.regimen.drugSetsOption" />  <input type="radio"  id="drugs" name="selection" value="<spring:message code="medication.regimen.drugsOption" />" ><spring:message code="medication.regimen.drugsOption" />
 					</td>
 				</tr>
 				<tr>
 				<td class="padding" id="drugSetRow"> <label id="drugSetLabel"><spring:message code="medication.regimen.drugSetLabel" /></label>: 
-				<select class="capitalize" name="indication" id="drugSetList">
+				<select class="capitalize" name="drugSetList" id="drugSetList">
 						<option value="">Select option</option>
 							<c:forEach var="drugSet" items="${model.drugSets}">
 								<option class="capitalize" value="${drugSet.conceptId}">${drugSet.name}</option>
@@ -178,15 +296,8 @@ jQuery(document).ready(function() {
 						</select>
 					</td>
 					<td class="padding"><spring:message code="medication.regimen.drugLabel" />*: </td>
-					<td> <input id="suggestBox" name="drugCombo" list="drugsList" />
-				<datalist id="drugsList">
-				    <option value="Amikacin">
-				    <option value="Rifampicin">
-				    <option value="Ciprox">
-				    <option value="Amoxicillin">
-				    <option value="Isoniazid">
-				    <option value="Ciprofloxacin">
-				</datalist>
+					<td> <input id="drugSuggestBox" name="drugCombo" list="drugOptions" placeholder="Search Drug..." />
+						<datalist id="drugOptions"></datalist>
 					<%-- <select name="drugCombo" id="drugCombo" class="capitalize" data-placeholder="<spring:message code="medication.regimen.chooseOption" />" style="width:350px;">
 							<option value="" selected="selected"></option>
 							
