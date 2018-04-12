@@ -165,14 +165,15 @@ public class MedicationPortletController extends PortletController {
 	        @RequestParam(value = "dose", required = true) Double dose,
 	        @RequestParam(value = "doseUnit", required = true) Integer doseUnit,
 	        @RequestParam(value = "frequency", required = false) String frequency,
-            @RequestParam(value = "startDateDrug", required = true) Date startDateDrug,
-            @RequestParam(value = "stopDateDrug", required = false) Date stopDateDrug,
-            @RequestParam(value = "asNeeded", required = false) String asNeeded,
-            @RequestParam(value = "instructions", required = false) String instructions,
-            @RequestParam(value = "adminInstructions", required = false) String adminInstructions,
-            @RequestParam(value = "returnPage", required = true) String returnPage) {
+	        @RequestParam(value = "startDateDrug", required = true) Date startDateDrug,
+	        @RequestParam(value = "stopDateDrug", required = false) Date stopDateDrug,
+	        @RequestParam(value = "asNeeded", required = false) String asNeeded,
+	        @RequestParam(value = "instructions", required = false) String instructions,
+	        @RequestParam(value = "adminInstructions", required = false) String adminInstructions,
+	        @RequestParam(value = "returnPage", required = true) String returnPage) {
 		
-		DrugOrder drugOrder = setUpDrugOrder(patientId, drugId, dose, doseUnit, frequency, startDateDrug, stopDateDrug, asNeeded, instructions, adminInstructions);
+		DrugOrder drugOrder = setUpDrugOrder(patientId, drugId, dose, doseUnit, frequency, startDateDrug, stopDateDrug,
+		    asNeeded, instructions, adminInstructions);
 		
 		// save drug order
 		Context.getOrderService().saveOrder(drugOrder, null);
@@ -180,9 +181,8 @@ public class MedicationPortletController extends PortletController {
 		return "redirect";
 	}
 	
-	private DrugOrder setUpDrugOrder(Integer patientId, Integer drugId, Double dose, Integer doseUnit, String frequency, 
-			Date startDateDrug, Date stopDateDrug, String asNeeded, String instructions,
-            String adminInstructions) {
+	private DrugOrder setUpDrugOrder(Integer patientId, Integer drugId, Double dose, Integer doseUnit, String frequency,
+	        Date startDateDrug, Date stopDateDrug, String asNeeded, String instructions, String adminInstructions) {
 		
 		Patient patient = Context.getPatientService().getPatient(patientId);
 		
