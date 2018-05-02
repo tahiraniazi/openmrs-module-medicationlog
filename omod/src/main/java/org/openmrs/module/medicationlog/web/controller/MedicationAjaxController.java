@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
@@ -26,8 +27,10 @@ import org.apache.commons.logging.LogFactory;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
+import org.openmrs.DrugOrder;
 import org.openmrs.api.context.Context;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -52,7 +55,7 @@ public class MedicationAjaxController {
 		
 		// can not remove non-retired concepts directly from drugConcepts as it
 		// is a non-modifiable list
-		// also, only add concept if the its class is drug and a drug is also associated with that concept
+		// also, only add concept if its class is drug and a drug object is also associated with that concept
 		for (Concept concept : drugConcepts) {
 			if (!concept.getRetired()
 			        && concept.getConceptClass() == Context.getConceptService().getConceptClassByName("Drug")
@@ -90,7 +93,7 @@ public class MedicationAjaxController {
 			Concept drugConcept = drug.getConcept();
 			if (drugConcept != null && !drugConcept.getRetired()) {
 				Map<String, String> info = new HashMap<String, String>();
-				info.put("id", Integer.toString(drugConcept.getId()));
+				info.put("id", Integer.toString(drug.getDrugId()));
 				info.put("name", drugConcept.getFullySpecifiedName(Locale.ENGLISH).getName());
 				drugs.add(info);
 			}
