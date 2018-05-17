@@ -13,16 +13,36 @@
 
 <script type="text/javascript">
 
-jQuery(document).ready(function() {
+jQuery(function() {
 	
-	var error = '${error}';
-	if(error != null && error != "") {
-		alert(error);
+	if (performance.navigation.type == 1) {
+			window.location.href = "/openmrs/patientDashboard.form?patientId=${model.patient.patientId}";
 	}
 	
-	console.log('${model}');
+	jQuery("body").keydown(function(e){
+		
+		if(e.which==116){
+			window.location.href = "/openmrs/patientDashboard.form?patientId=${model.patient.patientId}";
+		}
+		
+	});
+});
+
+jQuery(document).ready(function() {
 	
 	var drugObject = {};
+	
+	var saved = '${param.saved}';
+	if(saved != null && saved != "") {
+		
+		alertify.set('notifier','position', 'top-center');
+		var savedAlert = alertify.success(saved);
+		savedAlert.delay(20).setContent(saved);
+		
+		jQuery('body').one('click', function(){
+			savedAlert.dismiss();
+		});
+	}
 	
 	var missingConceptError = "";
 	
@@ -245,6 +265,7 @@ function refresh() {
 	document.getElementById("durationUnit").selectedIndex = "0";
 	document.getElementById("orderReason").selectedIndex = "0";
 	document.getElementById("drugSetList").selectedIndex = "0";
+	document.getElementById("patientEncounter").selectedIndex = "0";
 	jQuery('#drugSelection').val('');
 	jQuery('#drugId').val('');
 	jQuery('#dose').val('');
@@ -382,26 +403,26 @@ function process(date){
 <div >
 </div>
 <!-- <openmrs:hasPrivilege privilege=""> -->
-<div id="addMedicationLink"><input type="button" id="addMedicationButton" value="<openmrs:message code="medication.regimen.addMedication"/>"></div>
+<div id="addMedicationLink">
+<button id="addMedicationButton">
+	<span><openmrs:message code="medication.regimen.addMedication"/></span>
+	<span class='addMedicationImage'><img class="manImg" src="/openmrs/moduleResources/medicationlog/img/add.gif"></img></span>
+</button>
+<%-- <input type="button" id="addMedicationButton" value="<openmrs:message code="medication.regimen.addMedication"/>"> --%>
+</div>
 <!-- </openmrs:hasPrivilege> -->
 
 <br />
-<br />
+
 
 <div id="regimenPortlet">
 	<div class="regimenPortletCurrent">	
-		<div class="boxHeader${model.patientVariation}"><spring:message code="medication.regimen.current" /></div>
-		<div class="box${model.patientVariation}">
-			<openmrs:portlet url="currentregimen" moduleId="medicationlog" id="patientRegimenCurrent" patientId="${model.patient.patientId}" parameters="mode=current|redirect=${model.redirect}"/>	
-		</div>			
+			<openmrs:portlet url="currentRegimen.portlet" moduleId="medicationlog" id="patientRegimenCurrent" patientId="${model.patient.patientId}" parameters="mode=current|redirect=${model.redirect}"/>	
 	</div>
 	<br />
 	
 	<div class="regimenPortletCompleted">
-		<div class="boxHeader${model.patientVariation}"><spring:message code="medication.regimen.completed" /></div>
-		<div class="box${model.patientVariation}">
-			<openmrs:portlet url="completedregimen" moduleId="medicationlog" id="patientRegimenCompleted" patientId="${model.patient.patientId}" parameters="mode=completed|redirect=${model.redirect}"/>
-		</div>
+			<openmrs:portlet url="completedRegimen.portlet" moduleId="medicationlog" id="patientRegimenCompleted" patientId="${model.patient.patientId}" parameters="mode=completed|redirect=${model.redirect}"/>
 	</div>
 </div>
 
@@ -446,7 +467,7 @@ function process(date){
 						</select>
 					</td class="padding">
 					<td class="padding">
-						<spring:message code="medication.orderset.field.relativeStartDay" /><span class="required">*</span>:  <openmrs_tag:dateField formFieldName="startDateSet" startValue=""/>
+						<spring:message code="medication.orderset.field.startDay" /><span class="required">*</span>:  <openmrs_tag:dateField formFieldName="startDateSet" startValue=""/>
 					</td>
 				</tr>
 			</table>
@@ -466,6 +487,16 @@ function process(date){
 				<tr>
 				<td class="padding"><spring:message code="medication.regimen.drugSelection" />: <input type="radio" id="drugSets" name="selection" value="<spring:message code="medication.regimen.drugSetsOption" />" ><spring:message code="medication.regimen.drugSetsOption" />  <input type="radio"  id="drugs" name="selection" value="<spring:message code="medication.regimen.drugsOption" />" ><spring:message code="medication.regimen.drugsOption" />
 					</td>
+				<td class="padding"><label id="encounterLabel"><spring:message code="medication.regimen.encounterSelection" /></label>:
+				<select class="capitalize" name="patientEncounter" id="patientEncounter">
+						<option class="capitalize" value="">Select encounter</option>
+						<c:if test="${not empty model.encounters}">
+							<c:forEach var="encounter" items="${model.encounters}">
+								<option class="capitalize" value="${encounter.encounterId}">${fn:toLowerCase(encounter.encounterName)}</option>
+							</c:forEach>
+							</c:if>
+						</select>
+				</td>
 				</tr>
 				<tr class="lastrow">
 				<td class="padding" id="drugSetRow"> <label id="drugSetLabel"><spring:message code="medication.regimen.drugSetLabel" /></label>: 
@@ -551,7 +582,7 @@ function process(date){
 				</tr>
 				
 				<tr class="drugDetails">	
-					<td class="padding"><spring:message code="medication.orderset.field.relativeStartDay" /><span class="required">*</span>:  <openmrs_tag:dateField formFieldName="startDateDrug" startValue=""/></td>
+					<td class="padding"><spring:message code="medication.orderset.field.startDay" /><span class="required">*</span>:  <openmrs_tag:dateField formFieldName="startDateDrug" startValue=""/></td>
 					<td class="padding"><spring:message code="medication.regimen.duration"/><span class="required">*</span>: <input type="number" name="duration" id="duration" size="2" min="1" max="99"/> 
 					<select class="capitalize" name="durationUnit" id="durationUnit">
 							<option value="">Select option</option>
@@ -591,10 +622,6 @@ function process(date){
 			</table> 
 		</form>
 		</div>
-		
 	</div>
-	
 </div>
-
-
 </div>

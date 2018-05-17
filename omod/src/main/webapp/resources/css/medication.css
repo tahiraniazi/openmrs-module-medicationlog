@@ -54,10 +54,6 @@
     to {opacity: 1;}
 } */
 
-
-
-
-
 .lowercase {
 	text-transform: lowercase; 
 }
@@ -72,19 +68,26 @@
 	font-family: 'Arial' !important;
 }
 
+#addMedicationButton {
+	
+}
+
+/* #addMedicationButton {
+	background-image: url ('/openmrs/moduleResources/medicationlog/img/add.gif');
+    background-repeat: no-repeat;
+    background-position: center left 10px;
+    width: 200px;
+} */
+
 #addMedicationLink {
-	float: left;	
 	padding-top: 8px;
-    vertical-align: bottom;
+    vertical-align: top;
 }
 
 #buttonDiv {
 	width: 100%; 
-	 
 	margin: 0 auto; 
-	 
 	text-align: center;
-	
 }
 
 #addNewRegimenDialog {
@@ -199,4 +202,15 @@ select {
     #drugSuggestBox {
     	height: 22px !important;
     }
+}
+
+.medicationOddRow {
+	background-color: white;
+	height:20px;
+	
+}
+
+.medicationEvenRow {
+	background-color: #E8F6F5;
+	height:20px;
 }

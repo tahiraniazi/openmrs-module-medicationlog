@@ -12,28 +12,27 @@
 package org.openmrs.module.medicationlog.web.controller;
 
 import java.util.Date;
-import java.util.List;
 import java.util.logging.Logger;
 
-import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
-import org.openmrs.Order;
 import org.openmrs.OrderFrequency;
-import org.openmrs.OrderType;
 import org.openmrs.Patient;
 import org.openmrs.SimpleDosingInstructions;
 import org.openmrs.User;
 import org.openmrs.api.APIException;
 import org.openmrs.api.ConceptService;
+import org.openmrs.api.OrderContext;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.medicationlog.util.DateUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -44,6 +43,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 @Controller
 @RequestMapping(value = "/module/medicationlog/order/")
 public class MedicationOrderController {
+	
+	private static final Log log = LogFactory.getLog(MedicationPortletController.class);
 	
 	//String error = "";
 	
@@ -56,6 +57,7 @@ public class MedicationOrderController {
 	        @RequestParam(value = "drugId", required = true) Integer drugId,
 	        @RequestParam(value = "drugName", required = true) String drugName,
 	        @RequestParam(value = "drugSelection", required = true) String drugSelection,
+	        @RequestParam(value = "patientEncounter", required = true) Integer encounterId,
 	        @RequestParam(value = "dose", required = true) Double dose,
 	        @RequestParam(value = "doseUnit", required = true) Integer doseUnit,
 	        @RequestParam(value = "frequency", required = true) Integer frequency,
@@ -71,111 +73,167 @@ public class MedicationOrderController {
 	        @RequestParam(value = "returnPagee", required = true) String returnPage) {
 		
 		try {
-			DrugOrder drugOrder = saveDrugOrder(currentUserId, patientId, drugId, drugName, drugSelection, dose, doseUnit,
-			    frequency, route, dosingInstruction, startDateDrug, duration, durationUnit, asNeeded, orderReason,
-			    orderReasonNonCoded, adminInstructions);
+			DrugOrder drugOrder = saveDrugOrder(currentUserId, patientId, drugId, drugName, drugSelection, encounterId,
+			    dose, doseUnit, frequency, route, dosingInstruction, startDateDrug, duration, durationUnit, asNeeded,
+			    orderReason, orderReasonNonCoded, adminInstructions);
 			
 			// save drug order
-			Context.getOrderService().saveOrder(drugOrder, null);
+			OrderContext orderContext = new OrderContext();
+			Context.getOrderService().saveOrder(drugOrder, orderContext);
+			String saved = "Drug Order saved successfully";
+			model.addAttribute("saved", saved);
 		}
 		catch (APIException e) {
 			e.printStackTrace();
-			String error = e.getMessage();
+			String error = "Unable to create Drug Order. \n";
+			if (e.getMessage().equals("Order.cannot.have.more.than.one"))
+				error += "Cannot have more than one active order for the same orderable and care setting at same time.";
+			else
+				error += e.getMessage();
+			
 			model.addAttribute("error", error);
-			//request.setAttribute("error", error);
-			//			model.put("error", error);
+			// request.setAttribute("error", error);
+			// model.put("error", error);
 			// bindingResult.reject("nocode", null, error);
 		}
 		
-		Logger.getAnonymousLogger().info("===================== Print return page =======================");
+		Logger.getAnonymousLogger().info("### =================== Print return page =======================");
 		Logger.getAnonymousLogger().info(returnPage);
 		//		return "redirect";
 		return "redirect:" + returnPage;
 	}
 	
 	private DrugOrder saveDrugOrder(String currentUserid, Integer patientId, Integer drugId, String drugName,
-	        String drugSelection, Double dose, Integer doseUnit, Integer frequency, Integer route,
+	        String drugSelection, Integer encounterId, Double dose, Integer doseUnit, Integer frequency, Integer route,
 	        String dosingInstructions, Date startDateDrug, int duration, Integer durationUnit, String asNeeded,
 	        Integer orderReason, String orderReasonNonCoded, String adminInstructions) {
 		
-		ConceptService conceptService = Context.getConceptService();
-		
-		Patient patient = Context.getPatientService().getPatient(patientId);
-		User currentUser = Context.getUserService().getUserByUsername(currentUserid);
-		org.openmrs.Provider provider = Context.getProviderService().getProvidersByPerson(currentUser.getPerson(), false)
-		        .iterator().next();
 		DrugOrder drugOrder = new DrugOrder();
-		drugOrder.setPatient(patient);
-		EncounterType encounterTypeObj = Context.getEncounterService().getEncounterType("Drug Prescription");
 		
-		// setting encounter
-		Encounter encounter = new Encounter();
-		encounter.setPatient(patient);
-		encounter.setDateCreated(new Date());
-		encounter.setEncounterType(encounterTypeObj);
-		encounter.setCreator(currentUser);
-		encounter.setEncounterDatetime(startDateDrug);
-		encounter.setDateCreated(new Date());
-		
-		drugOrder.setDateActivated(startDateDrug);
-		encounter = Context.getEncounterService().saveEncounter(encounter);
-		drugOrder.setEncounter(encounter);
-		
-		Drug orderDrug = null;
-		if (drugSelection.equals("BY DRUG")) {
-			orderDrug = conceptService.getDrug(drugId);
-		} else if (drugSelection.equals("BY DRUG SET")) {
-			orderDrug = conceptService.getDrug(drugName);
+		try {
+			ConceptService conceptService = Context.getConceptService();
+			
+			Patient patient = Context.getPatientService().getPatient(patientId);
+			User currentUser = Context.getUserService().getUserByUsername(currentUserid);
+			org.openmrs.Provider provider = Context.getProviderService()
+			        .getProvidersByPerson(currentUser.getPerson(), false).iterator().next();
+			drugOrder.setPatient(patient);
+			
+			Encounter encounter = null;
+			
+			Logger.getAnonymousLogger().info("### ======================= Encounter ID: " + encounterId);
+			// if encounter is null, create new encounter of type 'Drug Prescription'
+			if (encounterId == null) {
+				EncounterType encounterTypeObj = Context.getEncounterService().getEncounterType("Drug Prescription");
+				
+				// setting encounter
+				encounter = new Encounter();
+				encounter.setPatient(patient);
+				
+				encounter.setDateCreated(new Date());
+				encounter.setEncounterType(encounterTypeObj);
+				encounter.setCreator(currentUser);
+				encounter.setProvider(Context.getEncounterService().getEncounterRoleByName("Unknown"), provider);
+				if (DateUtil.beforeSecondDate(startDateDrug, new Date()))
+					encounter.setEncounterDatetime(startDateDrug);
+				else
+					encounter.setEncounterDatetime(new Date());
+				
+				encounter.setDateCreated(new Date());
+				encounter = Context.getEncounterService().saveEncounter(encounter);
+				
+			} // else fetch the one specified by the user
+			else {
+				encounter = Context.getEncounterService().getEncounter(encounterId);
+			}
+			
+			// setting encounter to drug order
+			drugOrder.setEncounter(encounter);
+			drugOrder.setDateActivated(startDateDrug);
+			
+			Logger.getAnonymousLogger().info("### =============================== Drug Selection Criteria:" + drugSelection);
+			Drug orderDrug = null;
+			
+			if (drugSelection == null) {
+				if (drugId != null)
+					drugSelection = "BY DRUG";
+				else if (drugName != null && !drugName.isEmpty())
+					drugSelection = "BY DRUG SET";
+			}
+			
+			if (drugSelection.equals("BY DRUG") && drugId != null) {
+				orderDrug = conceptService.getDrug(drugId);
+			} else if (drugSelection.equals("BY DRUG SET") && (drugName != null && !drugName.isEmpty())) {
+				orderDrug = conceptService.getDrug(drugName);
+			}
+			
+			drugOrder.setDrug(orderDrug);
+			Logger.getAnonymousLogger().info(
+			    "### =============================== Drug Concept:" + orderDrug.getConcept().getConceptId());
+			drugOrder.setConcept(orderDrug.getConcept());
+			drugOrder.setDose(dose);
+			drugOrder.setDoseUnits(conceptService.getConcept(doseUnit));
+			OrderFrequency orderFrequency = Context.getOrderService().getOrderFrequencyByConcept(
+			    conceptService.getConcept(frequency));
+			
+			if (orderFrequency == null) {
+				
+				OrderFrequency newOrderFrequency = new OrderFrequency();
+				newOrderFrequency.setConcept(Context.getConceptService().getConcept(frequency));
+				Context.getOrderService().saveOrderFrequency(newOrderFrequency);
+				
+				drugOrder.setFrequency(newOrderFrequency);
+				
+			} else {
+				drugOrder.setFrequency(orderFrequency);
+			}
+			
+			drugOrder.setRoute(conceptService.getConcept(route));
+			
+			if (dosingInstructions != null && !dosingInstructions.isEmpty())
+				drugOrder.setDosingInstructions(dosingInstructions);
+			
+			drugOrder.setDuration(duration);
+			drugOrder.setDurationUnits(conceptService.getConcept(durationUnit));
+			drugOrder.setNumRefills(0);
+			drugOrder.setQuantity(0.0);
+			drugOrder.setQuantityUnits(conceptService.getConcept(doseUnit));
+			
+			String asNeededValue = asNeeded;
+			
+			if (asNeededValue != null) {
+				drugOrder.setAsNeeded(true);
+			} else {
+				drugOrder.setAsNeeded(false);
+			}
+			
+			drugOrder.setCareSetting(Context.getOrderService().getCareSettingByName("Outpatient")); //Fetch Outpatient care setting
+			
+			// setting provider
+			drugOrder.setOrderer(provider);
+			drugOrder.setDosingType(SimpleDosingInstructions.class);
+			
+			if (orderReason != null)
+				drugOrder.setOrderReason(Context.getConceptService().getConcept(orderReason));
+			
+			if (orderReasonNonCoded != null && !orderReasonNonCoded.isEmpty())
+				drugOrder.setOrderReasonNonCoded(orderReasonNonCoded);
+			
+			if (adminInstructions != null && !adminInstructions.isEmpty())
+				drugOrder.setInstructions(adminInstructions);
 		}
-		
-		drugOrder.setDrug(orderDrug);
-		drugOrder.setConcept(orderDrug.getConcept());
-		drugOrder.setDose(dose);
-		drugOrder.setDoseUnits(conceptService.getConcept(doseUnit));
-		OrderFrequency orderFrequency = Context.getOrderService().getOrderFrequencyByConcept(
-		    conceptService.getConcept(frequency));
-		
-		if (orderFrequency == null) {
-			Context.getOrderService().saveOrderFrequency(orderFrequency);
-		} else {
-			drugOrder.setFrequency(orderFrequency);
+		catch (APIException e) {
+			e.printStackTrace();
+			Logger.getAnonymousLogger().info("### =================== Exception: " + e.getMessage());
 		}
-		
-		drugOrder.setRoute(conceptService.getConcept(route));
-		
-		if (dosingInstructions != null && !dosingInstructions.isEmpty())
-			drugOrder.setDosingInstructions(dosingInstructions);
-		
-		drugOrder.setDuration(duration);
-		drugOrder.setDurationUnits(conceptService.getConcept(durationUnit));
-		drugOrder.setNumRefills(0);
-		drugOrder.setQuantity(0.0);
-		drugOrder.setQuantityUnits(conceptService.getConcept(doseUnit));
-		
-		String asNeededValue = asNeeded;
-		
-		if (asNeededValue != null) {
-			drugOrder.setAsNeeded(true);
-		} else {
-			drugOrder.setAsNeeded(false);
-		}
-		
-		drugOrder.setCareSetting(Context.getOrderService().getCareSettingByName("Outpatient")); //Fetch Outpatient care setting
-		
-		// setting provider
-		drugOrder.setOrderer(provider);
-		drugOrder.setDosingType(SimpleDosingInstructions.class);
 		
 		return drugOrder;
 	}
 	
-	@RequestMapping(value = "getActiveOrders.form", method = RequestMethod.GET)
-	public List<Order> getActiveOrders(ModelMap model, @RequestParam(value = "patientId", required = true) Integer patientId) {
+	@RequestMapping(value = "stopOrder", method = RequestMethod.GET)
+	public void stopOrder(@RequestParam(value = "orderId", required = true) Integer orderId, HttpServletResponse response) {
 		
-		Patient patient = Context.getPatientService().getPatient(patientId);
+		//			Patient patient = Context.getPatientService().getPatient(patientId);
 		
-		List<Order> activeOrders = Context.getOrderService().getActiveOrders(patient, null, null, null);
-		
-		return activeOrders;
 	}
 }

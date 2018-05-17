@@ -4,7 +4,7 @@
 	<parent>
 		<groupId>org.openmrs.module</groupId>
 		<artifactId>medicationlog</artifactId>
-		<version>1.0.0</version>
+		<version>0.2.0</version>
 	</parent>
 
 	<artifactId>medicationlog-omod</artifactId>

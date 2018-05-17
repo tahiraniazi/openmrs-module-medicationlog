@@ -14,10 +14,11 @@ package org.openmrs.module.medicationlog.web.controller;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.Date;
-import java.util.Iterator;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -25,27 +26,13 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
-import org.openmrs.DosingInstructions;
-import org.openmrs.module.medicationlog.MedicationLogActivator;
-import org.openmrs.util.OpenmrsConstants;
-import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
-import org.openmrs.EncounterType;
-import org.openmrs.OrderFrequency;
-import org.openmrs.OrderType;
 import org.openmrs.Patient;
-import org.openmrs.User;
-import org.openmrs.api.ConceptService;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.medicationlog.MedicationLogActivator;
 import org.openmrs.web.controller.PortletController;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RequestParam;
-
-import com.sun.net.ssl.internal.ssl.Provider;
 
 /**
  * @author tahira.niazi@ihsinformatics.com
@@ -136,8 +123,32 @@ public class MedicationPortletController extends PortletController {
 		}
 		
 		model.put("drugSets", drugSets);
-		DrugOrder drugOrder = new DrugOrder();
-		model.put("drugOrder", drugOrder);
+		
+		//* fetching patient encounters for linking with drug order
+		int patientId = Integer.parseInt(request.getParameter("patientId"));
+		Logger.getAnonymousLogger().info("=============================== patient id :" + patientId);
+		
+		Patient patient = Context.getPatientService().getPatient(patientId);
+		// encounters in ASC order by encounter date time
+		List<Encounter> allEncounters = Context.getEncounterService().getEncountersByPatient(patient);
+		
+		// reversing the list to get encounters in DESC order by encounter date time
+		List<Encounter> descEncounters = allEncounters.subList(0, allEncounters.size());
+		Collections.reverse(descEncounters);
+		
+		if (descEncounters.size() > 3)
+			descEncounters = new ArrayList<Encounter>(descEncounters.subList(0, 3));
+		
+		List<Map<String, String>> encounters = new ArrayList<Map<String, String>>();
+		for (Encounter encounter : descEncounters) {
+			Map<String, String> encounterInfo = new HashMap<String, String>();
+			encounterInfo.put("encounterId", Integer.toString(encounter.getEncounterId()));
+			encounterInfo.put("encounterName", encounter.getEncounterType().getName());
+			encounters.add(encounterInfo);
+		}
+		
+		model.put("encounters", encounters);
+		//*
 		
 		// put order sets in model
 		
@@ -168,7 +179,5 @@ public class MedicationPortletController extends PortletController {
 		}
 		
 		return drugSets;
-		
 	}
-	
 }
