@@ -27,6 +27,8 @@ public class DrugOrderWrapper {
 	
 	private String drugName;
 	
+	private boolean asNeeded;
+	
 	private double dose;
 	
 	public String doseUnit;
@@ -45,7 +47,7 @@ public class DrugOrderWrapper {
 	
 	private Date dateStopped;
 	
-	private Date scheduledDate;
+	private Date scheduledStopDate;
 	
 	private Date autoExpireDate;
 	
@@ -68,7 +70,7 @@ public class DrugOrderWrapper {
 		this.dateActivated = dateActivated;
 	}
 	
-	public DrugOrderWrapper(int orderId, int drugId, String drugName, double dose, String doseunit, String frequency,
+	public DrugOrderWrapper(int orderId, int drugId, String drugName, double dose, String doseUnit, String frequency,
 	    String route, int duration, String durationUnit, String instructions, Date dateActivated, Date dateStopped,
 	    Date scheduledDate, Date autoExpireDate) {
 		
@@ -76,7 +78,7 @@ public class DrugOrderWrapper {
 		this.drugId = drugId;
 		this.drugName = drugName;
 		this.dose = dose;
-		this.doseUnit = doseunit;
+		this.doseUnit = doseUnit;
 		this.frequency = frequency;
 		this.route = route;
 		this.duration = duration;
@@ -84,7 +86,7 @@ public class DrugOrderWrapper {
 		this.instructions = instructions;
 		this.dateActivated = dateActivated;
 		this.dateStopped = dateStopped;
-		this.scheduledDate = scheduledDate;
+		this.scheduledStopDate = scheduledDate;
 		this.autoExpireDate = autoExpireDate;
 	}
 	
@@ -112,6 +114,14 @@ public class DrugOrderWrapper {
 		this.drugName = drugName;
 	}
 	
+	public boolean isAsNeeded() {
+		return asNeeded;
+	}
+	
+	public void setAsNeeded(boolean asNeeded) {
+		this.asNeeded = asNeeded;
+	}
+	
 	public double getDose() {
 		return dose;
 	}
@@ -120,12 +130,12 @@ public class DrugOrderWrapper {
 		this.dose = dose;
 	}
 	
-	public String getDoseunit() {
+	public String getDoseUnit() {
 		return doseUnit;
 	}
 	
-	public void setDoseunit(String doseunit) {
-		this.doseUnit = doseunit;
+	public void setDoseUnit(String doseUnit) {
+		this.doseUnit = doseUnit;
 	}
 	
 	public String getFrequency() {
@@ -184,12 +194,12 @@ public class DrugOrderWrapper {
 		this.dateStopped = dateStopped;
 	}
 	
-	public Date getScheduledDate() {
-		return scheduledDate;
+	public Date getScheduledStopDate() {
+		return scheduledStopDate;
 	}
 	
-	public void setScheduledDate(Date scheduledDate) {
-		this.scheduledDate = scheduledDate;
+	public void setScheduledStopDate(Date scheduledDate) {
+		this.scheduledStopDate = scheduledDate;
 	}
 	
 	public Date getAutoExpireDate() {

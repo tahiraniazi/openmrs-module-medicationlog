@@ -24,7 +24,6 @@ import org.openmrs.Order;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.medicationlog.resources.DrugOrderWrapper;
-import org.openmrs.module.medicationlog.util.DateUtil;
 import org.openmrs.web.controller.PortletController;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,7 +38,7 @@ public class CompletedRegimenPortletController extends PortletController {
 	protected void populateModel(HttpServletRequest request, Map<String, Object> model) {
 		
 		Logger.getAnonymousLogger().info(
-		    "================================================== in Completed Regimen Protlet controller");
+		    "================================================== in Completed Regimen Portlet controller");
 		
 		// Fetching completed/non-active drug orders
 		int patientId = Integer.parseInt(request.getParameter("patientId"));
@@ -60,14 +59,19 @@ public class CompletedRegimenPortletController extends PortletController {
 						if (drugOrder.getDateStopped() != null)
 							dateStopped = drugOrder.getDateStopped();*/
 			
-			if (drugOrder.getAutoExpireDate() != null
-			        && DateUtil.beforeSecondDate(drugOrder.getAutoExpireDate(), new Date()))
+			if (drugOrder.getAutoExpireDate() != null && (drugOrder.getAutoExpireDate().compareTo(new Date()) < 0)) // before second date
 				isExpired = true;
 			
-			if (drugOrder.getDateStopped() != null && DateUtil.beforeSecondDate(drugOrder.getDateStopped(), new Date()))
+			if (drugOrder.getDateStopped() != null && (drugOrder.getDateStopped().compareTo(new Date()) < 0)) // before second date
 				isStopped = true;
 			
-			if (isExpired || isStopped) {
+			// TODO: test this and verify not to include discontinued orders
+			if ((isExpired || isStopped) && (Order.Action.DISCONTINUE != order.getAction())) {
+				
+				int drugId = drugOrder.getDrug().getDrugId();
+				int receivedDrugId = drugId;
+				Double drugDose = drugOrder.getDose();
+				
 				DrugOrderWrapper drugOrderWrapper = new DrugOrderWrapper(order.getId(), drugOrder.getDrug().getDrugId(),
 				        drugOrder.getDrug().getConcept().getDisplayString().toLowerCase(), drugOrder.getDose(), drugOrder
 				                .getDoseUnits().getDisplayString().toLowerCase(), drugOrder.getFrequency().getConcept()
@@ -75,8 +79,12 @@ public class CompletedRegimenPortletController extends PortletController {
 				        drugOrder.getDuration(), drugOrder.getDurationUnits().getDisplayString().toLowerCase(),
 				        drugOrder.getDateActivated());
 				
-				if (drugOrder.getAutoExpireDate() != null) {
-					drugOrderWrapper.setScheduledDate(drugOrder.getAutoExpireDate());
+				if (drugOrder.getDateStopped() == null) {
+					if (drugOrder.getAutoExpireDate() != null)
+						drugOrderWrapper.setScheduledStopDate(drugOrder.getAutoExpireDate());
+				} else {
+					drugOrderWrapper.setDateStopped(drugOrder.getDateStopped());
+					drugOrderWrapper.setScheduledStopDate(drugOrder.getDateStopped());
 				}
 				
 				if (drugOrder.getInstructions() != null && !drugOrder.getInstructions().isEmpty()) {

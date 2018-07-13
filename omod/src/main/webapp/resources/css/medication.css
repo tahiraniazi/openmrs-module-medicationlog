@@ -214,3 +214,10 @@ select {
 	background-color: #E8F6F5;
 	height:20px;
 }
+
+.hidden{
+    visibility: hidden;
+}
+.shown{
+    visibility: visible;
+}

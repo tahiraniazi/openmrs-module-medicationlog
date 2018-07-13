@@ -55,11 +55,15 @@ public class CurrentRegimenPortletController extends PortletController {
 			        drugOrder.getDateActivated());
 			
 			if (drugOrder.getAutoExpireDate() != null) {
-				drugOrderWrapper.setScheduledDate(drugOrder.getAutoExpireDate());
+				drugOrderWrapper.setScheduledStopDate(drugOrder.getAutoExpireDate());
 			}
 			
 			if (drugOrder.getInstructions() != null && !drugOrder.getInstructions().isEmpty()) {
 				drugOrderWrapper.setInstructions(drugOrder.getInstructions());
+			}
+			
+			if (drugOrder.getAsNeeded() != null) {
+				drugOrderWrapper.setAsNeeded(drugOrder.getAsNeeded());
 			}
 			
 			currentDrugOrders.add(drugOrderWrapper);

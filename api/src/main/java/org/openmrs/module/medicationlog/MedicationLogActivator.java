@@ -13,18 +13,11 @@
  */
 package org.openmrs.module.medicationlog;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Locale;
-
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.openmrs.Concept;
 import org.openmrs.ConceptAnswer;
-import org.openmrs.ConceptName;
-import org.openmrs.ConceptSet;
 import org.openmrs.GlobalProperty;
 import org.openmrs.OrderFrequency;
 import org.openmrs.api.AdministrationService;
@@ -49,6 +42,8 @@ public class MedicationLogActivator extends BaseModuleActivator {
 	
 	public static final String MEDICATION_DRUG_SETS_PROPERTY = "medication.drugSetClasses";
 	
+	public static final String MEDICATION_REASON_ORDER_STOPPED_UUID = "medication.reasonOrderStoppedUuid";
+	
 	ConceptService conceptService;
 	
 	/**
@@ -60,40 +55,30 @@ public class MedicationLogActivator extends BaseModuleActivator {
 		conceptService = Context.getConceptService();
 		
 		AdministrationService administrationService = Context.getAdministrationService();
-		maybeSetGP(administrationService, OpenmrsConstants.GP_DRUG_ROUTES_CONCEPT_UUID,
+		setGlobalProperty(administrationService, OpenmrsConstants.GP_DRUG_ROUTES_CONCEPT_UUID,
 		    "162394AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-		maybeSetGP(administrationService, OpenmrsConstants.GP_DRUG_DOSING_UNITS_CONCEPT_UUID,
+		setGlobalProperty(administrationService, OpenmrsConstants.GP_DRUG_DOSING_UNITS_CONCEPT_UUID,
 		    "162384AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-		maybeSetGP(administrationService, OpenmrsConstants.GP_DRUG_DISPENSING_UNITS_CONCEPT_UUID,
+		setGlobalProperty(administrationService, OpenmrsConstants.GP_DRUG_DISPENSING_UNITS_CONCEPT_UUID,
 		    "162402AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-		maybeSetGP(administrationService, OpenmrsConstants.GP_DURATION_UNITS_CONCEPT_UUID,
+		setGlobalProperty(administrationService, OpenmrsConstants.GP_DURATION_UNITS_CONCEPT_UUID,
 		    "1732AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-		maybeSetGP(administrationService, MEDICATION_FREQUENCIES_CONCEPT_UUID, "160855AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
-		maybeSetGP(administrationService, MEDICATION_ORDER_REASON_CONCEPT_UUID, "a351615f-1a76-49b3-9813-a078cf31cc82");
-		maybeSetGP(administrationService, MEDICATION_DRUG_SETS_PROPERTY, "LabSet");
+		setGlobalProperty(administrationService, MEDICATION_FREQUENCIES_CONCEPT_UUID, "160855AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+		setGlobalProperty(administrationService, MEDICATION_ORDER_REASON_CONCEPT_UUID,
+		    "a351615f-1a76-49b3-9813-a078cf31cc82");
+		
+		setGlobalProperty(administrationService, MEDICATION_REASON_ORDER_STOPPED_UUID,
+		    "25426941-0fe6-4e0c-adc9-b396416606f5");
+		setGlobalProperty(administrationService, MEDICATION_DRUG_SETS_PROPERTY, "LabSet");
 		
 		ensureOrderFrequencies(Context.getOrderService(), Context.getConceptService(), Context.getAdministrationService()
 		        .getGlobalPropertyObject(MEDICATION_FREQUENCIES_CONCEPT_UUID).getPropertyValue());
 		
-		// hard coding drug type property to check if server proceeds
-		maybeSetGP(administrationService, MEDICATION_DRUG_TYPE_CONCEPT_UUID, "43029b8a-cbed-4085-a650-44f209d683d3");
-		
-		// creating DRUG TYPE concept
-		//		List<Concept> drugTypeMembers = new ArrayList<Concept>();
-		//		drugTypeMembers.add(createConcept("TUBERCULOSIS DRUGS", "Misc", "N/A"));
-		//		drugTypeMembers.add(createConcept("NON TB DRUGS", "Misc", "N/A"));
-		//		
-		//		Concept drugType = createConcept("DRUG TYPE", "Question", "N/A");
-		//		
-		//		if (!(drugType == null)) {
-		//			addSetMembers(drugType, drugTypeMembers);
-		//			//			maybeSetGP(administrationService, MEDICATION_DRUG_TYPE_CONCEPT_UUID, drugType.getUuid());
-		//			maybeSetGP(administrationService, MEDICATION_DRUG_TYPE_CONCEPT_UUID, "43029b8a-cbed-4085-a650-44f209d683d3");
-		//		}
+		setGlobalProperty(administrationService, MEDICATION_DRUG_TYPE_CONCEPT_UUID, "43029b8a-cbed-4085-a650-44f209d683d3");
 		
 	}
 	
-	private void maybeSetGP(AdministrationService service, String prop, String val) {
+	private void setGlobalProperty(AdministrationService service, String prop, String val) {
 		GlobalProperty gp = service.getGlobalPropertyObject(prop);
 		if (gp == null) {
 			service.saveGlobalProperty(new GlobalProperty(prop, val));
@@ -119,41 +104,45 @@ public class MedicationLogActivator extends BaseModuleActivator {
 		}
 	}
 	
-	private Concept createConcept(String newConceptName, String conceptClass, String conceptDatatype) {
-		
-		Concept concept = new Concept();
-		Concept existingConcept = conceptService.getConceptByName(newConceptName);
-		if (existingConcept == null) {
-			concept.setConceptClass(conceptService.getConceptClassByName(conceptClass));
-			ConceptName conceptName = new ConceptName(newConceptName, Locale.US);
-			concept.setFullySpecifiedName(conceptName);
-			concept.setDatatype(conceptService.getConceptDatatypeByName(conceptDatatype));
-			conceptService.saveConcept(concept);
-		} else {
-			concept = existingConcept;
-		}
-		
-		return concept;
-	}
-	
-	private void addSetMembers(Concept setConcept, List<Concept> conceptList) {
-		
-		if (!setConcept.isSet())
-			setConcept.setSet(true);
-		
-		List<Concept> setMembers = setConcept.getSetMembers();
-		
-		for (Concept concept : conceptList) {
-			if (!setMembers.contains(concept))
-				setConcept.addSetMember(concept);
-		}
-	}
-	
 	/**
 	 * @see #shutdown()
 	 */
 	public void shutdown() {
 		log.info("Shutdown Medication Log");
+	}
+	
+	/**
+	 * Called for each module after spring's application context is refreshed , this method is also
+	 * called multiple times i.e. whenever a new module gets started and at application startup.
+	 */
+	public void contextRefreshed() {
+		
+		log.info("========================================================= Medication Log contextRefreshed called");
+		
+		conceptService = Context.getConceptService();
+		
+		AdministrationService administrationService = Context.getAdministrationService();
+		setGlobalProperty(administrationService, OpenmrsConstants.GP_DRUG_ROUTES_CONCEPT_UUID,
+		    "162394AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+		setGlobalProperty(administrationService, OpenmrsConstants.GP_DRUG_DOSING_UNITS_CONCEPT_UUID,
+		    "162384AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+		setGlobalProperty(administrationService, OpenmrsConstants.GP_DRUG_DISPENSING_UNITS_CONCEPT_UUID,
+		    "162402AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+		setGlobalProperty(administrationService, OpenmrsConstants.GP_DURATION_UNITS_CONCEPT_UUID,
+		    "1732AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+		setGlobalProperty(administrationService, MEDICATION_FREQUENCIES_CONCEPT_UUID, "160855AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
+		setGlobalProperty(administrationService, MEDICATION_ORDER_REASON_CONCEPT_UUID,
+		    "a351615f-1a76-49b3-9813-a078cf31cc82");
+		
+		setGlobalProperty(administrationService, MEDICATION_REASON_ORDER_STOPPED_UUID,
+		    "25426941-0fe6-4e0c-adc9-b396416606f5");
+		setGlobalProperty(administrationService, MEDICATION_DRUG_SETS_PROPERTY, "LabSet");
+		
+		ensureOrderFrequencies(Context.getOrderService(), Context.getConceptService(), Context.getAdministrationService()
+		        .getGlobalPropertyObject(MEDICATION_FREQUENCIES_CONCEPT_UUID).getPropertyValue());
+		
+		setGlobalProperty(administrationService, MEDICATION_DRUG_TYPE_CONCEPT_UUID, "43029b8a-cbed-4085-a650-44f209d683d3");
+		
 	}
 	
 }

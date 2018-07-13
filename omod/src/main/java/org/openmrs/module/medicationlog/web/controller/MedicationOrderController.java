@@ -18,19 +18,21 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.EncounterType;
+import org.openmrs.Order;
 import org.openmrs.OrderFrequency;
 import org.openmrs.Patient;
+import org.openmrs.Provider;
 import org.openmrs.SimpleDosingInstructions;
 import org.openmrs.User;
 import org.openmrs.api.APIException;
 import org.openmrs.api.ConceptService;
 import org.openmrs.api.OrderContext;
 import org.openmrs.api.context.Context;
-import org.openmrs.module.medicationlog.util.DateUtil;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.ModelMap;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -46,7 +48,7 @@ public class MedicationOrderController {
 	
 	private static final Log log = LogFactory.getLog(MedicationPortletController.class);
 	
-	//String error = "";
+	// String error = "";
 	
 	/*
 	 * saves a new drug order
@@ -99,7 +101,7 @@ public class MedicationOrderController {
 		
 		Logger.getAnonymousLogger().info("### =================== Print return page =======================");
 		Logger.getAnonymousLogger().info(returnPage);
-		//		return "redirect";
+		// return "redirect";
 		return "redirect:" + returnPage;
 	}
 	
@@ -122,7 +124,8 @@ public class MedicationOrderController {
 			Encounter encounter = null;
 			
 			Logger.getAnonymousLogger().info("### ======================= Encounter ID: " + encounterId);
-			// if encounter is null, create new encounter of type 'Drug Prescription'
+			// if encounter is null, create new encounter of type 'Drug
+			// Prescription'
 			if (encounterId == null) {
 				EncounterType encounterTypeObj = Context.getEncounterService().getEncounterType("Drug Prescription");
 				
@@ -134,7 +137,8 @@ public class MedicationOrderController {
 				encounter.setEncounterType(encounterTypeObj);
 				encounter.setCreator(currentUser);
 				encounter.setProvider(Context.getEncounterService().getEncounterRoleByName("Unknown"), provider);
-				if (DateUtil.beforeSecondDate(startDateDrug, new Date()))
+				if (startDateDrug.compareTo(new Date()) < 0) // before second
+				                                             // date
 					encounter.setEncounterDatetime(startDateDrug);
 				else
 					encounter.setEncounterDatetime(new Date());
@@ -207,7 +211,8 @@ public class MedicationOrderController {
 				drugOrder.setAsNeeded(false);
 			}
 			
-			drugOrder.setCareSetting(Context.getOrderService().getCareSettingByName("Outpatient")); //Fetch Outpatient care setting
+			drugOrder.setCareSetting(Context.getOrderService().getCareSettingByName("Outpatient")); // Fetch Outpatient
+			                                                                                        // care setting
 			
 			// setting provider
 			drugOrder.setOrderer(provider);
@@ -230,10 +235,30 @@ public class MedicationOrderController {
 		return drugOrder;
 	}
 	
-	@RequestMapping(value = "stopOrder", method = RequestMethod.GET)
-	public void stopOrder(@RequestParam(value = "orderId", required = true) Integer orderId, HttpServletResponse response) {
+	@RequestMapping(value = "stopDrugOrder.form", method = RequestMethod.POST)
+	public String stopOrder(ModelMap model, @RequestParam(value = "stopOrderId", required = true) Integer orderId,
+	        @RequestParam(value = "orderStopReason", required = true) Integer stopReasonId,
+	        @RequestParam(value = "drugStopDate", required = true) Date drugStopDate,
+	        @RequestParam(value = "returnPage", required = true) String returnPage) {
 		
-		//			Patient patient = Context.getPatientService().getPatient(patientId);
+		try {
+			Order orderToDiscontinue = Context.getOrderService().getOrder(orderId);
+			Encounter encounter = orderToDiscontinue.getEncounter();
+			Concept reasonCoded = Context.getConceptService().getConcept(stopReasonId);
+			
+			Provider orderer = Context.getProviderService()
+			        .getProvidersByPerson(Context.getAuthenticatedUser().getPerson(), false).iterator().next();
+			
+			Context.getOrderService().discontinueOrder(orderToDiscontinue, reasonCoded, drugStopDate, orderer, encounter);
+		}
+		catch (APIException e) {
+			e.printStackTrace();
+			
+			String error = "Could not stop drug order!";
+			model.addAttribute("error", error);
+		}
+		
+		return "redirect:" + returnPage;
 		
 	}
 }

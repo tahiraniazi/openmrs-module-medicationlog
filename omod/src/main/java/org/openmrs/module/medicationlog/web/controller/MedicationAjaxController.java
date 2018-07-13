@@ -18,20 +18,28 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.xpath.operations.Mod;
 import org.codehaus.jackson.map.ObjectMapper;
+import org.hibernate.procedure.spi.ParameterRegistrationImplementor;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
+import org.openmrs.DrugOrder;
 import org.openmrs.Encounter;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
+import org.openmrs.module.medicationlog.resources.DrugOrderWrapper;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.ModelAndView;
 
 /**
  * @author tahira.niazi@ihsinformatics.com
@@ -105,4 +113,45 @@ public class MedicationAjaxController {
 			log.error("Error occurred while writing to response: ", e);
 		}
 	}
+	
+	@RequestMapping(value = "getDrugOrder", method = RequestMethod.GET)
+	@ResponseBody
+	public DrugOrderWrapper getDrugOrder(@RequestParam(value = "drugOrderId", required = true) int drugOrderId,
+	        @RequestParam(value = "patientId", required = true) int patientId, Model model) {
+		
+		//		int patientId = Integer.parseInt(request.getParameter("patientId"));
+		String returnPage = "/patientDashboard.form?patientId=" + patientId;
+		//		ModelAndView model = new ModelAndView(returnPage);
+		
+		//		int drugOrderId = Integer.parseInt(request.getParameter("drugOrderId"));
+		DrugOrder drugOrder = (DrugOrder) Context.getOrderService().getOrder(drugOrderId);
+		
+		DrugOrderWrapper drugOrderWrapper = new DrugOrderWrapper(drugOrderId, drugOrder.getDrug().getDrugId(), drugOrder
+		        .getDrug().getConcept().getDisplayString().toLowerCase(), drugOrder.getDose(), drugOrder.getDoseUnits()
+		        .getDisplayString().toLowerCase(), drugOrder.getFrequency().getConcept().getDisplayString().toLowerCase(),
+		        drugOrder.getRoute().getDisplayString().toLowerCase(), drugOrder.getDuration(), drugOrder.getDurationUnits()
+		                .getDisplayString().toLowerCase(), drugOrder.getDateActivated());
+		
+		if (drugOrder.getAutoExpireDate() != null) {
+			drugOrderWrapper.setScheduledStopDate(drugOrder.getAutoExpireDate());
+		}
+		
+		if (drugOrder.getInstructions() != null && !drugOrder.getInstructions().isEmpty()) {
+			drugOrderWrapper.setInstructions(drugOrder.getInstructions());
+		}
+		
+		if (drugOrder.getDateStopped() != null) {
+			drugOrderWrapper.setDateStopped(drugOrder.getDateStopped());
+		}
+		
+		if (drugOrder.getAsNeeded() != null) {
+			drugOrderWrapper.setAsNeeded(drugOrder.getAsNeeded());
+		}
+		
+		//		model.addObject("drugOrderObject", drugOrder);
+		//		return model;
+		
+		return drugOrderWrapper;
+	}
+	
 }

@@ -148,7 +148,26 @@ public class MedicationPortletController extends PortletController {
 		}
 		
 		model.put("encounters", encounters);
-		//*
+		
+		// putting Order Stop Reasons in model
+		// TODO: put stop reasons for stop order dialogue
+		String orderStoppedReasonUuid = Context.getAdministrationService().getGlobalProperty(
+		    MedicationLogActivator.MEDICATION_REASON_ORDER_STOPPED_UUID);
+		
+		if (orderStoppedReasonUuid != null && !orderStoppedReasonUuid.isEmpty()) {
+			Concept orderStoppedReason = Context.getConceptService().getConceptByUuid(orderStoppedReasonUuid);
+			if (orderStoppedReason != null && orderStoppedReason.getAnswers(false).size() > 0) {
+				Collection<ConceptAnswer> stoppedReasonCollection = orderStoppedReason.getAnswers(false);
+				ArrayList<Concept> stoppedReasons = new ArrayList<Concept>();
+				
+				for (ConceptAnswer reason : stoppedReasonCollection) {
+					stoppedReasons.add(reason.getAnswerConcept());
+					
+				}
+				log.info("============ Order reason concepts are " + stoppedReasons);
+				model.put("orderStoppedReasons", stoppedReasons);
+			}
+		}
 		
 		// put order sets in model
 		

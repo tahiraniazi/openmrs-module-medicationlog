@@ -505,8 +505,8 @@ function process(date){
 							<c:forEach var="drugSet" items="${model.drugSets}">
 								<option class="capitalize" value="${drugSet.conceptId}">${fn:toLowerCase(drugSet.name)}</option>
 							</c:forEach>
-						</select>
-					</td>
+					</select>
+				</td>
 					<td class="padding"><spring:message code="medication.regimen.drugLabel" /><span class="required">*</span>:
 					<input id="drugSuggestBox" name="drugName" class="capitalize" list="drugOptions" placeholder="Search Drug..." />
 						<datalist class="lowercase" id="drugOptions"></datalist>
