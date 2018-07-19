@@ -250,11 +250,15 @@ public class MedicationOrderController {
 			        .getProvidersByPerson(Context.getAuthenticatedUser().getPerson(), false).iterator().next();
 			
 			Context.getOrderService().discontinueOrder(orderToDiscontinue, reasonCoded, drugStopDate, orderer, encounter);
+			
+			String stopped_status = "Drug Order stopped successfully.";
+			model.addAttribute("stopped_status", stopped_status);
+			
 		}
 		catch (APIException e) {
 			e.printStackTrace();
 			
-			String error = "Could not stop drug order!";
+			String error = "An error occured! Could not stop drug order.";
 			model.addAttribute("error", error);
 		}
 		

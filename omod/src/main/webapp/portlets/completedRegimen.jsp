@@ -84,7 +84,16 @@
 			var completeDuration = result.duration + " " + result.durationUnit;
 			jQuery("#completedMedicineDuration").text(completeDuration);
 			
-			jQuery("#completedMedicineInstructions").text(result.instructions);
+			if(result.instructions == null || result.instructions == "") {
+				jQuery("#completedMedicineInstructionsLabel").hide();
+				jQuery("#completedMedicineInstructions").hide();
+			}
+			else {
+				jQuery("#completedMedicineInstructionsLabel").show();
+				jQuery("#completedMedicineInstructions").show();
+				jQuery("#completedMedicineInstructions").text(result.instructions);
+			}
+			
 			
 			var dateStarted = result.dateActivated;
 			var startDate = new Date(dateStarted);
@@ -263,7 +272,7 @@
 		<td><span id="completedMedicineDuration"></span></td>
 	</tr>
 	<tr>
-		<td><span style="font-weight:bold">Instructions:</span></td>
+		<td><span style="font-weight:bold" id="completedMedicineInstructionsLabel">Instructions:</span></td>
 		<td><span id="completedMedicineInstructions"></span></td>
 	</tr>
 	

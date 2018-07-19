@@ -63,6 +63,19 @@
 	        
 		});
 		
+		/* drug order stopped alert */
+		var orderStopped = '${param.stopped_status}';
+		if(orderStopped != null && orderStopped != "") {
+			
+			alertify.set('notifier','position', 'top-center');
+			var orderStoppedAlert = alertify.success(orderStopped);
+			orderStoppedAlert.delay(20).setContent(orderStopped);
+			
+			jQuery('body').one('click', function(){
+				orderStoppedAlert.dismiss();
+			});
+		}
+		
 		jQuery('.stopButton').click(function(){
 			
 			var val = this.id;
@@ -109,18 +122,20 @@
 	{	
 		var error = '';
 		
-		var selectedIndex = jQuery("#orderStopReason").attr("selectedIndex");
-		if(selectedIndex == 0)
+		var reasonSelectElement =  document.getElementById('orderStopReason');
+		if(reasonSelectElement.selectedIndex == 0)
 		{
-			error = " <spring:message code='orderextension.regimen.stopReasonError' /> ";
+			
+			alert("stop reason not provided");
+			error = " <spring:message code='medication.regimen.stopReason' /> ";
 		}
 		else
 		{
 			var stopDate = jQuery("#drugStopDate").val();
-
+			
 			if(stopDate == "")
 			{
-				error = error + " <spring:message code='orderextension.regimen.stopDateError' /> ";
+				error = error + " <spring:message code='medication.regimen.stopDateError' /> ";
 			}
 			else {
 				var datePattern = '<openmrs:datePattern />';
@@ -139,17 +154,18 @@
 				var convertDateStart = startDate.substring(startYears, startYears + 4) + "/" + startDate.substring(startMonths, startMonths + 2) + "/" + startDate.substring(startDays, startDays + 2);
 				var dateStart = new Date(convertDateStart);
 				
+				alert("Start Date: " + dateStart + "  Stop Date: " + dateStop);
 				
 				if(dateStop < dateStart)
 				{
-					error = error + " <spring:message code='orderextension.regimen.stopDateLessStartError' /> ";
+					alert("start date is after stop date");
+					error = error + " <spring:message code='medication.regimen.stopDateLessStartError' /> ";
 				}
 			}
 		}
 		
 		if(error != "")
 		{
-			alert("probably some errors occured");
 			jQuery('.openmrs_error').show();
 			jQuery('.openmrs_error').html(error);
 		}
@@ -183,7 +199,15 @@
 			var completeDuration = result.duration + " " + result.durationUnit;
 			jQuery("#medicineDuration").text(completeDuration);
 			
-			jQuery("#medicineInstructions").text(result.instructions);
+			if(result.instructions == null || result.instructions == "") {
+				jQuery("#medicineInstructionLabel").hide();
+				jQuery("#medicineInstructions").hide();
+			}
+			else {
+				jQuery("#medicineInstructionLabel").show();
+				jQuery("#medicineInstructions").show();
+				jQuery("#medicineInstructions").text(result.instructions);
+			}
 			
 			var dateStarted = result.dateActivated;
 			var startDate = new Date(dateStarted);
@@ -314,7 +338,7 @@
 		<td><span id="medicineDuration"></span></td>
 	</tr>
 	<tr>
-		<td><span style="font-weight:bold">Instructions:</span></td>
+		<td><span style="font-weight:bold" id="medicineInstructionLabel">Instructions:</span></td>
 		<td><span id="medicineInstructions"></span></td>
 	</tr>
 	
