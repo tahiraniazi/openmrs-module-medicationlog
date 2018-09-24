@@ -12,10 +12,32 @@
 <link rel="stylesheet"
 	href="/openmrs/moduleResources/medicationlog/themes/default.min.css"
 	id="toggleCSS" />
+	
+<link
+	href="/openmrs/moduleResources/medicationlog/css/font-awesome.min.css"
+	rel="stylesheet" />
+<link
+	href="/openmrs/moduleResources/medicationlog/css/bootstrap.min.css"
+	rel="stylesheet" />
+	
 <script src="/openmrs/moduleResources/medicationlog/alertify.min.js"></script>
+<script
+	src="/openmrs/moduleResources/medicationlog/js/jquery-3.3.1.min.js"></script>
+<script
+	src="/openmrs/moduleResources/medicationlog/js/bootstrap.min.js"></script>
+<script
+	src="/openmrs/moduleResources/medicationlog/js/jquery-ui.min.js"></script>
+<script
+	src="/openmrs/moduleResources/medicationlog/js/jquery.dataTables.min.js"></script>
+<script
+	src="/openmrs/moduleResources/medicationlog/js/dataTables.bootstrap4.min.js"></script>
 
 <!-- SPECIALIZED STYLES FOR THIS PORTLET -->
 <style type="text/css">
+
+body {
+	font-size: 12px;
+}
 
     #completedOrders {
     	width: 900px; 
@@ -138,13 +160,15 @@
 		
 		jQuery('#completedOrders').dataTable({
 			"bPaginate": true,
-	        "iDisplayLength": 10,
+	        "iDisplayLength": 5,
 	        "bLengthChange": false,
 	        "bFilter": false,
 	        "bInfo": true,
 	        "bAutoWidth": true
 	        
 		});
+		
+		jQuery('.dataTables_length').addClass('bs-select');
 		
 		
 		jQuery('#viewCompletedOrderDialog').dialog({
@@ -168,18 +192,18 @@
 	
 	<c:choose>
 		<c:when test="${! empty model.completedDrugOrders}">
-			<table id="completedOrders">
+			<table id="completedOrders" class="table table-striped table-bordered">
 				<thead>
 				
 				<tr>
-					<th class="tableCell" style="font-weight:bold"><spring:message code="medication.drugOrder.view"/></td>
-					<th class="tableCell" style="font-weight:bold"><nobr><spring:message code="medication.regimen.drugLabel"/></nobr></td>
-					<th class="tableCell" style="font-weight:bold"><spring:message code="medication.drugOrder.doseAndUnit"/></td>
-					<th class="tableCell" style="font-weight:bold"><spring:message code="medication.regimen.route"/></td>
-					<th class="tableCell" style="font-weight:bold"><spring:message code="medication.drugOrder.frequency"/></td>
-					<th class="tableCell" style="font-weight:bold"><spring:message code="medication.orderset.field.startDay"/></td>
-					<th class="tableCell" style="font-weight:bold"><spring:message code="medication.drugOrder.stopDate"/></td>
-					<th class="tableCell" style="font-weight:bold"><spring:message code="medication.drugOrder.reNew"/></td>
+					<th style="font-weight:bold"><spring:message code="medication.drugOrder.view"/></th>
+					<th ><spring:message code="medication.regimen.drugLabel"/> </th>
+					<th ><spring:message code="medication.drugOrder.doseAndUnit"/></th>
+					<th ><spring:message code="medication.regimen.route"/></th>
+					<th ><spring:message code="medication.drugOrder.frequency"/></th>
+					<th ><spring:message code="medication.orderset.field.startDay"/></th>
+					<th ><spring:message code="medication.drugOrder.stopDate"/></th>
+					<th ><spring:message code="medication.drugOrder.reNew"/></th>
 				</tr>
 				
 				</thead>
@@ -189,11 +213,9 @@
 					<c:set var="i" value="0"/>
 						<c:forEach var="completedOrder" items="${model.completedDrugOrders}">
 						<c:if test="${! empty model.completedDrugOrders}">
-							<tr 
-							<c:if test="${i % 2 == 0 }">class="medicationEvenRow"</c:if>
-							<c:if test="${i % 2 != 0 }">class="medicationOddRow"</c:if>>
-							<td class="tableCell"><nobr><img title="View Order" id='viewOrder_${i}_${completedOrder.orderId}_${completedOrder.dateActivated}' onclick="viewCompletedOrder(this)" src="/openmrs/moduleResources/medicationlog/img/view_text_small.png" alt="view" border="0" onmouseover="document.body.style.cursor='pointer'" onmouseout="document.body.style.cursor='default'"/></nobr></td>
-							<td class="tableCell" style="text-transform: capitalize;"><nobr>${completedOrder.drugName}</nobr><span><img 
+							<tr>
+							<td ><nobr><img title="View Order" id='viewOrder_${i}_${completedOrder.orderId}_${completedOrder.dateActivated}' onclick="viewCompletedOrder(this)" src="/openmrs/moduleResources/medicationlog/img/view_text_small.png" alt="view" border="0" onmouseover="document.body.style.cursor='pointer'" onmouseout="document.body.style.cursor='default'"/></nobr></td>
+							<td style="text-transform: capitalize;"><nobr>${completedOrder.drugName}</nobr><span><img 
 							title="<c:choose>
 								<c:when test="${! empty completedOrder.instructions}">
 			    					${completedOrder.instructions}
@@ -201,13 +223,13 @@
 			    				<c:when test="${empty completedOrder.instructions}">
 			    					<spring:message code="medication.drugOrder.noInstructions" />
 			    				</c:when>
-			    			</c:choose>" id='viewInstructions_${i}' onclick="viewInstructions(this)" src="/openmrs/moduleResources/medicationlog/img/info_light_green_small.png" alt="view" border="0" onmouseover="document.body.style.cursor='default'" onmouseout="document.body.style.cursor='default'"/></span></td>
-							<td class="tableCell"><nobr>${completedOrder.dose} ${currentOrder.doseUnit}</nobr></td>
-							<td class="tableCell"><nobr>${completedOrder.route}</nobr></td>
-							<td class="tableCell"><nobr>${completedOrder.frequency}</nobr></td>
-							<td class="tableCell" style="text-align: center;"><nobr><openmrs:formatDate date="${completedOrder.dateActivated}" format="${_dateFormatDisplay}"/></nobr></td>
-							<td class="tableCell" style="text-align: center;"><nobr><openmrs:formatDate date="${completedOrder.scheduledStopDate}" format="${_dateFormatDisplay}"/></nobr></td>
-							<td class="tableCell"><nobr><img title="Renew Order" id='renewOrder_${i}_' onclick="renewOrder(this)" src="/openmrs/moduleResources/medicationlog/img/renew_very_small.png" alt="renew" border="0" onmouseover="document.body.style.cursor='pointer'" onmouseout="document.body.style.cursor='default'"/></nobr></td> 
+			    			</c:choose>" id='viewInstructions_${i}' src="/openmrs/moduleResources/medicationlog/img/info_light_green_small.png" alt="view" border="0" onmouseover="document.body.style.cursor='default'" onmouseout="document.body.style.cursor='default'"/></span></td>
+							<td ><nobr>${completedOrder.dose} ${currentOrder.doseUnit}</nobr></td>
+							<td ><nobr>${completedOrder.route}</nobr></td>
+							<td ><nobr>${completedOrder.frequency}</nobr></td>
+							<td style="text-align: center;"><nobr><openmrs:formatDate date="${completedOrder.dateActivated}" format="${_dateFormatDisplay}"/></nobr></td>
+							<td style="text-align: center;"><nobr><openmrs:formatDate date="${completedOrder.scheduledStopDate}" format="${_dateFormatDisplay}"/></nobr></td>
+							<td ><nobr><a href='${pageContext.request.contextPath}/module/medicationlog/singleDrugOrder.form?patientId=${model.patient.patientId}&orderId=${completedOrder.orderId}&operation=RENEW'> <img title="Renew Order" id='renewOrder_${i}_' onclick="renewOrder(this)" src="/openmrs/moduleResources/medicationlog/img/renew_very_small.png" alt="renew" border="0" onmouseover="document.body.style.cursor='pointer'" onmouseout="document.body.style.cursor='default'"/></a></nobr></td> 
 							</tr>
 							<!-- <tr id="completed_instructions_row_${i}" style="display:none;">
 							<td id='completed_instructions_${i}' colspan="8" style="text-align: left;"><label style="style="font-weight:bold""><u>Instructions:</u></label>

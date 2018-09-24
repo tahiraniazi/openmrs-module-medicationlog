@@ -45,28 +45,32 @@ public class CurrentRegimenPortletController extends PortletController {
 		List<Order> activeOrders = Context.getOrderService().getActiveOrders(patient, null, null, null);
 		List<DrugOrderWrapper> currentDrugOrders = new ArrayList<DrugOrderWrapper>();
 		for (Order order : activeOrders) {
-			DrugOrder drugOrder = (DrugOrder) Context.getOrderService().getOrder(order.getId());
 			
-			DrugOrderWrapper drugOrderWrapper = new DrugOrderWrapper(order.getId(), drugOrder.getDrug().getDrugId(),
-			        drugOrder.getDrug().getConcept().getDisplayString().toLowerCase(), drugOrder.getDose(), drugOrder
-			                .getDoseUnits().getDisplayString().toLowerCase(), drugOrder.getFrequency().getConcept()
-			                .getDisplayString().toLowerCase(), drugOrder.getRoute().getDisplayString().toLowerCase(),
-			        drugOrder.getDuration(), drugOrder.getDurationUnits().getDisplayString().toLowerCase(),
-			        drugOrder.getDateActivated());
-			
-			if (drugOrder.getAutoExpireDate() != null) {
-				drugOrderWrapper.setScheduledStopDate(drugOrder.getAutoExpireDate());
+			if (order instanceof DrugOrder) {
+				
+				DrugOrder drugOrder = (DrugOrder) Context.getOrderService().getOrder(order.getId());
+				
+				DrugOrderWrapper drugOrderWrapper = new DrugOrderWrapper(order.getId(), drugOrder.getDrug().getDrugId(),
+				        drugOrder.getDrug().getConcept().getDisplayString().toLowerCase(), drugOrder.getDose(), drugOrder
+				                .getDoseUnits().getDisplayString().toLowerCase(), drugOrder.getFrequency().getConcept()
+				                .getDisplayString().toLowerCase(), drugOrder.getRoute().getDisplayString().toLowerCase(),
+				        drugOrder.getDuration(), drugOrder.getDurationUnits().getDisplayString().toLowerCase(),
+				        drugOrder.getDateActivated());
+				
+				if (drugOrder.getAutoExpireDate() != null) {
+					drugOrderWrapper.setScheduledStopDate(drugOrder.getAutoExpireDate());
+				}
+				
+				if (drugOrder.getInstructions() != null && !drugOrder.getInstructions().isEmpty()) {
+					drugOrderWrapper.setInstructions(drugOrder.getInstructions());
+				}
+				
+				if (drugOrder.getAsNeeded() != null) {
+					drugOrderWrapper.setAsNeeded(drugOrder.getAsNeeded());
+				}
+				
+				currentDrugOrders.add(drugOrderWrapper);
 			}
-			
-			if (drugOrder.getInstructions() != null && !drugOrder.getInstructions().isEmpty()) {
-				drugOrderWrapper.setInstructions(drugOrder.getInstructions());
-			}
-			
-			if (drugOrder.getAsNeeded() != null) {
-				drugOrderWrapper.setAsNeeded(drugOrder.getAsNeeded());
-			}
-			
-			currentDrugOrders.add(drugOrderWrapper);
 		}
 		model.put("currentDrugOrders", currentDrugOrders);
 	}

@@ -119,12 +119,16 @@ public class MedicationAjaxController {
 	public DrugOrderWrapper getDrugOrder(@RequestParam(value = "drugOrderId", required = true) int drugOrderId,
 	        @RequestParam(value = "patientId", required = true) int patientId, Model model) {
 		
+		// Handle active Vs discontinues Vs Completed orders diferently
+		
 		//		int patientId = Integer.parseInt(request.getParameter("patientId"));
 		String returnPage = "/patientDashboard.form?patientId=" + patientId;
 		//		ModelAndView model = new ModelAndView(returnPage);
 		
 		//		int drugOrderId = Integer.parseInt(request.getParameter("drugOrderId"));
 		DrugOrder drugOrder = (DrugOrder) Context.getOrderService().getOrder(drugOrderId);
+		
+		//		DrugOrder previousDrugOrder = (DrugOrder) drugOrder.getPreviousOrder();
 		
 		DrugOrderWrapper drugOrderWrapper = new DrugOrderWrapper(drugOrderId, drugOrder.getDrug().getDrugId(), drugOrder
 		        .getDrug().getConcept().getDisplayString().toLowerCase(), drugOrder.getDose(), drugOrder.getDoseUnits()
@@ -150,6 +154,15 @@ public class MedicationAjaxController {
 		
 		//		model.addObject("drugOrderObject", drugOrder);
 		//		return model;
+		
+		return drugOrderWrapper;
+	}
+	
+	public DrugOrderWrapper getDrugOrderDetails() {
+		
+		// TODO: complete this
+		
+		DrugOrderWrapper drugOrderWrapper = null;
 		
 		return drugOrderWrapper;
 	}

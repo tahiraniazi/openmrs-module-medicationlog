@@ -16,12 +16,12 @@
 			href="${pageContext.request.contextPath}/admin"><spring:message
 			code="admin.title.short"/></a></li>
 
-	<li
+	<%-- <li
 	<c:if test='<%= request.getRequestURI().contains("/medicationlog") %>'>class="active"</c:if>>
 	<a
 			href="${pageContext.request.contextPath}/module/medicationlog/medicationlog.form"><spring:message
 			code="medicationlog.general.about"/></a>
-	</li>
+	</li> --%>
 
 	<li
 	<c:if test='<%= request.getRequestURI().contains("/addOrderSet") %>'>class="active"</c:if>>

@@ -47,51 +47,57 @@ public class CompletedRegimenPortletController extends PortletController {
 		
 		List<DrugOrderWrapper> completedDrugOrders = new ArrayList<DrugOrderWrapper>();
 		for (Order order : allOrders) {
-			DrugOrder drugOrder = (DrugOrder) Context.getOrderService().getOrder(order.getId());
 			
-			/*			Date autoExpireDate = null;
-						Date dateStopped = null;*/
-			boolean isExpired = false;
-			boolean isStopped = false;
-			
-			/*			if (drugOrder.getAutoExpireDate() != null)
-							autoExpireDate = drugOrder.getAutoExpireDate();
-						if (drugOrder.getDateStopped() != null)
-							dateStopped = drugOrder.getDateStopped();*/
-			
-			if (drugOrder.getAutoExpireDate() != null && (drugOrder.getAutoExpireDate().compareTo(new Date()) < 0)) // before second date
-				isExpired = true;
-			
-			if (drugOrder.getDateStopped() != null && (drugOrder.getDateStopped().compareTo(new Date()) < 0)) // before second date
-				isStopped = true;
-			
-			// TODO: test this and verify not to include discontinued orders
-			if ((isExpired || isStopped) && (Order.Action.DISCONTINUE != order.getAction())) {
+			if (order instanceof DrugOrder) {
+				DrugOrder drugOrder = (DrugOrder) Context.getOrderService().getOrder(order.getId());
 				
-				int drugId = drugOrder.getDrug().getDrugId();
-				int receivedDrugId = drugId;
-				Double drugDose = drugOrder.getDose();
+				/*			Date autoExpireDate = null;
+							Date dateStopped = null;*/
+				boolean isExpired = false;
+				boolean isStopped = false;
 				
-				DrugOrderWrapper drugOrderWrapper = new DrugOrderWrapper(order.getId(), drugOrder.getDrug().getDrugId(),
-				        drugOrder.getDrug().getConcept().getDisplayString().toLowerCase(), drugOrder.getDose(), drugOrder
-				                .getDoseUnits().getDisplayString().toLowerCase(), drugOrder.getFrequency().getConcept()
-				                .getDisplayString().toLowerCase(), drugOrder.getRoute().getDisplayString().toLowerCase(),
-				        drugOrder.getDuration(), drugOrder.getDurationUnits().getDisplayString().toLowerCase(),
-				        drugOrder.getDateActivated());
+				/*			if (drugOrder.getAutoExpireDate() != null)
+								autoExpireDate = drugOrder.getAutoExpireDate();
+							if (drugOrder.getDateStopped() != null)
+								dateStopped = drugOrder.getDateStopped();*/
 				
-				if (drugOrder.getDateStopped() == null) {
-					if (drugOrder.getAutoExpireDate() != null)
-						drugOrderWrapper.setScheduledStopDate(drugOrder.getAutoExpireDate());
-				} else {
-					drugOrderWrapper.setDateStopped(drugOrder.getDateStopped());
-					drugOrderWrapper.setScheduledStopDate(drugOrder.getDateStopped());
+				if (drugOrder.getAutoExpireDate() != null && (drugOrder.getAutoExpireDate().compareTo(new Date()) < 0)) // before second date
+					isExpired = true;
+				
+				if (drugOrder.getDateStopped() != null && (drugOrder.getDateStopped().compareTo(new Date()) < 0)) // before second date
+					isStopped = true;
+				
+				// not to include discontinued orders
+				if ((isExpired || isStopped) && (Order.Action.DISCONTINUE != order.getAction())) {
+					
+					// Fetching the discontinued order for this order
+					//					DrugOrder discontinuedOrder = (DrugOrder) Context.getOrderService().getDiscontinuationOrder(order); 
+					
+					int drugId = drugOrder.getDrug().getDrugId();
+					int receivedDrugId = drugId;
+					Double drugDose = drugOrder.getDose();
+					
+					DrugOrderWrapper drugOrderWrapper = new DrugOrderWrapper(order.getId(), drugOrder.getDrug().getDrugId(),
+					        drugOrder.getDrug().getConcept().getDisplayString().toLowerCase(), drugOrder.getDose(),
+					        drugOrder.getDoseUnits().getDisplayString().toLowerCase(), drugOrder.getFrequency().getConcept()
+					                .getDisplayString().toLowerCase(),
+					        drugOrder.getRoute().getDisplayString().toLowerCase(), drugOrder.getDuration(), drugOrder
+					                .getDurationUnits().getDisplayString().toLowerCase(), drugOrder.getDateActivated());
+					
+					if (drugOrder.getDateStopped() == null) {
+						if (drugOrder.getAutoExpireDate() != null)
+							drugOrderWrapper.setScheduledStopDate(drugOrder.getAutoExpireDate());
+					} else {
+						drugOrderWrapper.setDateStopped(drugOrder.getDateStopped());
+						drugOrderWrapper.setScheduledStopDate(drugOrder.getDateStopped());
+					}
+					
+					if (drugOrder.getInstructions() != null && !drugOrder.getInstructions().isEmpty()) {
+						drugOrderWrapper.setInstructions(drugOrder.getInstructions());
+					}
+					
+					completedDrugOrders.add(drugOrderWrapper);
 				}
-				
-				if (drugOrder.getInstructions() != null && !drugOrder.getInstructions().isEmpty()) {
-					drugOrderWrapper.setInstructions(drugOrder.getInstructions());
-				}
-				
-				completedDrugOrders.add(drugOrderWrapper);
 			}
 		}
 		model.put("completedDrugOrders", completedDrugOrders);

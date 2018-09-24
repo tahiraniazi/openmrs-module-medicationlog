@@ -125,6 +125,16 @@ textarea {
 	font-size: 0.9em !important;
 }
 
+input[type=submit] {
+	background-color: #1aac9b;
+	color: white;
+	padding: 8px 22px;
+	border: none;
+	border-radius: 2px;
+	cursor: pointer;
+	
+}
+
 .padding {
 	padding-top: 5px;
 	padding-left: 5px;
@@ -163,14 +173,14 @@ select {
 	
 }
 
-#drugSuggestBox {
+/* #drugSuggestBox {
     height: 16px;
     border-radius: 5px;
     background-color: #F8F8F8;
     border-style: groove !important;
     font-size: 1em !important;
     width: 300px !important;
-}
+} */
 
 #duration {
 	width: 50px;

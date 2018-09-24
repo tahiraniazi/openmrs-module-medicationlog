@@ -11,6 +11,7 @@
  */
 package org.openmrs.module.medicationlog.web.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -44,113 +45,7 @@ public class MedicationPortletController extends PortletController {
 	private static final Log log = LogFactory.getLog(MedicationPortletController.class);
 	
 	protected void populateModel(HttpServletRequest request, Map<String, Object> model) {
-		
-		// order.durationUnitsConceptUuid > units
-		List<Concept> durationUnits = Context.getOrderService().getDurationUnits();
-		log.info("Duration unit concepts are " + durationUnits);
-		model.put("durationUnits", durationUnits);
-		
-		// frequencies
-		
-		// order.drugRoutesConceptUuid > routes
-		List<Concept> routes = Context.getOrderService().getDrugRoutes();
-		log.info("Routes concepts are " + routes);
-		model.put("routes", routes);
-		
-		// order.drugDosingUnitsConceptUuid > 162384 > dose units
-		List<Concept> doseUnits = Context.getOrderService().getDrugDosingUnits();
-		log.info("Dose unit concepts are " + doseUnits);
-		model.put("doseUnits", doseUnits);
-		
-		// MEDICATION FREQUENCY > 160855 > 160855AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
-		String frequencyUuid = Context.getAdministrationService().getGlobalProperty(
-		    "medication.medicationFrequenciesConceptUuid");
-		Concept frequencySet = Context.getConceptService().getConceptByUuid(frequencyUuid);
-		if (frequencySet != null && frequencySet.getSetMembers().size() > 0) {
-			List<Concept> frequencies = frequencySet.getSetMembers();
-			log.info("Frequency concepts are " + frequencies);
-			model.put("frequencies", frequencies);
-		}
-		
-		String orderReasonUuid = Context.getAdministrationService().getGlobalProperty(
-		    MedicationLogActivator.MEDICATION_ORDER_REASON_CONCEPT_UUID);
-		
-		log.info("===================== Order reason UUid is " + orderReasonUuid);
-		log.info("==============================================================");
-		
-		if (orderReasonUuid != null && !orderReasonUuid.isEmpty()) {
-			Concept orderReason = Context.getConceptService().getConceptByUuid(orderReasonUuid);
-			if (orderReason != null && orderReason.getAnswers(false).size() > 0) {
-				Collection<ConceptAnswer> reasonCollection = orderReason.getAnswers(false);
-				ArrayList<Concept> reasons = new ArrayList<Concept>();
-				
-				for (ConceptAnswer reason : reasonCollection) {
-					reasons.add(reason.getAnswerConcept());
-					
-				}
-				log.info("============ Order reason concepts are " + reasons);
-				model.put("orderReasons", reasons);
-			}
-		}
-		
-		// reading drug set classes global property (it indicates the types of
-		// concept sets required e.g LabSet, ConvSet). Get the comma-separated
-		// values and fetch these concepts by class and then generate the final
-		// list of the drug set concepts
-		
-		String drugClasses = Context.getAdministrationService().getGlobalProperty(
-		    MedicationLogActivator.MEDICATION_DRUG_SETS_PROPERTY);
-		
-		List<String> classes;
-		List<Concept> drugSets = new ArrayList<Concept>();
-		
-		// search drug sets based on drug classes specified in advance settings
-		if (drugClasses != null && !drugClasses.isEmpty()) {
-			if (drugClasses.contains(",")) {
-				classes = Arrays.asList(drugClasses.split(","));
-			} else {
-				classes = new ArrayList<String>();
-				classes.add(drugClasses);
-			}
-			drugSets = getDrugSets(classes);
-		}
-		// else search concept sets for all Set classes like ConvSet, MedSet
-		// etc.
-		else {
-			drugClasses = "LabSet, MedSet, ConvSet";
-			classes = Arrays.asList(drugClasses.split(",").toString().trim());
-			drugSets = getDrugSets(classes);
-		}
-		
-		model.put("drugSets", drugSets);
-		
-		//* fetching patient encounters for linking with drug order
-		int patientId = Integer.parseInt(request.getParameter("patientId"));
-		Logger.getAnonymousLogger().info("=============================== patient id :" + patientId);
-		
-		Patient patient = Context.getPatientService().getPatient(patientId);
-		// encounters in ASC order by encounter date time
-		List<Encounter> allEncounters = Context.getEncounterService().getEncountersByPatient(patient);
-		
-		// reversing the list to get encounters in DESC order by encounter date time
-		List<Encounter> descEncounters = allEncounters.subList(0, allEncounters.size());
-		Collections.reverse(descEncounters);
-		
-		if (descEncounters.size() > 3)
-			descEncounters = new ArrayList<Encounter>(descEncounters.subList(0, 3));
-		
-		List<Map<String, String>> encounters = new ArrayList<Map<String, String>>();
-		for (Encounter encounter : descEncounters) {
-			Map<String, String> encounterInfo = new HashMap<String, String>();
-			encounterInfo.put("encounterId", Integer.toString(encounter.getEncounterId()));
-			encounterInfo.put("encounterName", encounter.getEncounterType().getName());
-			encounters.add(encounterInfo);
-		}
-		
-		model.put("encounters", encounters);
-		
 		// putting Order Stop Reasons in model
-		// TODO: put stop reasons for stop order dialogue
 		String orderStoppedReasonUuid = Context.getAdministrationService().getGlobalProperty(
 		    MedicationLogActivator.MEDICATION_REASON_ORDER_STOPPED_UUID);
 		
@@ -164,13 +59,10 @@ public class MedicationPortletController extends PortletController {
 					stoppedReasons.add(reason.getAnswerConcept());
 					
 				}
-				log.info("============ Order reason concepts are " + stoppedReasons);
+				log.info("============ Order stopped reason concepts are " + stoppedReasons);
 				model.put("orderStoppedReasons", stoppedReasons);
 			}
 		}
-		
-		// put order sets in model
-		
 	}
 	
 	public List<Concept> getDrugSets(List<String> classes) {
