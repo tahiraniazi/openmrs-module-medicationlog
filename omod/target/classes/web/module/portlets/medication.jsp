@@ -7,6 +7,7 @@
 <link rel="stylesheet"
 	href="/openmrs/moduleResources/medicationlog/themes/default.min.css"
 	id="toggleCSS" />
+	
 <script src="/openmrs/moduleResources/medicationlog/alertify.min.js"></script>
 
 <!-- <openmrs:htmlInclude file="/moduleResources/medicationlog/js/jquery-3.3.1.js" /> --> 

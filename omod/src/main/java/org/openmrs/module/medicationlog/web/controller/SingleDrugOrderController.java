@@ -159,8 +159,10 @@ public class SingleDrugOrderController {
 		List<Encounter> descEncounters = allEncounters.subList(0, allEncounters.size());
 		Collections.reverse(descEncounters);
 		
-		if (descEncounters.size() > 3)
+		if (descEncounters.size() > 10)
 			descEncounters = new ArrayList<Encounter>(descEncounters.subList(0, 10));
+		else
+			descEncounters = new ArrayList<Encounter>(descEncounters.subList(0, descEncounters.size()));
 		
 		List<Map<String, String>> encounters = new ArrayList<Map<String, String>>();
 		for (Encounter encounter : descEncounters) {
@@ -233,23 +235,31 @@ public class SingleDrugOrderController {
 	        @RequestParam(value = "returnPagee", required = true) String returnPage) {
 		
 		try {
-			DrugOrder drugOrder = createDrugOrder(currentUserId, patientId, drugId, drugName, drugSelection, encounterId,
-			    dose, doseUnit, frequency, route, dosingInstruction, startDateDrug, duration, durationUnit, asNeeded,
-			    orderReason, orderReasonNonCoded, adminInstructions);
+			DrugOrder drugOrder = constructDrugOrderObject(null, currentUserId, patientId, drugId, drugName, drugSelection,
+			    encounterId, dose, doseUnit, frequency, route, dosingInstruction, startDateDrug, duration, durationUnit,
+			    asNeeded, orderReason, orderReasonNonCoded, adminInstructions);
 			
 			OrderContext orderContext = new OrderContext();
 			if (orderId != null) {
 				
 				Order existing = Context.getOrderService().getOrder(orderId);
 				if (existing != null && operation.equals("REVISE")) {
-					// revise order
-					// existing.cloneForRevision();
-//					reviseOrder(existing, currentUserId, encounterId, orderReason, orderReasonNonCoded, adminInstructions);
+					// revise order, stops the active order and assigns REVISE action to new order
+					Order revisedOrder = existing.cloneForRevision();
+					DrugOrder revisedDrugOrder = (DrugOrder) revisedOrder;
+					
+					// calling constructDrugOrderObject(...) to include any updated information in the drugOrder and 
+					// catching the same revised order object back
+					revisedDrugOrder = constructDrugOrderObject(revisedDrugOrder, currentUserId, patientId, drugId,
+					    drugName, drugSelection, encounterId, dose, doseUnit, frequency, route, dosingInstruction,
+					    startDateDrug, duration, durationUnit, asNeeded, orderReason, orderReasonNonCoded, adminInstructions);
+					
+					Context.getOrderService().saveOrder((Order) revisedDrugOrder, null);
 				}
 				
 				if (operation.equals("RENEW")) {
-					
-					Context.getOrderService().saveRetrospectiveOrder(drugOrder, orderContext);
+					// does not assign RENEW action
+					Context.getOrderService().saveOrder(drugOrder, orderContext);
 				}
 				
 			} else
@@ -277,12 +287,13 @@ public class SingleDrugOrderController {
 		return "redirect:" + returnPage;
 	}
 	
-	private DrugOrder createDrugOrder(String currentUserid, Integer patientId, Integer drugId, String drugName,
-	        String drugSelection, Integer encounterId, Double dose, Integer doseUnit, Integer frequency, Integer route,
-	        String dosingInstructions, Date startDateDrug, int duration, Integer durationUnit, String asNeeded,
-	        Integer orderReason, String orderReasonNonCoded, String adminInstructions) {
+	private DrugOrder constructDrugOrderObject(DrugOrder drugOrder, String currentUserid, Integer patientId, Integer drugId,
+	        String drugName, String drugSelection, Integer encounterId, Double dose, Integer doseUnit, Integer frequency,
+	        Integer route, String dosingInstructions, Date startDateDrug, int duration, Integer durationUnit,
+	        String asNeeded, Integer orderReason, String orderReasonNonCoded, String adminInstructions) {
 		
-		DrugOrder drugOrder = new DrugOrder();
+		if (drugOrder == null)
+			drugOrder = new DrugOrder();
 		
 		try {
 			ConceptService conceptService = Context.getConceptService();
@@ -291,7 +302,10 @@ public class SingleDrugOrderController {
 			User currentUser = Context.getUserService().getUserByUsername(currentUserid);
 			org.openmrs.Provider provider = Context.getProviderService()
 			        .getProvidersByPerson(currentUser.getPerson(), false).iterator().next();
-			drugOrder.setPatient(patient);
+			
+			// do not set patient in case of REVISE object
+			if (drugOrder.getPatient() == null)
+				drugOrder.setPatient(patient);
 			
 			Encounter encounter = null;
 			
@@ -323,8 +337,10 @@ public class SingleDrugOrderController {
 				encounter = Context.getEncounterService().getEncounter(encounterId);
 			}
 			
-			// setting encounter to drug order
-			drugOrder.setEncounter(encounter);
+			// setting encounter to drug order, avoid setting encounter in case of REVISE
+			if (drugOrder.getEncounter() == null)
+				drugOrder.setEncounter(encounter);
+			
 			drugOrder.setDateActivated(startDateDrug);
 			
 			Logger.getAnonymousLogger().info("### =============================== Drug Selection Criteria:" + drugSelection);
@@ -438,16 +454,12 @@ public class SingleDrugOrderController {
 		return drugSets;
 	}
 	
-	// can we ONLY Revise active orders?
-	// does the idea of changing drug related info conforms to the definition of "revise order"??
-	private void reviseOrder(Order originalOrder, String currentUserId, Integer encounterId, Integer orderReason,
+	// can we ONLY Revise active orders? YES!
+	// does the idea of changing drug related info conforms to the definition of "revise order"? No, it doesn't!
+	private void reviseOrder(DrugOrder newDrugOrder, Order originalOrder, String currentUserId, Integer orderReason,
 	        String orderReasonNonCoded, String adminInstructions) {
 		
 		Order revisedOrder = originalOrder.cloneForRevision();
-		
-		revisedOrder.setDateActivated(new Date());
-		revisedOrder.setAutoExpireDate(null);
-		
 		if (orderReason != null)
 			revisedOrder.setOrderReasonNonCoded(Context.getConceptService().getConcept(orderReason).getDescription()
 			        .getDescription());
@@ -463,9 +475,8 @@ public class SingleDrugOrderController {
 		        .iterator().next();
 		revisedOrder.setOrderer(provider);
 		
-		// setting the same encounter as the original order
+		// setting the same encounter as the one associated with original order
 		revisedOrder.setEncounter(originalOrder.getEncounter());
-		
 		Context.getOrderService().saveOrder(revisedOrder, null);
 		
 	}

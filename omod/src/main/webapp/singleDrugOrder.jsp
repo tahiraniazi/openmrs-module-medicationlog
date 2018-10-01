@@ -73,6 +73,30 @@ jQuery(document).ready(function() {
 		
 		/* in edit mode - input tags are already autopopulated via value tag */
 		
+		var operation = "${operation}";
+		if(operation == "RENEW") {
+			
+			jQuery('#drugSuggestBox').prop('disabled', 'diabled');
+			jQuery('#startDateDrug').val('');
+			jQuery('#patientEncounter').val('');
+		
+		}
+		else if(operation == "REVISE") {
+			
+			jQuery('#patientEncounter').prop('disabled', 'diabled');
+			jQuery('#drugSuggestBox').prop('disabled', 'diabled');
+			
+			var startDateString = "${requestedOrder.dateActivated}";
+			if(startDateString != '') 
+			{
+				var startDate = new Date(startDateString);
+				var convertedStartDate = startDate.getDate() + '/' + (startDate.getMonth() + 1) + '/' +  startDate.getFullYear();
+				jQuery('#startDateDrug').val(convertedStartDate);
+				jQuery('#startDateDrug').prop('disabled', 'diabled');
+			}
+		}
+		
+		
 		console.log("${requestedOrder.encounter.encounterId}");
 		var encounterElement =  document.getElementById("patientEncounter");
 		encounterElement.value = "${requestedOrder.encounter.encounterId}";
@@ -89,16 +113,13 @@ jQuery(document).ready(function() {
 		var durationUnitElement =  document.getElementById("durationUnit");
 		durationUnitElement.value = "${requestedOrder.durationUnits.id}";
 		
-		var startDateString = "${requestedOrder.dateActivated}";
-		if(startDateString != '') 
-		{
-			var startDate = new Date(startDateString);
-			var convertedStartDate = startDate.getDate() + '/' + (startDate.getMonth() + 1) + '/' +  startDate.getFullYear();
-			jQuery('#startDateDrug').val(convertedStartDate);
-		}
-		
 		var orderIdElement =  document.getElementById("orderId");
 		orderIdElement.value = "${requestedOrder.orderId}";
+		
+		console.log("${requestedOrder.asNeeded}");
+		
+		// it is treating asNeeded boolean value as string literal
+		jQuery('#asNeeded').prop('checked', "${requestedOrder.asNeeded}" == 'true');
 		
 	};
 	console.log('${requestedOrder.frequency.concept.id}');
@@ -168,7 +189,6 @@ jQuery('#drugSets').click(function() {
 	});
 	
 	jQuery('#drugs').click(function(){ 
-		
 		
 		jQuery("#drugSuggestBox").val("");
 		jQuery('#drugSelection').val("BY DRUG");
@@ -335,6 +355,36 @@ function saveOrder() {
 	}
 	else {
 		
+		console.log("selected drug: " + selectedDrug.toLowerCase());
+		/* var correctDrugSelection = jQuery("#drugOptions").find("option[value='"+selectedDrug+"']");
+		if(!(correctDrugSelection != null && correctDrugSelection.length > 0)) {
+			error = " <spring:message code='medication.regimen.incorrectDrugError' /> ";
+			isValid = false;
+		} */		
+		
+		var operation = "${operation}";
+		console.log(operation);
+		
+		if(operation == "") {
+		
+			var datalist = document.getElementById("drugOptions");
+			console.log(datalist.options.length);
+			var count = 0;
+			for (i = 0; i < datalist.options.length; i++) {
+				
+				console.log(datalist.options[i].text);
+				var currentDrug = datalist.options[i].text;
+			    if(currentDrug.toLowerCase() === selectedDrug.toLowerCase()) {
+			    	count++;
+			    }
+			}
+			
+			if(count == 0) {
+				error = " <spring:message code='medication.regimen.incorrectDrugError' /> ";
+				isValid = false;
+			}
+		}
+		
 		var doseElement = jQuery("#dose").val();
 		
 		if(doseElement == "") {
@@ -445,6 +495,9 @@ function saveOrder() {
 		return isValid;
 	}
 	
+	jQuery('#patientEncounter').prop('disabled', false);
+	jQuery('#startDateDrug').prop('disabled', false);
+	jQuery('#drugSuggestBox').prop('disabled', false);
 	return isValid;
 }
 
@@ -503,7 +556,7 @@ jQuery(function() {
 		<form id="form" name="addIndividualDrug" method="post" action="${pageContext.request.contextPath}/module/medicationlog/singleDrugOrder/addDrugOrder.form" onsubmit="return saveOrder()">
 			<input type="hidden" id="patientId" name="patientId" value = "${patientId}">
 			<input type="hidden" name="returnPagee" value="/patientDashboard.form?patientId=${patientId}"/>	
-			<input type="hidden" name="operation" id="operation" value="${operation}"/> <!-- Creating revise Vs renew -->
+			<input type="hidden" name="operation" id="operation" value="${operation}"/> <!--  revise Vs renew -->
 			<input type="hidden" name="currentUserId" value="${currentUserId}"/>
 			<input type="hidden" name="drugId" id="drugId" value=""/>
 			<input type="hidden" name="drugSelection" id="drugSelection" value=""/>
@@ -581,7 +634,7 @@ jQuery(function() {
 					<label  class="control-label"><spring:message code="DrugOrder.dose" /></label><span class="required">*</span>
 				</div>
 				<div class="col-md-6">
-					<input type="number" name="dose" id="dose" size="2" min="1" max="5000" value="${requestedOrder.dose}"/> 
+					<input type="number" name="dose" id="dose" size="2" min="1" max="5000" value="${requestedOrder.dose}"/>  
 					<select style="text-transform: capitalize" name="doseUnit" id="doseUnit">
 					<option style="text-transform: capitalize" value="${requestedOrder.doseUnits.name}">Select option</option>
 						<c:if test="${not empty doseUnits}">

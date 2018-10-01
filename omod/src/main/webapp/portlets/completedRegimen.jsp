@@ -196,6 +196,7 @@ body {
 				<thead>
 				
 				<tr>
+					<th><spring:message code="medication.drugOrder.orderId"/></th>
 					<th style="font-weight:bold"><spring:message code="medication.drugOrder.view"/></th>
 					<th ><spring:message code="medication.regimen.drugLabel"/> </th>
 					<th ><spring:message code="medication.drugOrder.doseAndUnit"/></th>
@@ -214,7 +215,8 @@ body {
 						<c:forEach var="completedOrder" items="${model.completedDrugOrders}">
 						<c:if test="${! empty model.completedDrugOrders}">
 							<tr>
-							<td ><nobr><img title="View Order" id='viewOrder_${i}_${completedOrder.orderId}_${completedOrder.dateActivated}' onclick="viewCompletedOrder(this)" src="/openmrs/moduleResources/medicationlog/img/view_text_small.png" alt="view" border="0" onmouseover="document.body.style.cursor='pointer'" onmouseout="document.body.style.cursor='default'"/></nobr></td>
+							<td ><nobr>${completedOrder.orderId}</nobr></td>
+							<td ><nobr><img title="View Order" id='viewOrder_${i}_${completedOrder.orderId}_${completedOrder.dateActivated}' onclick="" src="/openmrs/moduleResources/medicationlog/img/view_text_small.png" alt="view" border="0" onmouseover="document.body.style.cursor='pointer'" onmouseout="document.body.style.cursor='default'"/></nobr></td>
 							<td style="text-transform: capitalize;"><nobr>${completedOrder.drugName}</nobr><span><img 
 							title="<c:choose>
 								<c:when test="${! empty completedOrder.instructions}">
@@ -229,27 +231,8 @@ body {
 							<td ><nobr>${completedOrder.frequency}</nobr></td>
 							<td style="text-align: center;"><nobr><openmrs:formatDate date="${completedOrder.dateActivated}" format="${_dateFormatDisplay}"/></nobr></td>
 							<td style="text-align: center;"><nobr><openmrs:formatDate date="${completedOrder.scheduledStopDate}" format="${_dateFormatDisplay}"/></nobr></td>
-							<td ><nobr><a href='${pageContext.request.contextPath}/module/medicationlog/singleDrugOrder.form?patientId=${model.patient.patientId}&orderId=${completedOrder.orderId}&operation=RENEW'> <img title="Renew Order" id='renewOrder_${i}_' onclick="renewOrder(this)" src="/openmrs/moduleResources/medicationlog/img/renew_very_small.png" alt="renew" border="0" onmouseover="document.body.style.cursor='pointer'" onmouseout="document.body.style.cursor='default'"/></a></nobr></td> 
+							<td ><nobr><a href='${pageContext.request.contextPath}/module/medicationlog/singleDrugOrder.form?patientId=${model.patient.patientId}&orderId=${completedOrder.orderId}&operation=RENEW'> <img title="Renew Order" id='renewOrder_${i}_' src="/openmrs/moduleResources/medicationlog/img/renew_very_small.png" alt="renew" border="0" onmouseover="document.body.style.cursor='pointer'" onmouseout="document.body.style.cursor='default'"/></a></nobr></td> 
 							</tr>
-							<!-- <tr id="completed_instructions_row_${i}" style="display:none;">
-							<td id='completed_instructions_${i}' colspan="8" style="text-align: left;"><label style="style="font-weight:bold""><u>Instructions:</u></label>
-							<c:choose>
-								<c:when test="${! empty completedOrder.instructions}">
-			    					${completedOrder.instructions}
-			    				</c:when>
-			    				<c:when test="${empty completedOrder.instructions}">
-			    					<font color="#808080"><i><spring:message code="medication.drugOrder.noInstructions" /></i></font>
-			    				</c:when>
-			    			</c:choose></td>
-							<td style="display:none"></td>
-							<td style="display:none"></td>
-							<td style="display:none"></td>
-							<td style="display:none"></td>
-							<td style="display:none"></td>
-							<td style="display:none"></td>
-							<td style="display:none"></td>
-							</tr>  -->
-				
 						<c:set var="i" value="${i+1}"/>
 						</c:if>
 					</c:forEach>

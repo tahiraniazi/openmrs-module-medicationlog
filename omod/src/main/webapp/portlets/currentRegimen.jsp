@@ -179,21 +179,20 @@ body {
 			startDate = convertDate(startDate);
 			var convertDateStart = startDate.substring(startYears, startYears + 4) + "/" + startDate.substring(startMonths, startMonths + 2) + "/" + startDate.substring(startDays, startDays + 2);
 			var dateStart = new Date(convertDateStart);
-			
+			console.log("stop date:" + dateStop + "date Start: " + dateStart);
 			
 			if(dateStop < dateStart)
 			{
-				// error = error + " <spring:message code='medication.regimen.stopDateLessStartError' /> ";
 				document.getElementById('drugStopDateMsg').innerHTML ="<spring:message code='medication.regimen.stopDateLessStartError' />";
 				stopIt = false;
 			}
+			else if(dateStop > new Date())
+			{
+				document.getElementById('drugStopDateMsg').innerHTML ="<spring:message code='medication.regimen.stopDateBeforeCurrentDate' />";
+				stopIt = false;
+			}
+			
 		}
-		
-		/* if(error != "")
-		{
-			jQuery('.openmrs_error').show();
-			jQuery('.openmrs_error').html(error);
-		} */
 		
 		return stopIt;
 		
@@ -293,6 +292,7 @@ body {
 		<table id="currentOrders" class="table table-striped table-bordered">
 		<thead>
 		<tr>
+			<th><spring:message code="medication.drugOrder.orderId"/></th>
 			<th><spring:message code="medication.drugOrder.view"/></th>
 			<th><nobr><spring:message code="medication.regimen.drugLabel"/></nobr></th>
 			<th><spring:message code="medication.drugOrder.doseAndUnit"/></th>
@@ -300,9 +300,8 @@ body {
 			<th><spring:message code="medication.drugOrder.frequency"/></th>
 			<th><spring:message code="medication.orderset.field.startDay"/></th>
 			<th><spring:message code="medication.drugOrder.scheduledStopDate"/></th>
-			<th><spring:message code="medication.drugOrder.delete"/></th>
 			<th><spring:message code="medication.drugOrder.stop"/></th>
-			<th><spring:message code="medication.drugOrder.edit"/></th>
+			<th><spring:message code="medication.drugOrder.revise"/></th>
 		</tr>
 		
 		</thead>
@@ -312,7 +311,8 @@ body {
 			<c:forEach var="currentOrder" items="${model.currentDrugOrders}">
 			<c:if test="${! empty model.currentDrugOrders}">
 				<tr>
-				<td ><nobr><img title="View Order" id='viewCurrentOrder_${i}_${currentOrder.orderId}_${currentOrder.dateActivated}' onclick="viewCurrentOrder(this)" src="/openmrs/moduleResources/medicationlog/img/view_text_small.png" alt="view" border="0" onmouseover="document.body.style.cursor='pointer'" onmouseout="document.body.style.cursor='default'"/></nobr></td>
+				<td ><nobr>${currentOrder.orderId}</nobr></td>
+				<td ><nobr><img title="View Order" id='viewCurrentOrder_${i}_${currentOrder.orderId}_${currentOrder.dateActivated}' onclick="" src="/openmrs/moduleResources/medicationlog/img/view_text_small.png" alt="view" border="0" onmouseover="document.body.style.cursor='pointer'" onmouseout="document.body.style.cursor='default'"/></nobr></td>
 				<td style="text-transform: capitalize;"><nobr>${currentOrder.drugName}</nobr><span><img 
 				title="<c:choose>
 					<c:when test="${! empty currentOrder.instructions}">
@@ -326,10 +326,9 @@ body {
 				<td ><nobr>${currentOrder.route}</nobr></td>
 				<td ><nobr>${currentOrder.frequency}</nobr></td>
 				<td style="text-align: center;"><nobr><openmrs:formatDate date="${currentOrder.dateActivated}" format="${_dateFormatDisplay}"/></nobr></td>
-				<td style="text-align: center;"><nobr><openmrs:formatDate date="${currentOrder.scheduledStopDate}" format="${_dateFormatDisplay}"/></nobr></td>
-				<td ><nobr><img title="Delete" id='deleteOrder_${i}_' onclick="deleteOrder(this)" src="/openmrs/moduleResources/medicationlog/img/delete_very_small.png" alt="delete" border="0" onmouseover="document.body.style.cursor='pointer'" onmouseout="document.body.style.cursor='default'"/></nobr></td>  
+				<td style="text-align: center;"><nobr><openmrs:formatDate date="${currentOrder.scheduledStopDate}" format="${_dateFormatDisplay}"/></nobr></td>  
 				<td ><nobr><img title="Stop" class="stopButton" id='stopOrder_${i}_${currentOrder.orderId}_${currentOrder.dateActivated}' src="/openmrs/moduleResources/medicationlog/img/stop_very_small.png" alt="stop" border="0" onmouseover="document.body.style.cursor='pointer'" onmouseout="document.body.style.cursor='default'"/></nobr></td>
-				<td ><nobr><a href='${pageContext.request.contextPath}/module/medicationlog/singleDrugOrder.form?patientId=${model.patient.patientId}&orderId=${currentOrder.orderId}'> <img src="/openmrs/moduleResources/medicationlog/img/edit.gif"></a></nobr></td>
+				<td ><nobr><a href='${pageContext.request.contextPath}/module/medicationlog/singleDrugOrder.form?patientId=${model.patient.patientId}&orderId=${currentOrder.orderId}&operation=REVISE'> <img src="/openmrs/moduleResources/medicationlog/img/reload_small.png"></a></nobr></td>
 				</tr>
 				
 				<c:set var="i" value="${i+1}"/>
