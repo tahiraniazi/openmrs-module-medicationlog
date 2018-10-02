@@ -70,19 +70,16 @@ public class CompletedRegimenPortletController extends PortletController {
 				// not to include discontinued orders
 				if ((isExpired || isStopped) && (Order.Action.DISCONTINUE != order.getAction())) {
 					
-					// Fetching the discontinued order for this order
-					//					DrugOrder discontinuedOrder = (DrugOrder) Context.getOrderService().getDiscontinuationOrder(order); 
+					//	Fetching the discontinued order for this order
+					//	DrugOrder discontinuedOrder = (DrugOrder) Context.getOrderService().getDiscontinuationOrder(order); 
 					
-					int drugId = drugOrder.getDrug().getDrugId();
-					int receivedDrugId = drugId;
-					Double drugDose = drugOrder.getDose();
-					
-					DrugOrderWrapper drugOrderWrapper = new DrugOrderWrapper(order.getId(), drugOrder.getDrug().getDrugId(),
-					        drugOrder.getDrug().getConcept().getDisplayString().toLowerCase(), drugOrder.getDose(),
-					        drugOrder.getDoseUnits().getDisplayString().toLowerCase(), drugOrder.getFrequency().getConcept()
-					                .getDisplayString().toLowerCase(),
+					DrugOrderWrapper drugOrderWrapper = new DrugOrderWrapper(order.getOrderId(), order.getEncounter(),
+					        order.getDateCreated(), order.getOrderer().getCreator().getUsername(), order.getUuid(),
+					        drugOrder.getDrug().getDrugId(), drugOrder.getDrug().getConcept().getDisplayString()
+					                .toLowerCase(), drugOrder.getDose(), drugOrder.getDoseUnits().getDisplayString()
+					                .toLowerCase(), drugOrder.getFrequency().getConcept().getDisplayString().toLowerCase(),
 					        drugOrder.getRoute().getDisplayString().toLowerCase(), drugOrder.getDuration(), drugOrder
-					                .getDurationUnits().getDisplayString().toLowerCase(), drugOrder.getDateActivated());
+					                .getDurationUnits().getDisplayString().toLowerCase(), order.getDateActivated());
 					
 					if (drugOrder.getDateStopped() == null) {
 						if (drugOrder.getAutoExpireDate() != null)
@@ -92,9 +89,8 @@ public class CompletedRegimenPortletController extends PortletController {
 						drugOrderWrapper.setScheduledStopDate(drugOrder.getDateStopped());
 					}
 					
-					if (drugOrder.getInstructions() != null && !drugOrder.getInstructions().isEmpty()) {
+					if (drugOrder.getInstructions() != null && !drugOrder.getInstructions().isEmpty())
 						drugOrderWrapper.setInstructions(drugOrder.getInstructions());
-					}
 					
 					completedDrugOrders.add(drugOrderWrapper);
 				}

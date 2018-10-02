@@ -50,24 +50,22 @@ public class CurrentRegimenPortletController extends PortletController {
 				
 				DrugOrder drugOrder = (DrugOrder) Context.getOrderService().getOrder(order.getId());
 				
-				DrugOrderWrapper drugOrderWrapper = new DrugOrderWrapper(order.getId(), drugOrder.getDrug().getDrugId(),
-				        drugOrder.getDrug().getConcept().getDisplayString().toLowerCase(), drugOrder.getDose(), drugOrder
-				                .getDoseUnits().getDisplayString().toLowerCase(), drugOrder.getFrequency().getConcept()
-				                .getDisplayString().toLowerCase(), drugOrder.getRoute().getDisplayString().toLowerCase(),
-				        drugOrder.getDuration(), drugOrder.getDurationUnits().getDisplayString().toLowerCase(),
-				        drugOrder.getDateActivated());
+				DrugOrderWrapper drugOrderWrapper = new DrugOrderWrapper(order.getOrderId(), order.getEncounter(),
+				        order.getDateCreated(), order.getOrderer().getCreator().getUsername(), order.getUuid(), drugOrder
+				                .getDrug().getDrugId(), drugOrder.getDrug().getConcept().getDisplayString().toLowerCase(),
+				        drugOrder.getDose(), drugOrder.getDoseUnits().getDisplayString().toLowerCase(), drugOrder
+				                .getFrequency().getConcept().getDisplayString().toLowerCase(), drugOrder.getRoute()
+				                .getDisplayString().toLowerCase(), drugOrder.getDuration(), drugOrder.getDurationUnits()
+				                .getDisplayString().toLowerCase(), order.getDateActivated());
 				
-				if (drugOrder.getAutoExpireDate() != null) {
+				if (drugOrder.getAutoExpireDate() != null)
 					drugOrderWrapper.setScheduledStopDate(drugOrder.getAutoExpireDate());
-				}
 				
-				if (drugOrder.getInstructions() != null && !drugOrder.getInstructions().isEmpty()) {
+				if (drugOrder.getInstructions() != null && !drugOrder.getInstructions().isEmpty())
 					drugOrderWrapper.setInstructions(drugOrder.getInstructions());
-				}
 				
-				if (drugOrder.getAsNeeded() != null) {
+				if (drugOrder.getAsNeeded() != null)
 					drugOrderWrapper.setAsNeeded(drugOrder.getAsNeeded());
-				}
 				
 				currentDrugOrders.add(drugOrderWrapper);
 			}

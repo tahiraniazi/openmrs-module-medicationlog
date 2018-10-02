@@ -14,6 +14,7 @@ package org.openmrs.module.medicationlog.resources;
 import java.util.Date;
 
 import org.openmrs.Concept;
+import org.openmrs.Encounter;
 import org.openmrs.OrderFrequency;
 
 /**
@@ -21,8 +22,20 @@ import org.openmrs.OrderFrequency;
  */
 public class DrugOrderWrapper {
 	
+	// order details
 	private int orderId;
 	
+	private Encounter orderEncounter;
+	
+	private String orderReason;
+	
+	private Date dateCreated;
+	
+	private String orderer;
+	
+	private String orderUuid;
+	
+	// drug order details
 	private int drugId;
 	
 	private String drugName;
@@ -31,7 +44,7 @@ public class DrugOrderWrapper {
 	
 	private double dose;
 	
-	public String doseUnit;
+	private String doseUnit;
 	
 	private String frequency;
 	
@@ -55,10 +68,15 @@ public class DrugOrderWrapper {
 		
 	}
 	
-	public DrugOrderWrapper(int orderId, int drugId, String drugName, double dose, String doseunit, String frequency,
-	    String route, int duration, String durationUnit, Date dateActivated) {
+	public DrugOrderWrapper(int orderId, Encounter orderEncounter, Date dateCreated, String orderer, String uuid,
+	    int drugId, String drugName, double dose, String doseunit, String frequency, String route, int duration,
+	    String durationUnit, Date dateActivated) {
 		
 		this.orderId = orderId;
+		this.orderEncounter = orderEncounter;
+		this.dateCreated = dateCreated;
+		this.orderer = orderer;
+		this.orderUuid = uuid;
 		this.drugId = drugId;
 		this.drugName = drugName;
 		this.dose = dose;
@@ -90,12 +108,79 @@ public class DrugOrderWrapper {
 		this.autoExpireDate = autoExpireDate;
 	}
 	
+	public DrugOrderWrapper(int orderId, Encounter orderEncounter, String orderReason, Date dateCreated, String orderer,
+	    String uuid, int drugId, String drugName, boolean asNeeded, double dose, String doseUnit, String frequency,
+	    String route, int duration, String durationUnit, String instructions, Date dateActivated, Date dateStopped,
+	    Date scheduledDate, Date autoExpireDate) {
+		
+		this.orderId = orderId;
+		this.orderEncounter = orderEncounter;
+		this.orderReason = orderReason;
+		this.dateCreated = dateCreated;
+		this.orderer = orderer;
+		this.orderUuid = uuid;
+		this.drugId = drugId;
+		this.drugName = drugName;
+		this.asNeeded = asNeeded;
+		this.dose = dose;
+		this.doseUnit = doseUnit;
+		this.frequency = frequency;
+		this.route = route;
+		this.duration = duration;
+		this.durationUnit = durationUnit;
+		this.instructions = instructions;
+		this.dateActivated = dateActivated;
+		this.dateStopped = dateStopped;
+		this.scheduledStopDate = scheduledDate;
+		this.autoExpireDate = autoExpireDate;
+	}
+	
 	public int getOrderId() {
 		return orderId;
 	}
 	
 	public void setOrderId(int orderId) {
 		this.orderId = orderId;
+	}
+	
+	public Encounter getOrderEncounter() {
+		return orderEncounter;
+	}
+	
+	public void setOrderEncounter(Encounter orderEncounter) {
+		this.orderEncounter = orderEncounter;
+	}
+	
+	public String getOrderReason() {
+		return orderReason;
+	}
+	
+	public void setOrderReason(String orderReason) {
+		this.orderReason = orderReason;
+	}
+	
+	public Date getDateCreated() {
+		return dateCreated;
+	}
+	
+	public void setDateCreated(Date dateCreated) {
+		this.dateCreated = dateCreated;
+	}
+	
+	public String getCreator() {
+		return orderer;
+	}
+	
+	public void setCreator(String creator) {
+		this.orderer = creator;
+	}
+	
+	public String getOrderUuid() {
+		return orderUuid;
+	}
+	
+	public void setOrderUuid(String orderUuid) {
+		this.orderUuid = orderUuid;
 	}
 	
 	public int getDrugId() {
