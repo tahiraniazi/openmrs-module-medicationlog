@@ -46,7 +46,6 @@ public class AdminList extends AdministrationSectionExt {
 		map.put("/module/medicationlog/medicationlog.form", "medicationlog.general.about");
 		
 		map.put("/module/medicationlog/addOrderSet.form", "medication.admin.addOrderSet");
-		map.put("/module/medicationlog/manageOrderSet.form", "medication.orderSet.manage.linkTitle");
 		
 		return map;
 	}

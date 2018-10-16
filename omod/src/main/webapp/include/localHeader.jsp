@@ -29,12 +29,12 @@
 			href="${pageContext.request.contextPath}/module/medicationlog/addOrderSet.form"><spring:message
 			code="medication.admin.addOrderSet"/></a>
 	</li>
-	<li
+	<%-- <li
 	<c:if test='<%= request.getRequestURI().contains("/manageOrderSet") %>'>class="active"</c:if>>
 	<a
 			href="${pageContext.request.contextPath}/module/medicationlog/manageOrderSet.form"><spring:message
 			code="medication.orderSet.manage.linkTitle"/></a>
-	</li>
+	</li> --%>
 
 	<!-- Add further links here -->
 </ul>

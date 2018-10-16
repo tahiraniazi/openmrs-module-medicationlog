@@ -51,28 +51,44 @@ body {
 		vertical-align:top !important; 
 	}
 	
+	fieldset.scheduler-border {
+	    border: 1px groove #ddd !important;
+	    padding: 0 1.4em 1.4em 1.4em !important;
+	    margin: 0 0 1.5em 0 !important;
+	    -webkit-box-shadow:  0px 0px 0px 0px #1aac9b;
+	            box-shadow:  0px 0px 0px 0px #1aac9b;
+	}
+	
+	legend.scheduler-border {
+	        font-size: 1.2em !important;
+	        font-weight: bold !important;
+	        text-align: left !important;
+	        width:auto;
+	        padding:0 10px;
+	        border-bottom:none;
+	}
+	
+	.row{
+	 margin-bottom:15px;
+ 	}
+	
 	#drugOrderDetails td {
 		
 		font-size: 14px;
-		
 		padding-left:2px !important; 
 		padding-right:4px !important; 
 		padding-top:4px !important; 
 		padding-bottom:4px !important; 
 		vertical-align:top !important; 
 	}
-	
-	
 </style>
 
 <script type="text/javascript">
-
-
 	jQuery(document).ready(function() {
 		
 		jQuery('#currentOrders').dataTable({
 			"bPaginate": true,
-	        "iDisplayLength": 10,
+	        "iDisplayLength": 15,
 	        "bLengthChange": false,
 	        "bFilter": false,
 	        "bInfo": true,
@@ -98,8 +114,6 @@ body {
 			var val = this.id;
 			var values = val.split("_");
 			
-			// jQuery('#stopDrugDialog').dialog('open');
-			
 			document.getElementById('stopOrderId').value = values[2];
 			document.getElementById('drugStartDate').value = values[3];
 			document.getElementById('drugStopDate').value = "";
@@ -112,31 +126,6 @@ body {
 			jQuery('.openmrs_error').hide();
 			
 		});
-		
-		jQuery('#viewOrderDialog').dialog({
-			position: 'middle',
-			autoOpen: false,
-			modal: true,
-			title: '<spring:message code="medication.drugOrder.details" javaScriptEscape="true"/>',
-			height: 450,
-			width: '50%',
-			zIndex: 100,
-			buttons: { 'OK!': function() { refresh(); $j(this).dialog("close"); }
-			}
-		});
-		
-		jQuery('#stopDrugDialog').dialog({
-			position: 'middle',
-			autoOpen: false,
-			modal: true,
-			title: '<spring:message code="medication.drugOrder.stopOrder" javaScriptEscape="true"/>',
-			height: 400,
-			width: '70%',
-			zIndex: 100,
-			buttons: { '<spring:message code="medication.currentRegimen.stop"/>': function() { stopOrder(); },
-				'<spring:message code="general.cancel"/>': function() { refresh(); $j(this).dialog("close"); }
-			}
-		}); 
 		
 	});
 	
@@ -164,16 +153,11 @@ body {
 		}
 		else {
 			var datePattern = '<openmrs:datePattern />';
-			
 			var startYears = datePattern.indexOf("yyyy");
-			
 			var startMonths =  datePattern.indexOf("mm");
-			
 			var startDays = datePattern.indexOf("dd");
-			
 			var convertDateStop = stopDate.substring(startYears, startYears + 4) + "/" + stopDate.substring(startMonths, startMonths + 2) + "/" + stopDate.substring(startDays, startDays + 2);
 			var dateStop = new Date(convertDateStop);
-			
 			var startDate = jQuery("#drugStartDate").val();
 			
 			startDate = convertDate(startDate);
@@ -191,9 +175,7 @@ body {
 				document.getElementById('drugStopDateMsg').innerHTML ="<spring:message code='medication.regimen.stopDateBeforeCurrentDate' />";
 				stopIt = false;
 			}
-			
 		}
-		
 		return stopIt;
 		
 	}
@@ -208,60 +190,303 @@ body {
 		var url = "${pageContext.request.contextPath}/module/medicationlog/ajax/getDrugOrder.form?drugOrderId=" + drugOrderId + "&patientId=" + patientId; 
 		jQuery.getJSON(url, function(result) {
 			
-			console.log(result.dose);
-			jQuery("#drugName").text(result.drugName);
+			console.log(result);
 			
-			var completeDose = result.dose + " " + result.doseUnit;
-			jQuery("#medicineDose").text(completeDose);
-			console.log("dose unit " + result.doseUnit);
+			var details = "";
 			
-			jQuery("#medicineFrequency").text(result.frequency);
-			console.log("dose unit " + result.frequency);
-			
-			jQuery("#medicineRoute").text(result.route);
-			
-			var completeDuration = result.duration + " " + result.durationUnit;
-			jQuery("#medicineDuration").text(completeDuration);
-			
-			if(result.instructions == null || result.instructions == "") {
-				jQuery("#medicineInstructionLabel").hide();
-				jQuery("#medicineInstructions").hide();
-			}
-			else {
-				jQuery("#medicineInstructionLabel").show();
-				jQuery("#medicineInstructions").show();
-				jQuery("#medicineInstructions").text(result.instructions);
-			}
-			
-			var dateStarted = result.dateActivated;
-			var startDate = new Date(dateStarted);
-			
-			var dd = startDate.getDate();
-			var mm = startDate.getMonth()+1; //January is 0!
-			var yyyy = startDate.getFullYear();
-			
-			if(dd<10){
-			    dd='0'+dd;
+			if(result.hasOwnProperty('singleOrder') && result.hasOwnProperty('revisedOrder')) {
+				details = details.concat('<table  class="table table-striped table-responsive-md btn-table table-hover mb-0" id="order_details">');
+			    details = details.concat('<thead><tr>');
+			    details = details.concat('<th><a>Order Id</a></th>');
+			    details = details.concat('<th><a>Previous Order</a></th>');
+			    details = details.concat('<th><a>Action</a></th>');
+				
+			    details = details.concat('<tbody><tr>'); 
+			    details = details.concat('<td>'+ (JSON.parse(result.singleOrder)).orderId +'</td>');
+			    details = details.concat('<td>'+ (JSON.parse(result.revisedOrder)).orderId +'</td>');
+			    details = details.concat('<td>REVISE</td>');
+			    details = details.concat('</tr></tbody>');
+			    
+			    details = details.concat('</tr></thead>');
+			    details = details.concat('</table>');
 			} 
-			if(mm<10){
-			    mm='0'+mm;
-			} 
+			
+			if(result.hasOwnProperty('singleOrder')){
+				
+				var singleOrder = JSON.parse(result.singleOrder);
+				console.log(singleOrder);
+				console.log(singleOrder.orderId);
+				
+			    details = details.concat('<fieldset  class="scheduler-border">');
+			    details = details.concat('<legend  class="scheduler-border">Order details</legend>');
+			    details = details.concat('<div id="sampleDetailContainer">');
+			    /* details = details.concat('<table  class="table table-striped table-responsive-md btn-table table-hover mb-0" id="tb-test-type">');
+			    details = details.concat('<thead><tr>');
+			    details = details.concat('<th><a>Test Order</a></th>');
+			    details = details.concat('<th><a>Specimen Type</a></th>');
+			    details = details.concat('<th><a>Specimen Site</a></th>');
+			    details = details.concat('<th><a>Status</a></th>');
+				
+			    details = details.concat('</tr></thead>');
+			    details = details.concat('</table>'); */
+			    
+ 				details = details.concat(' <form id="form">');
+			    
+			    details = details.concat('<div class="row"><div class="col-md-12">');
+				details = details.concat('<strong><h6>Encounter related details</h6></strong>');
+				details = details.concat('</div></div>');
+				
+			    details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub><spring:message code="medication.drugOrder.orderId" /></sub></font></label>');
+				details = details.concat('</div><div class ="col-md-4">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+singleOrder.orderId+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Encounter Type</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+singleOrder.encounterType+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Order Reason</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+ ( typeof(singleOrder.orderReason) == 'undefined' ? "" : singleOrder.orderReason) +'</sub></font></label>');			 
+				details = details.concat('</div></div>');
 
-			var formattedStartDate = dd+'/'+mm+'/'+yyyy;
-			jQuery("#medicineStartDate").text(formattedStartDate);
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Date Created</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+singleOrder.dateCreated+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Orderer</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+singleOrder.orderer+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				
+				details = details.concat('<div class="row"><div class="col-md-12">');
+				details = details.concat('<strong><h6>Drug details</h6></strong>');
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Drug Name</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+ (singleOrder.drugName).toUpperCase()+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Date Activated</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+singleOrder.dateActivated+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>As needed</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+singleOrder.asNeeded+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Dose</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+singleOrder.dose+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Dose unit</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+singleOrder.doseUnit+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Frequency</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+singleOrder.frequency+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Route</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+singleOrder.route+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Duration</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+singleOrder.duration+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Duration Unit</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+singleOrder.durationUnit+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Instructions</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+  (typeof(singleOrder.instructions) == 'undefined' ? "" : singleOrder.instructions) +'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Scheduled Stop Date</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+ (typeof(singleOrder.autoExpireDate) == 'undefined' ? "" : singleOrder.autoExpireDate) +'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Discontinue Reason</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+ (typeof(singleOrder.discontinueReason) == 'undefined' ? "" : singleOrder.discontinueReason)    +'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+			    details = details.concat('</form>');
+			    
+				details = details.concat(' </div>');
+				details = details.concat('</fieldset>');
+			}
 			
-			if(result.asNeeded != null && result.asNeeded == true) {
-				jQuery("#prnMedicine").show();
+			if(result.hasOwnProperty('revisedOrder')){
+				
+				var revisedOrder = JSON.parse(result.revisedOrder);
+				console.log(typeof(revisedOrder.orderReason) == 'undefined' ? " " : revisedOrder.orderReason);
+			       
+			    
+			    details = details.concat('<fieldset  class="scheduler-border">');
+			    details = details.concat('<legend  class="scheduler-border">Previous Order details</legend>');
+			    details = details.concat('<div id="sampleDetailContainer">');
+			    
+			    details = details.concat(' <form id="form">');
+			    
+			    details = details.concat('<div class="row"><div class="col-md-12">');
+				details = details.concat('<strong><h6>Encounter related details</h6></strong>');
+				details = details.concat('</div></div>');
+				
+			    details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub><spring:message code="medication.drugOrder.orderId" /></sub></font></label>');
+				details = details.concat('</div><div class ="col-md-4">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.orderId+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>EncounterType</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.encounterType+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Order Reason</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+ ( typeof(revisedOrder.orderReason) == 'undefined' ? "" : revisedOrder.orderReason) +'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Date Created</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.dateCreated+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Orderer</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.orderer+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-12">');
+				details = details.concat('<strong><h6>Drug details</h6></strong>');
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Drug Name</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+ (revisedOrder.drugName).toUpperCase()+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Date Activated</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.dateActivated+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>As needed</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.asNeeded+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Dose</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.dose+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Dose Unit</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.doseUnit+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Frequency</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.frequency+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Route</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.route+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Duration</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.duration+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Duration Unit</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.durationUnit+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Instructions</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+  (typeof(revisedOrder.instructions) == 'undefined' ? "" : revisedOrder.instructions) +'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Date Stopped</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.dateStopped+'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A"><sub>Discontinue Reason</sub></font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E"><sub>'+ (typeof(revisedOrder.discontinueReason) == 'undefined' ? "" : revisedOrder.discontinueReason)    +'</sub></font></label>');			 
+				details = details.concat('</div></div>');
+				
+			    details = details.concat('</form>');
+				details = details.concat(' </div>');
+				details = details.concat('</fieldset>');
+				
+				console.log("order details : "+ details);
+				document.getElementById("orderDetails").innerHTML = details;
+				
 			}
-			else if(result.asNeeded != null && result.asNeeded == false) {
-				jQuery("#prnMedicine").hide();
-			}
+			
+			console.log("order details : "+ details);
+			document.getElementById("orderDetails").innerHTML = details;
+			
 		});
 		
-		//jQuery('#viewOrderDialog').dialog('open');
 		jQuery('#viewDrugModal').modal('show'); 
 	}
-	
 	
 	function refresh() {
 		
@@ -274,12 +499,11 @@ body {
 		jQuery('#medicineInstructions').html("");
 	}
 	
-	
 	function convertDate(inputFormat) {
 		  function pad(s) { return (s < 10) ? '0' + s : s; }
 		  var d = new Date(inputFormat);
 		  return [pad(d.getDate()), pad(d.getMonth()+1), d.getFullYear()].join('/');
-		}
+	}
 	
 </script>
 
@@ -312,7 +536,7 @@ body {
 			<c:if test="${! empty model.currentDrugOrders}">
 				<tr>
 				<td ><nobr>${currentOrder.orderId}</nobr></td>
-				<td ><nobr><img title="View Order" id='viewCurrentOrder_${i}_${currentOrder.orderId}_${currentOrder.dateActivated}' onclick="" src="/openmrs/moduleResources/medicationlog/img/view_text_small.png" alt="view" border="0" onmouseover="document.body.style.cursor='pointer'" onmouseout="document.body.style.cursor='default'"/></nobr></td>
+				<td ><nobr><img title="View Order" id='viewCurrentOrder_${i}_${currentOrder.orderId}_${currentOrder.dateActivated}' onclick="viewCurrentOrder(this)" src="/openmrs/moduleResources/medicationlog/img/view_text_small.png" alt="view" border="0" onmouseover="document.body.style.cursor='pointer'" onmouseout="document.body.style.cursor='default'"/></nobr></td>
 				<td style="text-transform: capitalize;"><nobr>${currentOrder.drugName}</nobr><span><img 
 				title="<c:choose>
 					<c:when test="${! empty currentOrder.instructions}">
@@ -345,40 +569,6 @@ body {
 		
 </div>
 
-<div id="viewOrderDialog">
-	<div class="box">
-	<u><h2><span style="margin: 0px 0px 1em 1em;" class="capitalize" id="drugName"></span><img title="As needed medicine" id="prnMedicine" src="/openmrs/moduleResources/medicationlog/img/prn_very_small.png" alt="prn" border="0" onmouseover="document.body.style.cursor='default'" onmouseout="document.body.style.cursor='default'"/></h2></u>
-	<table id="drugOrderDetails" style="margin: 0px 0px 1em 1.5em;">
-	<tr>
-		<td><span style="font-weight:bold">Dose:</span></td>
-		<td><span id="medicineDose"></span></td>
-	</tr>
-	<tr>
-		<td><span style="font-weight:bold">Frequency:</span></td>
-		<td><span id="medicineFrequency"></span></td>
-	</tr>
-	<tr>
-		<td><span style="font-weight:bold">Route:</span></td>
-		<td><span id="medicineRoute"></span></td>
-	</tr>
-	<tr>
-		<td><span style="font-weight:bold">Start Date:</span></td>
-		<td><span id="medicineStartDate"></span></td>
-	</tr>
-	<tr>
-		<td><span style="font-weight:bold">Duration:</span></td>
-		<td><span id="medicineDuration"></span></td>
-	</tr>
-	<tr>
-		<td><span style="font-weight:bold" id="medicineInstructionLabel">Instructions:</span></td>
-		<td><span id="medicineInstructions"></span></td>
-	</tr>
-	
-	</table>
-	</div>
-</div>
-
-
 <div class="modal fade" id="viewDrugModal" tabindex="-1" role="dialog" aria-labelledby="viewDrugModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">
         <div class="modal-content">
@@ -390,47 +580,11 @@ body {
             </div>
             <div class="modal-body">
             	
-            	<u><h2><span style="margin: 0px 0px 1em 1em;" class="capitalize" id="drugName"></span><img title="As needed medicine" id="prnMedicine" src="/openmrs/moduleResources/medicationlog/img/prn_very_small.png" alt="prn" border="0" onmouseover="document.body.style.cursor='default'" onmouseout="document.body.style.cursor='default'"/></h2></u>
+           		<div id="orderDetails">
+           			
+           		</div>
             	
-            	<div class="row">
-            	
-            	<div class="col-md-12">
-            
-            	<table  class="table table-striped table-responsive-md btn-table table-hover mb-0" id="tb-test-type">
-              	<tr>
-					<td><span style="font-weight:bold">Dose:</span></td>
-					<td><span id="medicineDose"></span></td>
-					</tr>
-					<tr>
-						<td><span style="font-weight:bold">Frequency:</span></td>
-						<td><span id="medicineFrequency"></span></td>
-					</tr>
-					<tr>
-						<td><span style="font-weight:bold">Route:</span></td>
-						<td><span id="medicineRoute"></span></td>
-					</tr>
-					<tr>
-						<td><span style="font-weight:bold">Start Date:</span></td>
-						<td><span id="medicineStartDate"></span></td>
-					</tr>
-					<tr>
-						<td><span style="font-weight:bold">Duration:</span></td>
-						<td><span id="medicineDuration"></span></td>
-					</tr>
-					<tr>
-						<td><span style="font-weight:bold" id="medicineInstructionLabel">Instructions:</span></td>
-						<td><span id="medicineInstructions"></span></td>
-					</tr>
-              </table>
-              
-              </div>
-              
-              
-              
-              </div>
-              
-              
-              
+            	<!-- <u><h2><span style="margin: 0px 0px 1em 1em;" class="capitalize" id="drugName"></span><img title="As needed medicine" id="prnMedicine" src="/openmrs/moduleResources/medicationlog/img/prn_very_small.png" alt="prn" border="0" onmouseover="document.body.style.cursor='default'" onmouseout="document.body.style.cursor='default'"/></h2></u> -->
 			 
             </div>
         </div>
@@ -497,58 +651,6 @@ body {
 						   </div>
 						 </div>
 			   </form>			 
-            </div>
-        </div>
-    </div>
-</div> 
-
-<!--  View Modal -->
-<div class="modal fade" id="viewOrderModal" tabindex="-1" role="dialog" aria-labelledby="viewOrderModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered" role="document">
-        <div class="modal-content">
-            <div class="modal-header text-center">
-                <h4 class="modal-title w-100 font-weight-bold"><spring:message code="medication.drugOrder.details"/></h4>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body">
-              
-              <fieldset  class="scheduler-border">
-              
-              <table  class="table table-striped table-responsive-md btn-table table-hover mb-0" id="tb-test-type">
-              	<tr>
-					<td><span style="font-weight:bold">Dose:</span></td>
-					<td><span id="medicineDose"></span></td>
-					</tr>
-					<tr>
-						<td><span style="font-weight:bold">Frequency:</span></td>
-						<td><span id="medicineFrequency"></span></td>
-					</tr>
-					<tr>
-						<td><span style="font-weight:bold">Route:</span></td>
-						<td><span id="medicineRoute"></span></td>
-					</tr>
-					<tr>
-						<td><span style="font-weight:bold">Start Date:</span></td>
-						<td><span id="medicineStartDate"></span></td>
-					</tr>
-					<tr>
-						<td><span style="font-weight:bold">Duration:</span></td>
-						<td><span id="medicineDuration"></span></td>
-					</tr>
-					<tr>
-						<td><span style="font-weight:bold" id="medicineInstructionLabel">Instructions:</span></td>
-						<td><span id="medicineInstructions"></span></td>
-					</tr>
-					
-              </table>
-	             	
-				<!-- end: change the widget for fields -->
-					
-           	</fieldset>
-              		 
-              		 
             </div>
         </div>
     </div>

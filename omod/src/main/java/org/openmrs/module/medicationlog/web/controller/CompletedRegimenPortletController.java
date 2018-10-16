@@ -11,6 +11,7 @@
  */
 package org.openmrs.module.medicationlog.web.controller;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -21,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.openmrs.DrugOrder;
 import org.openmrs.Order;
+import org.openmrs.OrderType;
 import org.openmrs.Patient;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.medicationlog.resources.DrugOrderWrapper;
@@ -37,8 +39,9 @@ public class CompletedRegimenPortletController extends PortletController {
 	
 	protected void populateModel(HttpServletRequest request, Map<String, Object> model) {
 		
-		Logger.getAnonymousLogger().info(
-		    "================================================== in Completed Regimen Portlet controller");
+		SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+		String time = timeFormat.format(new Date());
+		Logger.getAnonymousLogger().info("Time part >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" + time);
 		
 		// Fetching completed/non-active drug orders
 		int patientId = Integer.parseInt(request.getParameter("patientId"));
@@ -48,38 +51,39 @@ public class CompletedRegimenPortletController extends PortletController {
 		List<DrugOrderWrapper> completedDrugOrders = new ArrayList<DrugOrderWrapper>();
 		for (Order order : allOrders) {
 			
+			// TODO: test this part
 			if (order instanceof DrugOrder) {
-				DrugOrder drugOrder = (DrugOrder) Context.getOrderService().getOrder(order.getId());
 				
-				/*			Date autoExpireDate = null;
-							Date dateStopped = null;*/
+				DrugOrder drugOrder = null;
+				Order discontinuedOrder = null;
+				
 				boolean isExpired = false;
 				boolean isStopped = false;
-				
-				/*			if (drugOrder.getAutoExpireDate() != null)
-								autoExpireDate = drugOrder.getAutoExpireDate();
-							if (drugOrder.getDateStopped() != null)
-								dateStopped = drugOrder.getDateStopped();*/
-				
-				if (drugOrder.getAutoExpireDate() != null && (drugOrder.getAutoExpireDate().compareTo(new Date()) < 0)) // before second date
+				if (order.getAutoExpireDate() != null && (order.getAutoExpireDate().compareTo(new Date()) < 0)) // before second date
 					isExpired = true;
-				
-				if (drugOrder.getDateStopped() != null && (drugOrder.getDateStopped().compareTo(new Date()) < 0)) // before second date
+				if (order.getDateStopped() != null && (order.getDateStopped().compareTo(new Date()) < 0)) // before second date
 					isStopped = true;
 				
-				// not to include discontinued orders
-				if ((isExpired || isStopped) && (Order.Action.DISCONTINUE != order.getAction())) {
+				if (isExpired || isStopped) {
 					
 					//	Fetching the discontinued order for this order
-					//	DrugOrder discontinuedOrder = (DrugOrder) Context.getOrderService().getDiscontinuationOrder(order); 
+					if (order.getAction() == Order.Action.DISCONTINUE) {
+						
+						discontinuedOrder = Context.getOrderService().getOrder(order.getId());
+						order = discontinuedOrder.getPreviousOrder();
+						drugOrder = (DrugOrder) order;
+					} else {
+						drugOrder = (DrugOrder) order;
+					}
 					
-					DrugOrderWrapper drugOrderWrapper = new DrugOrderWrapper(order.getOrderId(), order.getEncounter(),
-					        order.getDateCreated(), order.getOrderer().getCreator().getUsername(), order.getUuid(),
-					        drugOrder.getDrug().getDrugId(), drugOrder.getDrug().getConcept().getDisplayString()
-					                .toLowerCase(), drugOrder.getDose(), drugOrder.getDoseUnits().getDisplayString()
-					                .toLowerCase(), drugOrder.getFrequency().getConcept().getDisplayString().toLowerCase(),
-					        drugOrder.getRoute().getDisplayString().toLowerCase(), drugOrder.getDuration(), drugOrder
-					                .getDurationUnits().getDisplayString().toLowerCase(), order.getDateActivated());
+					DrugOrderWrapper drugOrderWrapper = new DrugOrderWrapper(order.getOrderId(), order.getEncounter()
+					        .getEncounterType().getName(), order.getEncounter(), order.getDateCreated(), order.getOrderer()
+					        .getCreator().getUsername(), order.getUuid(), drugOrder.getDrug().getDrugId(), drugOrder
+					        .getDrug().getConcept().getDisplayString().toLowerCase(), drugOrder.getDose(), drugOrder
+					        .getDoseUnits().getDisplayString().toLowerCase(), drugOrder.getFrequency().getConcept()
+					        .getDisplayString().toLowerCase(), drugOrder.getRoute().getDisplayString().toLowerCase(),
+					        drugOrder.getDuration(), drugOrder.getDurationUnits().getDisplayString().toLowerCase(),
+					        order.getDateActivated());
 					
 					if (drugOrder.getDateStopped() == null) {
 						if (drugOrder.getAutoExpireDate() != null)
@@ -92,10 +96,26 @@ public class CompletedRegimenPortletController extends PortletController {
 					if (drugOrder.getInstructions() != null && !drugOrder.getInstructions().isEmpty())
 						drugOrderWrapper.setInstructions(drugOrder.getInstructions());
 					
-					completedDrugOrders.add(drugOrderWrapper);
+					if (discontinuedOrder != null
+					        && (discontinuedOrder.getOrderReason().getDisplayString() != null && !discontinuedOrder
+					                .getOrderReason().getDisplayString().isEmpty())) {
+						drugOrderWrapper.setDiscontinueReason(drugOrder.getInstructions());
+					}
+					
+					if (!containsOrder(completedDrugOrders, order.getOrderId()))
+						completedDrugOrders.add(drugOrderWrapper);
 				}
 			}
 		}
 		model.put("completedDrugOrders", completedDrugOrders);
+	}
+	
+	public static boolean containsOrder(List<DrugOrderWrapper> list, int id) {
+		for (DrugOrderWrapper order : list) {
+			if (order.getOrderId() == id) {
+				return true;
+			}
+		}
+		return false;
 	}
 }

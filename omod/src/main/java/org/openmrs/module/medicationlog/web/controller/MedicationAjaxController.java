@@ -12,43 +12,40 @@
 package org.openmrs.module.medicationlog.web.controller;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.xpath.operations.Mod;
-import org.codehaus.jackson.map.ObjectMapper;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
-import org.hibernate.procedure.spi.ParameterRegistrationImplementor;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
-import org.openmrs.Encounter;
 import org.openmrs.Order;
 import org.openmrs.Order.Action;
-import org.openmrs.Patient;
+import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.medicationlog.resources.DrugOrderWrapper;
+import org.openmrs.module.medicationlog.util.ExclusionStrategyUtil;
+import org.openmrs.module.medicationlog.util.HibernateProxyTypeAdapter;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+import com.google.gson.JsonObject;
 
 /**
  * @author tahira.niazi@ihsinformatics.com
@@ -128,60 +125,67 @@ public class MedicationAjaxController {
 	public String getDrugOrderDetails(@RequestParam(value = "drugOrderId", required = true) int drugOrderId,
 	        @RequestParam(value = "patientId", required = true) int patientId, Model model) {
 		
-		// TODO: complete this
 		JsonObject orderDetails = new JsonObject();
-		Order searchedOrder = Context.getOrderService().getOrder(drugOrderId);
-		DrugOrder searchedDrugOrder = (DrugOrder) searchedOrder;
+		GsonBuilder builder = new GsonBuilder().setExclusionStrategies(new ExclusionStrategyUtil());
+		//builder.registerTypeAdapterFactory(HibernateProxyTypeAdapter.FACTORY);
+		Gson gson = builder.create();
 		
-		// one of the orders from current regimen
-		if(searchedOrder.isActive()) {
+		try {
+			Order searchedOrder = Context.getOrderService().getOrder(drugOrderId);
+			DrugOrder searchedDrugOrder = (DrugOrder) searchedOrder;
 			
-			if(searchedOrder.getPreviousOrder() == null) {
-
-				// single order case, no previous order exists
-				DrugOrderWrapper singleOrder = construcViewOrderObject(searchedOrder, searchedDrugOrder);
-				orderDetails.add("singleOrder", new Gson().toJsonTree(singleOrder));
-			}
-			else if(searchedOrder.getPreviousOrder() != null && searchedOrder.getAction().equals(Action.REVISE)) {
+			// putting the actual order that was clicked to view
+			DrugOrderWrapper singleOrder = constructViewOrderObject(searchedOrder, searchedDrugOrder);
+			
+			if (searchedOrder.getPreviousOrder() != null && searchedOrder.getAction().equals(Action.REVISE)) {
 				
 				// it is the order that was REVISED and resulted in searchedOrder object
 				Order parentOrder = searchedOrder.getPreviousOrder();
 				DrugOrder parentDrugOrder = (DrugOrder) parentOrder;
-				DrugOrderWrapper originalOrder = construcViewOrderObject(parentOrder, parentDrugOrder);
-				orderDetails.add("orginalOrder", new Gson().toJsonTree(originalOrder));
+				DrugOrderWrapper originalOrder = constructViewOrderObject(parentOrder, parentDrugOrder);
+				/*GsonBuilder b = new GsonBuilder();
+				b.registerTypeAdapterFactory(HibernateProxyTypeAdapter.FACTORY);
+				Gson gson = b.create();*/
+				String revisedOrderString = gson.toJson(originalOrder);
+				Logger.getAnonymousLogger().log(Level.INFO, revisedOrderString);
+				orderDetails.addProperty("revisedOrder", revisedOrderString);
 			}
-		}  
-		else {
-			// one of the orders from completed regimen/ discontinued
-			// capture the discontinued fields also
 			
+			String singleOrderString = gson.toJson(singleOrder);
+			orderDetails.addProperty("singleOrder", singleOrderString);
+		}
+		catch (APIException e) {
+			e.printStackTrace();
 		}
 		return orderDetails.toString();
 	}
 	
-	private DrugOrderWrapper construcViewOrderObject (Order order, DrugOrder drugOrder) {
+	private DrugOrderWrapper constructViewOrderObject(Order order, DrugOrder drugOrder) {
 		
-		DrugOrderWrapper drugOrderWrapper = new DrugOrderWrapper(order.getOrderId(), order.getEncounter(), order.getDateCreated(), 
-				order.getOrderer().getCreator().getUsername(), order.getUuid(), drugOrder.getDrug().getDrugId(), 
-				drugOrder.getDrug().getConcept().getDisplayString().toLowerCase(), drugOrder.getDose(), drugOrder.getDoseUnits()
-		        .getDisplayString().toLowerCase(), drugOrder.getFrequency().getConcept().getDisplayString().toLowerCase(),
-		        drugOrder.getRoute().getDisplayString().toLowerCase(), drugOrder.getDuration(), drugOrder.getDurationUnits()
-		                .getDisplayString().toLowerCase(), order.getDateActivated());
+		DrugOrderWrapper drugOrderWrapper = new DrugOrderWrapper(order.getOrderId(), order.getEncounter().getEncounterType()
+		        .getName(), Context.getEncounterService().getEncounter(order.getEncounter().getEncounterId()),
+		        order.getDateCreated(), order.getOrderer().getCreator().getUsername(), order.getUuid(), drugOrder.getDrug()
+		                .getDrugId(), drugOrder.getDrug().getConcept().getDisplayString().toLowerCase(),
+		        drugOrder.getDose(), drugOrder.getDoseUnits().getDisplayString().toLowerCase(), drugOrder.getFrequency()
+		                .getConcept().getDisplayString().toLowerCase(), drugOrder.getRoute().getDisplayString()
+		                .toLowerCase(), drugOrder.getDuration(), drugOrder.getDurationUnits().getDisplayString()
+		                .toLowerCase(), order.getDateActivated());
 		
+		if (order.getAutoExpireDate() != null)
+			drugOrderWrapper.setAutoExpireDate(order.getAutoExpireDate());
 		
-		if (order.getAutoExpireDate() != null) 
-			drugOrderWrapper.setScheduledStopDate(order.getAutoExpireDate());
-		
-		if (order.getInstructions() != null && !order.getInstructions().isEmpty()) 
+		if (order.getInstructions() != null && !order.getInstructions().isEmpty())
 			drugOrderWrapper.setInstructions(order.getInstructions());
 		
-		if (order.getDateStopped() != null) 
+		if (order.getDateStopped() != null)
 			drugOrderWrapper.setDateStopped(order.getDateStopped());
 		
-		if (drugOrder.getAsNeeded() != null) 
+		if (drugOrder.getAsNeeded() != null)
 			drugOrderWrapper.setAsNeeded(drugOrder.getAsNeeded());
 		
 		// capture the discontinue reason if exists
+		if (drugOrder.getOrderReason() != null)
+			drugOrderWrapper.setDiscontinueReason(drugOrder.getOrderReason().getDisplayString());
 		
 		return drugOrderWrapper;
 	}

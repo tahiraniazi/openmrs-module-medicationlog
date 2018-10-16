@@ -12,6 +12,9 @@
 package org.openmrs.module.medicationlog.web.controller;
 
 import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -61,6 +64,8 @@ public class SingleDrugOrderController {
 	
 	SimpleDateFormat sdf = new SimpleDateFormat(SQL_DATE);
 	
+	SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
+	
 	protected final Log log = LogFactory.getLog(getClass());
 	
 	@RequestMapping(method = RequestMethod.GET)
@@ -96,9 +101,6 @@ public class SingleDrugOrderController {
 		String orderReasonUuid = Context.getAdministrationService().getGlobalProperty(
 		    MedicationLogActivator.MEDICATION_ORDER_REASON_CONCEPT_UUID);
 		
-		log.info("===================== Order reason UUid is " + orderReasonUuid);
-		log.info("==============================================================");
-		
 		if (orderReasonUuid != null && !orderReasonUuid.isEmpty()) {
 			Concept orderReason = Context.getConceptService().getConceptByUuid(orderReasonUuid);
 			if (orderReason != null && orderReason.getAnswers(false).size() > 0) {
@@ -109,7 +111,6 @@ public class SingleDrugOrderController {
 					reasons.add(reason.getAnswerConcept());
 					
 				}
-				log.info("============ Order reason concepts are " + reasons);
 				model.put("orderReasons", reasons);
 			}
 		}
@@ -192,7 +193,6 @@ public class SingleDrugOrderController {
 					stoppedReasons.add(reason.getAnswerConcept());
 					
 				}
-				log.info("============ Order reason concepts are " + stoppedReasons);
 				model.put("orderStoppedReasons", stoppedReasons);
 			}
 		}
@@ -341,6 +341,20 @@ public class SingleDrugOrderController {
 			if (drugOrder.getEncounter() == null)
 				drugOrder.setEncounter(encounter);
 			
+			// Add current time to start date
+			String startDate = new SimpleDateFormat(SQL_DATE).format(startDateDrug);
+			String time = timeFormat.format(new Date());
+			
+			LocalDate datePart = LocalDate.parse(startDate);
+			LocalTime timePart = LocalTime.parse(time);
+			LocalDateTime startingDate = LocalDateTime.of(datePart, timePart);
+			
+			Logger.getAnonymousLogger().info(
+			    "LocalDateTime: Starting date >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" + startingDate);
+			startDateDrug = convertToDateViaSqlTimestamp(startingDate);
+			Logger.getAnonymousLogger().info(
+			    "Java Date: Starting date >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>" + startDateDrug);
+			
 			drugOrder.setDateActivated(startDateDrug);
 			
 			Logger.getAnonymousLogger().info("### =============================== Drug Selection Criteria:" + drugSelection);
@@ -479,6 +493,10 @@ public class SingleDrugOrderController {
 		revisedOrder.setEncounter(originalOrder.getEncounter());
 		Context.getOrderService().saveOrder(revisedOrder, null);
 		
+	}
+	
+	public Date convertToDateViaSqlTimestamp(LocalDateTime dateToConvert) {
+		return java.sql.Timestamp.valueOf(dateToConvert);
 	}
 	
 }

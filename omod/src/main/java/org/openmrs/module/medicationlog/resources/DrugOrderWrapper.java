@@ -12,10 +12,7 @@
 package org.openmrs.module.medicationlog.resources;
 
 import java.util.Date;
-
-import org.openmrs.Concept;
 import org.openmrs.Encounter;
-import org.openmrs.OrderFrequency;
 
 /**
  * @author tahira.niazi@ihsinformatics.com
@@ -24,6 +21,8 @@ public class DrugOrderWrapper {
 	
 	// order details
 	private int orderId;
+	
+	private String encounterType;
 	
 	private Encounter orderEncounter;
 	
@@ -64,15 +63,18 @@ public class DrugOrderWrapper {
 	
 	private Date autoExpireDate;
 	
+	private String discontinueReason;
+	
 	public DrugOrderWrapper() {
 		
 	}
 	
-	public DrugOrderWrapper(int orderId, Encounter orderEncounter, Date dateCreated, String orderer, String uuid,
-	    int drugId, String drugName, double dose, String doseunit, String frequency, String route, int duration,
-	    String durationUnit, Date dateActivated) {
+	public DrugOrderWrapper(int orderId, String encounterType, Encounter orderEncounter, Date dateCreated, String orderer,
+	    String uuid, int drugId, String drugName, double dose, String doseunit, String frequency, String route,
+	    int duration, String durationUnit, Date dateActivated) {
 		
 		this.orderId = orderId;
+		this.encounterType = encounterType;
 		this.orderEncounter = orderEncounter;
 		this.dateCreated = dateCreated;
 		this.orderer = orderer;
@@ -88,59 +90,20 @@ public class DrugOrderWrapper {
 		this.dateActivated = dateActivated;
 	}
 	
-	public DrugOrderWrapper(int orderId, int drugId, String drugName, double dose, String doseUnit, String frequency,
-	    String route, int duration, String durationUnit, String instructions, Date dateActivated, Date dateStopped,
-	    Date scheduledDate, Date autoExpireDate) {
-		
-		this.orderId = orderId;
-		this.drugId = drugId;
-		this.drugName = drugName;
-		this.dose = dose;
-		this.doseUnit = doseUnit;
-		this.frequency = frequency;
-		this.route = route;
-		this.duration = duration;
-		this.durationUnit = durationUnit;
-		this.instructions = instructions;
-		this.dateActivated = dateActivated;
-		this.dateStopped = dateStopped;
-		this.scheduledStopDate = scheduledDate;
-		this.autoExpireDate = autoExpireDate;
-	}
-	
-	public DrugOrderWrapper(int orderId, Encounter orderEncounter, String orderReason, Date dateCreated, String orderer,
-	    String uuid, int drugId, String drugName, boolean asNeeded, double dose, String doseUnit, String frequency,
-	    String route, int duration, String durationUnit, String instructions, Date dateActivated, Date dateStopped,
-	    Date scheduledDate, Date autoExpireDate) {
-		
-		this.orderId = orderId;
-		this.orderEncounter = orderEncounter;
-		this.orderReason = orderReason;
-		this.dateCreated = dateCreated;
-		this.orderer = orderer;
-		this.orderUuid = uuid;
-		this.drugId = drugId;
-		this.drugName = drugName;
-		this.asNeeded = asNeeded;
-		this.dose = dose;
-		this.doseUnit = doseUnit;
-		this.frequency = frequency;
-		this.route = route;
-		this.duration = duration;
-		this.durationUnit = durationUnit;
-		this.instructions = instructions;
-		this.dateActivated = dateActivated;
-		this.dateStopped = dateStopped;
-		this.scheduledStopDate = scheduledDate;
-		this.autoExpireDate = autoExpireDate;
-	}
-	
 	public int getOrderId() {
 		return orderId;
 	}
 	
 	public void setOrderId(int orderId) {
 		this.orderId = orderId;
+	}
+	
+	public String getEncounterType() {
+		return encounterType;
+	}
+	
+	public void setEncounterType(String encounterType) {
+		this.encounterType = encounterType;
 	}
 	
 	public Encounter getOrderEncounter() {
@@ -167,12 +130,12 @@ public class DrugOrderWrapper {
 		this.dateCreated = dateCreated;
 	}
 	
-	public String getCreator() {
+	public String getOrderer() {
 		return orderer;
 	}
 	
-	public void setCreator(String creator) {
-		this.orderer = creator;
+	public void setOrderer(String orderer) {
+		this.orderer = orderer;
 	}
 	
 	public String getOrderUuid() {
@@ -293,6 +256,14 @@ public class DrugOrderWrapper {
 	
 	public void setAutoExpireDate(Date autoExpireDate) {
 		this.autoExpireDate = autoExpireDate;
+	}
+	
+	public String getDiscontinueReason() {
+		return discontinueReason;
+	}
+	
+	public void setDiscontinueReason(String discontinueReason) {
+		this.discontinueReason = discontinueReason;
 	}
 	
 }
