@@ -21,11 +21,9 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.lang.WordUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
@@ -35,7 +33,6 @@ import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
 import org.openmrs.module.medicationlog.resources.DrugOrderWrapper;
 import org.openmrs.module.medicationlog.util.ExclusionStrategyUtil;
-import org.openmrs.module.medicationlog.util.HibernateProxyTypeAdapter;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,6 +40,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.JsonObject;
@@ -53,6 +51,8 @@ import com.google.gson.JsonObject;
 @Controller
 @RequestMapping(value = "/module/medicationlog/ajax/")
 public class MedicationAjaxController {
+	
+	final char[] delimiters = { ' ', '_' };
 	
 	private Log log = LogFactory.getLog(this.getClass());
 	
@@ -183,9 +183,14 @@ public class MedicationAjaxController {
 		if (drugOrder.getAsNeeded() != null)
 			drugOrderWrapper.setAsNeeded(drugOrder.getAsNeeded());
 		
+		if (drugOrder.getOrderReasonNonCoded() != null)
+			drugOrderWrapper.setOrderReason(drugOrder.getOrderReasonNonCoded());
+		
 		// capture the discontinue reason if exists
-		if (drugOrder.getOrderReason() != null)
-			drugOrderWrapper.setDiscontinueReason(drugOrder.getOrderReason().getDisplayString());
+		Order discontinuationOrder = Context.getOrderService().getDiscontinuationOrder(order);
+		if (discontinuationOrder != null && discontinuationOrder.getOrderReason() != null)
+			drugOrderWrapper.setDiscontinueReason(WordUtils.capitalizeFully(discontinuationOrder.getOrderReason()
+			        .getDisplayString(), delimiters));
 		
 		return drugOrderWrapper;
 	}

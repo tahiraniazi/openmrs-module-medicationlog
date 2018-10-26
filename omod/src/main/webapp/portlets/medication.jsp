@@ -95,7 +95,7 @@ function process(date){
 <h3 style="color: red; display: inline">${error} ${param.error}</h3>
 <div >
 </div>
-<!-- <openmrs:hasPrivilege privilege=""> -->
+<openmrs:hasPrivilege privilege="Medication - Add Drug Orders">
 <div id="addMedicationLink">
 <button id="addMedicationButton" onclick="location.href='${pageContext.request.contextPath}/module/medicationlog/singleDrugOrder.form?patientId=${model.patient.patientId}'">
 	<span><openmrs:message code="medication.regimen.addMedication"/></span>
@@ -103,7 +103,7 @@ function process(date){
 </button>
 <%-- <input type="button" id="addMedicationButton" value="<openmrs:message code="medication.regimen.addMedication"/>"> --%>
 </div>
-<!-- </openmrs:hasPrivilege> -->
+</openmrs:hasPrivilege>
 
 <br />
 

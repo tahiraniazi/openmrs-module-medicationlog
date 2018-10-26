@@ -1,5 +1,6 @@
 <%@ include file="/WEB-INF/template/include.jsp"%>
 <%@ include file="/WEB-INF/template/header.jsp"%>
+<openmrs:require privilege="Medication - Add Drug Orders" otherwise="/login.htm" redirect="/module/medicationlog/singleDrugOrder.form?patientId=${model.patient.patientId}" />
 
 
 <link rel="stylesheet"
@@ -67,9 +68,16 @@ input[type=text], select, textarea,radio {
 
 jQuery(document).ready(function() {
 	
+	jQuery("#doseUnit").val("161553");
+	jQuery('#orderReasonOther').prop('disabled', true);
+	
 	console.log('${encounters}');
 	console.log('${requestedOrder}');
-	if('${requestedOrder}' != null) {
+	
+	if('${requestedOrder}' != null && '${requestedOrder}' != '') {
+		
+		/* document.getElementById("doseUnit").selectedIndex = 1; */
+		/* alert(document.getElementById("doseUnit").selectedIndex); */
 		
 		/* in edit mode - input tags are already autopopulated via value tag */
 		
@@ -312,13 +320,26 @@ jQuery(function() {
 		// var convertedEncDate = encDate.getDate() + '/' + (encDate.getMonth() + 1) + '/' +  encDate.getFullYear();
 		document.getElementById('encounterDate').innerHTML = convertDate(encDate);
 			
-		});
+	});
+	
+	jQuery( "#orderReason" ).change(function() {
+		
+		var orderReasonSelectElement =  document.getElementById('orderReason');
+		if(orderReasonSelectElement.options[orderReasonSelectElement.selectedIndex].value == 5622) {
+			jQuery('#orderReasonOther').prop('disabled', false);
+		}
+		else {
+			jQuery('#orderReasonOther').prop('disabled', true);
+			jQuery('#orderReasonOther').val('');
+		}
+		
+	});
 	
 });
 
 function refresh() {
 	
-	document.getElementById("doseUnit").selectedIndex = "0";
+	document.getElementById("doseUnit").selectedIndex = 1;
 	document.getElementById("frequency").selectedIndex = "0";
 	document.getElementById("route").selectedIndex = "0";
 	document.getElementById("durationUnit").selectedIndex = "0";
@@ -332,7 +353,7 @@ function refresh() {
 	jQuery('#drugSuggestBox').val(''); 
 	jQuery('#startDateDrug').val('');
 	jQuery('#adminInstructions').val('');
-	jQuery('#orderReasonNonCoded').val('');
+	jQuery('#orderReasonOther').val('');
 	jQuery('#dosingInstructions').val('');
 }
 
@@ -477,8 +498,6 @@ function saveOrder() {
 		var convertDateStart = start.substring(startYears, startYears + 4) + "/" + start.substring(startMonths, startMonths + 2) + "/" + start.substring(startDays, startDays + 2);
 		var convertDateEncounter = encounterDate.substring(startYears, startYears + 4) + "/" + encounterDate.substring(startMonths, startMonths + 2) + "/" + encounterDate.substring(startDays, startDays + 2);
 
-		
-		
 		var startDate = new Date(convertDateStart);
 		var encounterDate = new Date(convertDateEncounter);
 		
@@ -636,12 +655,11 @@ jQuery(function() {
 				<div class="col-md-6">
 					<input type="number" name="dose" id="dose" size="2" min="1" max="5000" value="${requestedOrder.dose}"/>  
 					<select style="text-transform: capitalize" name="doseUnit" id="doseUnit">
-					<option style="text-transform: capitalize" value="${requestedOrder.doseUnits.name}">Select option</option>
 						<c:if test="${not empty doseUnits}">
 							<c:forEach var="doseUnit" items="${doseUnits}">
 								<option style="text-transform: capitalize"  value="${doseUnit.conceptId}">${fn:toLowerCase(doseUnit.name)}</option>
 							</c:forEach>
-							</c:if>
+						</c:if>
 						</select>
 			   	</div>
     		</div>
@@ -735,7 +753,7 @@ jQuery(function() {
 					<label class="control-label"><spring:message code="medication.regimen.additionalReason" /></label>
 				</div>
 				<div class="col-md-6">
-					<textarea rows="2" cols="30" name="orderReasonNonCoded" id="orderReasonNonCoded" maxlength="250"></textarea>
+					<textarea rows="2" cols="30" name="orderReasonOther" id="orderReasonOther" maxlength="250"></textarea>
 			   	</div>
     		</div>
     		

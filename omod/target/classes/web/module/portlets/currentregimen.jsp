@@ -233,115 +233,115 @@ body {
  				details = details.concat(' <form id="form">');
 			    
 			    details = details.concat('<div class="row"><div class="col-md-12">');
-				details = details.concat('<strong><h6>Encounter related details</h6></strong>');
+				details = details.concat('<u><strong><h6>Encounter related details</h6></strong></u>');
 				details = details.concat('</div></div>');
 				
 			    details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub><spring:message code="medication.drugOrder.orderId" /></sub></font></label>');
+				details = details.concat('<label ><font color="#17202A"><spring:message code="medication.drugOrder.orderId" /></font></label>');
 				details = details.concat('</div><div class ="col-md-4">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+singleOrder.orderId+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+singleOrder.orderId+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Encounter Type</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Encounter Type</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+singleOrder.encounterType+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+singleOrder.encounterType+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Order Reason</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Order Reason</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+ ( typeof(singleOrder.orderReason) == 'undefined' ? "" : singleOrder.orderReason) +'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+ ( typeof(singleOrder.orderReason) == 'undefined' ? "" : singleOrder.orderReason) +'</font></label>');			 
 				details = details.concat('</div></div>');
 
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Date Created</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Date Created</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+singleOrder.dateCreated+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+singleOrder.dateCreated+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Orderer</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Orderer</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+singleOrder.orderer+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+singleOrder.orderer+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				
 				details = details.concat('<div class="row"><div class="col-md-12">');
-				details = details.concat('<strong><h6>Drug details</h6></strong>');
+				details = details.concat('<u><strong><h6>Drug details</h6></strong></u>');
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Drug Name</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Drug Name</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+ (singleOrder.drugName).toUpperCase()+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+ (singleOrder.drugName).toUpperCase()+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Date Activated</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Date Activated</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+singleOrder.dateActivated+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+singleOrder.dateActivated+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>As needed</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">As needed</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+singleOrder.asNeeded+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+singleOrder.asNeeded+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Dose</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Dose</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+singleOrder.dose+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+singleOrder.dose+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Dose unit</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Dose unit</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+singleOrder.doseUnit+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+singleOrder.doseUnit+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Frequency</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Frequency</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+singleOrder.frequency+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+singleOrder.frequency+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Route</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Route</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+singleOrder.route+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+singleOrder.route+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Duration</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Duration</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+singleOrder.duration+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+singleOrder.duration+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Duration Unit</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Duration Unit</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+singleOrder.durationUnit+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+singleOrder.durationUnit+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Instructions</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Instructions</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+  (typeof(singleOrder.instructions) == 'undefined' ? "" : singleOrder.instructions) +'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+  (typeof(singleOrder.instructions) == 'undefined' ? "" : singleOrder.instructions) +'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Scheduled Stop Date</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Scheduled Stop Date</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+ (typeof(singleOrder.autoExpireDate) == 'undefined' ? "" : singleOrder.autoExpireDate) +'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+ (typeof(singleOrder.autoExpireDate) == 'undefined' ? "" : singleOrder.autoExpireDate) +'</font></label>');			 
 				details = details.concat('</div></div>');
 				
-				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Discontinue Reason</sub></font></label>');
+				/* details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A">Discontinue Reason</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+ (typeof(singleOrder.discontinueReason) == 'undefined' ? "" : singleOrder.discontinueReason)    +'</sub></font></label>');			 
-				details = details.concat('</div></div>');
+				details = details.concat('<label ><font color="#5D6D7E">'+ (typeof(singleOrder.discontinueReason) == 'undefined' ? "" : singleOrder.discontinueReason)    +'</font></label>');			 
+				details = details.concat('</div></div>'); */
 				
 			    details = details.concat('</form>');
 			    
@@ -362,113 +362,113 @@ body {
 			    details = details.concat(' <form id="form">');
 			    
 			    details = details.concat('<div class="row"><div class="col-md-12">');
-				details = details.concat('<strong><h6>Encounter related details</h6></strong>');
+				details = details.concat('<u><strong><h6>Encounter related details</h6></strong></u>');
 				details = details.concat('</div></div>');
 				
 			    details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub><spring:message code="medication.drugOrder.orderId" /></sub></font></label>');
+				details = details.concat('<label ><font color="#17202A"><spring:message code="medication.drugOrder.orderId" /></font></label>');
 				details = details.concat('</div><div class ="col-md-4">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.orderId+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+revisedOrder.orderId+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>EncounterType</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">EncounterType</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.encounterType+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+revisedOrder.encounterType+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Order Reason</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Order Reason</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+ ( typeof(revisedOrder.orderReason) == 'undefined' ? "" : revisedOrder.orderReason) +'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+ ( typeof(revisedOrder.orderReason) == 'undefined' ? "" : revisedOrder.orderReason) +'</font></label>');			 
 				details = details.concat('</div></div>');
 
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Date Created</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Date Created</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.dateCreated+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+revisedOrder.dateCreated+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Orderer</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Orderer</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.orderer+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+revisedOrder.orderer+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-12">');
-				details = details.concat('<strong><h6>Drug details</h6></strong>');
+				details = details.concat('<u><strong><h6>Drug details</h6></strong></u>');
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Drug Name</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Drug Name</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+ (revisedOrder.drugName).toUpperCase()+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+ (revisedOrder.drugName).toUpperCase()+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Date Activated</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Date Activated</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.dateActivated+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+revisedOrder.dateActivated+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>As needed</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">As needed</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.asNeeded+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+revisedOrder.asNeeded+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Dose</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Dose</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.dose+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+revisedOrder.dose+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Dose Unit</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Dose Unit</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.doseUnit+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+revisedOrder.doseUnit+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Frequency</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Frequency</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.frequency+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+revisedOrder.frequency+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Route</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Route</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.route+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+revisedOrder.route+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Duration</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Duration</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.duration+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+revisedOrder.duration+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Duration Unit</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Duration Unit</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.durationUnit+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+revisedOrder.durationUnit+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Instructions</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Instructions</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+  (typeof(revisedOrder.instructions) == 'undefined' ? "" : revisedOrder.instructions) +'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+  (typeof(revisedOrder.instructions) == 'undefined' ? "" : revisedOrder.instructions) +'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Date Stopped</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Date Stopped</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+revisedOrder.dateStopped+'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+revisedOrder.dateStopped+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A"><sub>Discontinue Reason</sub></font></label>');
+				details = details.concat('<label ><font color="#17202A">Discontinue Reason</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E"><sub>'+ (typeof(revisedOrder.discontinueReason) == 'undefined' ? "" : revisedOrder.discontinueReason)    +'</sub></font></label>');			 
+				details = details.concat('<label ><font color="#5D6D7E">'+ (typeof(revisedOrder.discontinueReason) == 'undefined' ? "" : revisedOrder.discontinueReason)    +'</font></label>');			 
 				details = details.concat('</div></div>');
 				
 			    details = details.concat('</form>');
@@ -508,6 +508,7 @@ body {
 </script>
 
 <div class="boxHeader${model.patientVariation}"><spring:message code="medication.regimen.current" /></div>
+<openmrs:hasPrivilege privilege="Medication - View Drug Orders">
 <div class="box${model.patientVariation}">
 	
 	<c:choose>
@@ -523,9 +524,13 @@ body {
 			<th><spring:message code="medication.regimen.route"/></th>
 			<th><spring:message code="medication.drugOrder.frequency"/></th>
 			<th><spring:message code="medication.orderset.field.startDay"/></th>
-			<th><spring:message code="medication.drugOrder.scheduledStopDate"/></th>
+			<th><spring:message code="medication.drugOrder.duration"/></th>
+			<openmrs:hasPrivilege privilege="Medication - Edit Drug Orders">
 			<th><spring:message code="medication.drugOrder.stop"/></th>
+			</openmrs:hasPrivilege>
+			<openmrs:hasPrivilege privilege="Medication - Edit Drug Orders">
 			<th><spring:message code="medication.drugOrder.revise"/></th>
+			</openmrs:hasPrivilege>
 		</tr>
 		
 		</thead>
@@ -545,14 +550,18 @@ body {
     				<c:when test="${empty currentOrder.instructions}">
     					<spring:message code="medication.drugOrder.noInstructions" />
     				</c:when>
-    			</c:choose>" id='viewMore_${i}'  src="/openmrs/moduleResources/medicationlog/img/info_light_green_small.png" alt="more" border="0" onmouseover="document.body.style.cursor='default'" onmouseout="document.body.style.cursor='default'"/></span></td>
+    			</c:choose>" id='viewMore_${i}'  src="/openmrs/moduleResources/medicationlog/img/info_blue_small.png" alt="more" border="0" onmouseover="document.body.style.cursor='default'" onmouseout="document.body.style.cursor='default'"/></span></td>
 				<td ><nobr>${currentOrder.dose} ${currentOrder.doseUnit}</nobr></td>
 				<td ><nobr>${currentOrder.route}</nobr></td>
 				<td ><nobr>${currentOrder.frequency}</nobr></td>
 				<td style="text-align: center;"><nobr><openmrs:formatDate date="${currentOrder.dateActivated}" format="${_dateFormatDisplay}"/></nobr></td>
-				<td style="text-align: center;"><nobr><openmrs:formatDate date="${currentOrder.scheduledStopDate}" format="${_dateFormatDisplay}"/></nobr></td>  
+				<td ><nobr>${currentOrder.duration} ${currentOrder.durationUnit}</nobr></td>  
+				<openmrs:hasPrivilege privilege="Medication - Edit Drug Orders">
 				<td ><nobr><img title="Stop" class="stopButton" id='stopOrder_${i}_${currentOrder.orderId}_${currentOrder.dateActivated}' src="/openmrs/moduleResources/medicationlog/img/stop_very_small.png" alt="stop" border="0" onmouseover="document.body.style.cursor='pointer'" onmouseout="document.body.style.cursor='default'"/></nobr></td>
+				</openmrs:hasPrivilege>
+				<openmrs:hasPrivilege privilege="Medication - Edit Drug Orders">
 				<td ><nobr><a href='${pageContext.request.contextPath}/module/medicationlog/singleDrugOrder.form?patientId=${model.patient.patientId}&orderId=${currentOrder.orderId}&operation=REVISE'> <img src="/openmrs/moduleResources/medicationlog/img/reload_small.png"></a></nobr></td>
+				</openmrs:hasPrivilege>
 				</tr>
 				
 				<c:set var="i" value="${i+1}"/>
@@ -568,6 +577,8 @@ body {
 	</c:choose>
 		
 </div>
+
+</openmrs:hasPrivilege>
 
 <div class="modal fade" id="viewDrugModal" tabindex="-1" role="dialog" aria-labelledby="viewDrugModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered" role="document">

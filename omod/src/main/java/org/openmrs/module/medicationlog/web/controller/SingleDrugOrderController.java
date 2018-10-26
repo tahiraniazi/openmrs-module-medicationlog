@@ -71,12 +71,21 @@ public class SingleDrugOrderController {
 	@RequestMapping(method = RequestMethod.GET)
 	public void showSingleDrugOrderForm(HttpServletRequest request, Map<String, Object> model) {
 		
-		// order.durationUnitsConceptUuid > units
-		List<Concept> durationUnits = Context.getOrderService().getDurationUnits();
-		log.info("Duration unit concepts are " + durationUnits);
-		model.put("durationUnits", durationUnits);
-		
-		// frequencies
+		// not using order.durationUnitsConceptUuid but rather newly created medication.durationUnitsUuid because it has limited options that we need
+		String durationUnitsUuid = Context.getAdministrationService().getGlobalProperty("medication.durationUnitsUuid");
+		if (durationUnitsUuid != null && !durationUnitsUuid.isEmpty()) {
+			Concept durationUnitConcept = Context.getConceptService().getConceptByUuid(durationUnitsUuid);
+			if (durationUnitConcept != null && durationUnitConcept.getAnswers(false).size() > 0) {
+				Collection<ConceptAnswer> durationUnitCollection = durationUnitConcept.getAnswers(false);
+				ArrayList<Concept> durationUnits = new ArrayList<Concept>();
+				
+				for (ConceptAnswer unit : durationUnitCollection) {
+					durationUnits.add(unit.getAnswerConcept());
+					
+				}
+				model.put("durationUnits", durationUnits);
+			}
+		}
 		
 		// order.drugRoutesConceptUuid > routes
 		List<Concept> routes = Context.getOrderService().getDrugRoutes();
@@ -229,7 +238,7 @@ public class SingleDrugOrderController {
 	        @RequestParam(value = "durationUnit", required = true) Integer durationUnit,
 	        @RequestParam(value = "asNeeded", required = false) String asNeeded,
 	        @RequestParam(value = "orderReason", required = false) Integer orderReason,
-	        @RequestParam(value = "orderReasonNonCoded", required = false) String orderReasonNonCoded,
+	        @RequestParam(value = "orderReasonOther", required = false) String orderReasonOther,
 	        @RequestParam(value = "adminInstructions", required = false) String adminInstructions,
 	        @RequestParam(value = "operation", required = false) String operation,
 	        @RequestParam(value = "returnPagee", required = true) String returnPage) {
@@ -237,7 +246,7 @@ public class SingleDrugOrderController {
 		try {
 			DrugOrder drugOrder = constructDrugOrderObject(null, currentUserId, patientId, drugId, drugName, drugSelection,
 			    encounterId, dose, doseUnit, frequency, route, dosingInstruction, startDateDrug, duration, durationUnit,
-			    asNeeded, orderReason, orderReasonNonCoded, adminInstructions);
+			    asNeeded, orderReason, orderReasonOther, adminInstructions);
 			
 			OrderContext orderContext = new OrderContext();
 			if (orderId != null) {
@@ -252,7 +261,7 @@ public class SingleDrugOrderController {
 					// catching the same revised order object back
 					revisedDrugOrder = constructDrugOrderObject(revisedDrugOrder, currentUserId, patientId, drugId,
 					    drugName, drugSelection, encounterId, dose, doseUnit, frequency, route, dosingInstruction,
-					    startDateDrug, duration, durationUnit, asNeeded, orderReason, orderReasonNonCoded, adminInstructions);
+					    startDateDrug, duration, durationUnit, asNeeded, orderReason, orderReasonOther, adminInstructions);
 					
 					Context.getOrderService().saveOrder((Order) revisedDrugOrder, null);
 				}
@@ -290,7 +299,7 @@ public class SingleDrugOrderController {
 	private DrugOrder constructDrugOrderObject(DrugOrder drugOrder, String currentUserid, Integer patientId, Integer drugId,
 	        String drugName, String drugSelection, Integer encounterId, Double dose, Integer doseUnit, Integer frequency,
 	        Integer route, String dosingInstructions, Date startDateDrug, int duration, Integer durationUnit,
-	        String asNeeded, Integer orderReason, String orderReasonNonCoded, String adminInstructions) {
+	        String asNeeded, Integer orderReason, String orderReasonOther, String adminInstructions) {
 		
 		if (drugOrder == null)
 			drugOrder = new DrugOrder();
@@ -423,12 +432,12 @@ public class SingleDrugOrderController {
 			/* Note: using order_reason_non_coded for Storing "Reason for Administration", 
 			because order_reason is used by discontinueOrder(...) method as reason for stopping drug */
 			
-			if (orderReason != null)
+			if (orderReason != null) {
 				drugOrder.setOrderReasonNonCoded(Context.getConceptService().getConcept(orderReason).getDescription()
 				        .getDescription());
-			
-			if (orderReasonNonCoded != null && !orderReasonNonCoded.isEmpty())
-				drugOrder.setOrderReasonNonCoded(orderReasonNonCoded);
+			} else if (orderReasonOther != null && !orderReasonOther.isEmpty()) {
+				drugOrder.setOrderReasonNonCoded(orderReasonOther);
+			}
 			
 			if (adminInstructions != null && !adminInstructions.isEmpty())
 				drugOrder.setInstructions(adminInstructions);

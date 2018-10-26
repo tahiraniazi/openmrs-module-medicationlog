@@ -44,6 +44,8 @@ public class MedicationLogActivator extends BaseModuleActivator {
 	
 	public static final String MEDICATION_REASON_ORDER_STOPPED_UUID = "medication.reasonOrderStoppedUuid";
 	
+	public static final String MEDICATION_DURATION_UNITS_UUID = "medication.durationUnitsUuid";
+	
 	ConceptService conceptService;
 	
 	/**
@@ -69,6 +71,9 @@ public class MedicationLogActivator extends BaseModuleActivator {
 		
 		setGlobalProperty(administrationService, MEDICATION_REASON_ORDER_STOPPED_UUID,
 		    "25426941-0fe6-4e0c-adc9-b396416606f5");
+		
+		setGlobalProperty(administrationService, MEDICATION_DURATION_UNITS_UUID, "4e2ed724-e30e-4225-86bc-35e9d8f0a596");
+		
 		setGlobalProperty(administrationService, MEDICATION_DRUG_SETS_PROPERTY, "LabSet");
 		
 		ensureOrderFrequencies(Context.getOrderService(), Context.getConceptService(), Context.getAdministrationService()
@@ -133,9 +138,9 @@ public class MedicationLogActivator extends BaseModuleActivator {
 		setGlobalProperty(administrationService, MEDICATION_FREQUENCIES_CONCEPT_UUID, "160855AAAAAAAAAAAAAAAAAAAAAAAAAAAAAA");
 		setGlobalProperty(administrationService, MEDICATION_ORDER_REASON_CONCEPT_UUID,
 		    "a351615f-1a76-49b3-9813-a078cf31cc82");
-		
 		setGlobalProperty(administrationService, MEDICATION_REASON_ORDER_STOPPED_UUID,
 		    "25426941-0fe6-4e0c-adc9-b396416606f5");
+		setGlobalProperty(administrationService, MEDICATION_DURATION_UNITS_UUID, "4e2ed724-e30e-4225-86bc-35e9d8f0a596");
 		setGlobalProperty(administrationService, MEDICATION_DRUG_SETS_PROPERTY, "LabSet");
 		
 		ensureOrderFrequencies(Context.getOrderService(), Context.getConceptService(), Context.getAdministrationService()

@@ -35,5 +35,32 @@
         <addForeignKeyConstraint constraintName="medicationlog_item_owner_fk" baseTableName="medicationlog_item" baseColumnNames="owner"  referencedTableName="users"
                                  referencedColumnNames="user_id" />
     </changeSet> -->
+    
+    <changeSet id="medication-2018-10-19-1" author="tahira.niazi">
+		<preConditions onFail="MARK_RAN">
+			<sqlCheck expectedResult="0">select count(*) from privilege where privilege like '%Medication%'</sqlCheck>
+		</preConditions>
+		<insert tableName="privilege">
+			<column name="privilege">Medication - View Drug Orders</column>
+			<column name="description">Access to view Drug Order objects</column>
+			<column name="uuid">48ee3311-d36f-11e8-b6df-1c3947249201</column>
+		</insert>
+		<insert tableName="privilege">
+			<column name="privilege">Medication - Add Drug Orders</column>
+			<column name="description">Access to create new Drug Order objects</column>
+			<column name="uuid">56d231ad-d36f-11e8-b6df-1c3947249201</column>
+		</insert>
+		<insert tableName="privilege">
+			<column name="privilege">Medication - Edit Drug Orders</column>
+			<column name="description">Access to edit Drug Orders</column>
+			<column name="uuid">623e7d6d-d36f-11e8-b6df-1c3947249201</column>
+		</insert>
+		<insert tableName="privilege">
+			<column name="privilege">Medication - Delete Drug Orders</column>
+			<column name="description">Access to delete or void Drug Order objects</column>
+			<column name="uuid">6653ff37-d36f-11e8-b6df-1c3947249201</column>
+		</insert>
+		
+	</changeSet>
  
 </databaseChangeLog>

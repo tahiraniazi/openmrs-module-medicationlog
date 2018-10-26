@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 
 import javax.servlet.http.HttpServletRequest;
 
+import org.apache.commons.lang.WordUtils;
 import org.openmrs.DrugOrder;
 import org.openmrs.Order;
 import org.openmrs.OrderType;
@@ -36,6 +37,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 @Controller
 @RequestMapping("**/completedRegimen.portlet")
 public class CompletedRegimenPortletController extends PortletController {
+	
+	final char[] delimiters = { ' ', '_' };
 	
 	protected void populateModel(HttpServletRequest request, Map<String, Object> model) {
 		
@@ -56,6 +59,7 @@ public class CompletedRegimenPortletController extends PortletController {
 				
 				DrugOrder drugOrder = null;
 				Order discontinuedOrder = null;
+				Order discontinuationOrder = null;
 				
 				boolean isExpired = false;
 				boolean isStopped = false;
@@ -73,6 +77,8 @@ public class CompletedRegimenPortletController extends PortletController {
 						order = discontinuedOrder.getPreviousOrder();
 						drugOrder = (DrugOrder) order;
 					} else {
+						
+						discontinuationOrder = Context.getOrderService().getDiscontinuationOrder(order);
 						drugOrder = (DrugOrder) order;
 					}
 					
@@ -99,7 +105,15 @@ public class CompletedRegimenPortletController extends PortletController {
 					if (discontinuedOrder != null
 					        && (discontinuedOrder.getOrderReason().getDisplayString() != null && !discontinuedOrder
 					                .getOrderReason().getDisplayString().isEmpty())) {
-						drugOrderWrapper.setDiscontinueReason(drugOrder.getInstructions());
+						drugOrderWrapper.setDiscontinueReason(WordUtils.capitalizeFully(discontinuedOrder.getOrderReason()
+						        .getDisplayString(), delimiters));
+					}
+					
+					if (discontinuationOrder != null
+					        && (discontinuationOrder.getOrderReason().getDisplayString() != null && !discontinuationOrder
+					                .getOrderReason().getDisplayString().isEmpty())) {
+						drugOrderWrapper.setDiscontinueReason(WordUtils.capitalizeFully(discontinuationOrder
+						        .getOrderReason().getDisplayString(), delimiters));
 					}
 					
 					if (!containsOrder(completedDrugOrders, order.getOrderId()))
