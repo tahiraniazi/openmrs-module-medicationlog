@@ -28,6 +28,7 @@ import org.openmrs.Concept;
 import org.openmrs.Drug;
 import org.openmrs.DrugOrder;
 import org.openmrs.Order;
+import org.openmrs.Person;
 import org.openmrs.Order.Action;
 import org.openmrs.api.APIException;
 import org.openmrs.api.context.Context;
@@ -195,4 +196,20 @@ public class MedicationAjaxController {
 		return drugOrderWrapper;
 	}
 	
+	@RequestMapping(value = "getPatientUuid", method = RequestMethod.GET)
+	@ResponseBody
+	public String getDrugOrderDetails(@RequestParam(value = "patientId", required = true) int patientId, Model model) {
+		
+		JsonObject patientUuid = new JsonObject();
+		
+		try {
+			
+			Person person = Context.getPersonService().getPerson(patientId);
+			patientUuid.addProperty("patientUuid", person.getUuid());
+		}
+		catch (APIException e) {
+			e.printStackTrace();
+		}
+		return patientUuid.toString();
+	}
 }

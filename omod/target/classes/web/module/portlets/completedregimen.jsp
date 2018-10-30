@@ -21,12 +21,12 @@
 	rel="stylesheet" />
 	
 <script src="/openmrs/moduleResources/medicationlog/alertify.min.js"></script>
-<script
-	src="/openmrs/moduleResources/medicationlog/js/jquery-3.3.1.min.js"></script>
+<!-- <script
+	src="/openmrs/moduleResources/medicationlog/js/jquery-3.3.1.min.js"></script> -->
 <script
 	src="/openmrs/moduleResources/medicationlog/js/bootstrap.min.js"></script>
-<script
-	src="/openmrs/moduleResources/medicationlog/js/jquery-ui.min.js"></script>
+<!-- <script
+	src="/openmrs/moduleResources/medicationlog/js/jquery-ui.min.js"></script> -->
 <script
 	src="/openmrs/moduleResources/medicationlog/js/jquery.dataTables.min.js"></script>
 <script

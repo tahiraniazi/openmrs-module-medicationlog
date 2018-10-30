@@ -24,7 +24,7 @@
 	
 <script src="/openmrs/moduleResources/medicationlog/alertify.min.js"></script>
 <script
-	src="${pageContext.request.contextPath}/moduleResources/medicationlog/bootstrap/js/bootstrap.min.js"></script>
+	src="/openmrs/moduleResources/medicationlog/js/bootstrap.min.js"></script>
 
 
 <!-- SPECIALIZED STYLES FOR THIS PORTLET -->

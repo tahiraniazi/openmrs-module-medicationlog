@@ -101,7 +101,13 @@ function process(date){
 	<span><openmrs:message code="medication.regimen.addMedication"/></span>
 	<span class='addMedicationImage'><img class="manImg" src="/openmrs/moduleResources/medicationlog/img/add.gif"></img></span>
 </button>
-<%-- <input type="button" id="addMedicationButton" value="<openmrs:message code="medication.regimen.addMedication"/>"> --%>
+
+
+<button id="addMultiOrderButton" onclick="location.href='${pageContext.request.contextPath}/module/medicationlog/multiDrugOrder.form?patientId=${model.patient.patientId}'">
+	<span><openmrs:message code="medication.regimen.addMedication"/></span>
+	<span class='addMedicationImage'><img class="manImg" src="/openmrs/moduleResources/medicationlog/img/add.gif"></img></span>
+</button>
+
 </div>
 </openmrs:hasPrivilege>
 
