@@ -1,5 +1,6 @@
 <%@ include file="/WEB-INF/template/include.jsp"%>
 <%@ include file="/WEB-INF/template/header.jsp"%>
+<%@ taglib prefix = "fmt" uri = "http://java.sun.com/jsp/jstl/fmt" %>
 <openmrs:require privilege="Medication - Add Drug Orders" otherwise="/login.htm" redirect="/module/medicationlog/singleDrugOrder.form?patientId=${model.patient.patientId}" />
 
 
@@ -68,7 +69,12 @@ input[type=text], select, textarea,radio {
 
 jQuery(document).ready(function() {
 	
-	jQuery("#doseUnit").val("161553");
+	// jQuery("#doseUnit").val("161553");
+	// jQuery("#durationUnit").val("1072");
+	
+	jQuery("#doseUnit").val(jQuery("#doseUnit option:first").val());
+	jQuery("#durationUnit").val(jQuery("#durationUnit option:first").val());
+	
 	jQuery('#orderReasonOther').prop('disabled', true);
 	
 	console.log('${encounters}');
@@ -87,12 +93,18 @@ jQuery(document).ready(function() {
 			jQuery('#drugSuggestBox').prop('disabled', 'diabled');
 			jQuery('#startDateDrug').val('');
 			jQuery('#patientEncounter').val('');
+			
+			jQuery("input[id='drugSets']:radio").attr('disabled', true);
+			jQuery("input[id='drugs']:radio").attr('disabled', true);
 		
 		}
 		else if(operation == "REVISE") {
 			
 			jQuery('#patientEncounter').prop('disabled', 'diabled');
 			jQuery('#drugSuggestBox').prop('disabled', 'diabled');
+			
+			jQuery("input[id='drugSets']:radio").attr('disabled', true);
+			jQuery("input[id='drugs']:radio").attr('disabled', true);
 			
 			var startDateString = "${requestedOrder.dateActivated}";
 			if(startDateString != '') 
@@ -351,7 +363,7 @@ function refresh() {
 	document.getElementById("doseUnit").selectedIndex = 1;
 	document.getElementById("frequency").selectedIndex = "0";
 	document.getElementById("route").selectedIndex = "0";
-	document.getElementById("durationUnit").selectedIndex = "0";
+	document.getElementById("durationUnit").selectedIndex = 1;
 	document.getElementById("orderReason").selectedIndex = "0";
 	document.getElementById("drugSetList").selectedIndex = "0";
 	document.getElementById("patientEncounter").selectedIndex = "0";
@@ -454,10 +466,10 @@ function saveOrder() {
 		else {
 			
 			var durationUnitSelectElement =  document.getElementById('durationUnit');
-			if(durationUnitSelectElement.selectedIndex == 0) {
+			/* if(durationUnitSelectElement.selectedIndex == 0) {
 				error = error + "<br><spring:message code='medication.regimen.durationUnitError' /> ";
 				isValid = false;
-			}
+			} */
 		}
 		
 		var frequencySelectElement =  document.getElementById('frequency');
@@ -662,7 +674,8 @@ jQuery(function() {
 					<label  class="control-label"><spring:message code="DrugOrder.dose" /></label><span class="required">*</span>
 				</div>
 				<div class="col-md-6">
-					<input type="number" name="dose" id="dose" size="2" min="1" max="5000" value="${requestedOrder.dose}"/>  
+				<fmt:parseNumber var = "integerDose" type = "number" value = "${requestedOrder.dose}" />
+					<input type="number" name="dose" id="dose" size="2" min="1" max="5000" value="${integerDose}"/>  
 					<select style="text-transform: capitalize" name="doseUnit" id="doseUnit">
 						<c:if test="${not empty doseUnits}">
 							<c:forEach var="doseUnit" items="${doseUnits}">
@@ -731,7 +744,6 @@ jQuery(function() {
 				<div class="col-md-6">
 					<input type="number" name="duration" id="duration" size="2" min="1" max="99" value="${requestedOrder.duration}"/>
 					<select style="text-transform: capitalize" name="durationUnit" id="durationUnit">
-							<option value="">Select option</option>
 							<c:if test="${not empty durationUnits}">
 							<c:forEach var="duration" items="${durationUnits}">
 								<option style="text-transform: capitalize"  value="${duration.conceptId}">${fn:toLowerCase(duration.name)}</option>

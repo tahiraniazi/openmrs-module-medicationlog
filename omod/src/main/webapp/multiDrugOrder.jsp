@@ -1,6 +1,6 @@
 <%@ include file="/WEB-INF/template/include.jsp"%>
 <%@ include file="/WEB-INF/template/header.jsp"%>
-<openmrs:require privilege="Medication - Add Drug Orders" otherwise="/login.htm" redirect="/module/medicationlog/singleDrugOrder.form?patientId=${model.patient.patientId}" />
+<openmrs:require privilege="Medication - Add Drug Orders" otherwise="/login.htm" redirect="/module/medicationlog/multiDrugOrder.form?patientId=${model.patient.patientId}" />
 
 
 <link rel="stylesheet"
@@ -94,69 +94,11 @@ input[type=number]{
 
 jQuery(document).ready(function() {
 	
-	jQuery("#doseUnit").val("161553");
-	jQuery('#orderReasonOther').prop('disabled', true);
+	// jQuery("#doseUnit").val("161553");
+	jQuery("#doseUnit").val(jQuery("#doseUnit option:first").val());
 	
 	console.log('${encounters}');
 	console.log('${requestedOrder}');
-	
-	if('${requestedOrder}' != null && '${requestedOrder}' != '') {
-		
-		/* document.getElementById("doseUnit").selectedIndex = 1; */
-		/* alert(document.getElementById("doseUnit").selectedIndex); */
-		
-		/* in edit mode - input tags are already autopopulated via value tag */
-		
-		var operation = "${operation}";
-		if(operation == "RENEW") {
-			
-			jQuery('#drugSuggestBox').prop('disabled', 'diabled');
-			jQuery('#startDateDrug').val('');
-			jQuery('#patientEncounter').val('');
-		
-		}
-		else if(operation == "REVISE") {
-			
-			jQuery('#patientEncounter').prop('disabled', 'diabled');
-			jQuery('#drugSuggestBox').prop('disabled', 'diabled');
-			
-			var startDateString = "${requestedOrder.dateActivated}";
-			if(startDateString != '') 
-			{
-				var startDate = new Date(startDateString);
-				var convertedStartDate = startDate.getDate() + '/' + (startDate.getMonth() + 1) + '/' +  startDate.getFullYear();
-				jQuery('#startDateDrug').val(convertedStartDate);
-				jQuery('#startDateDrug').prop('disabled', 'diabled');
-			}
-		}
-		
-		
-		console.log("${requestedOrder.encounter.encounterId}");
-		var encounterElement =  document.getElementById("patientEncounter");
-		encounterElement.value = "${requestedOrder.encounter.encounterId}";
-		
-		var doseUnitElement =  document.getElementById("doseUnit");
-		doseUnitElement.value = "${requestedOrder.doseUnits.id}";
-		
-		var frequencyElement =  document.getElementById("frequency");
-		frequencyElement.value = "${requestedOrder.frequency.concept.id}";
-		
-		var routeElement =  document.getElementById("route");
-		routeElement.value = "${requestedOrder.route.id}";
-		
-		var durationUnitElement =  document.getElementById("durationUnit");
-		durationUnitElement.value = "${requestedOrder.durationUnits.id}";
-		
-		var orderIdElement =  document.getElementById("orderId");
-		orderIdElement.value = "${requestedOrder.orderId}";
-		
-		console.log("${requestedOrder.asNeeded}");
-		
-		// it is treating asNeeded boolean value as string literal
-		jQuery('#asNeeded').prop('checked', "${requestedOrder.asNeeded}" == 'true');
-		
-	};
-	console.log('${requestedOrder.frequency.concept.id}');
 	
 	var drugObject = {};
 	var drugsList = null;
@@ -394,69 +336,68 @@ function addDrugToTable() {
 	if(!(selectedDrug == "") && !exists) {
 		
 		var drugId = jQuery("#drugId").val();
-			
-	    var row = table.insertRow(rowCount);
 	    
 	    var deleteHtml = '<img title="Delete" class="stopButton" id="deleteOrder" src="/openmrs/moduleResources/medicationlog/img/delete_very_small.png" onclick="deleteRow(this)" alt="delete" border="0" />';
 	    
 	    var drugLabel = '<label id="drugLabel" style="display: none;">'+selectedDrug+'</label>';
 	    var drugIdLabel = '<label id="drugIdLabel" style="display: none;">'+ drugId +'</label>';
 	    
-	    var doseHtml = '<input type="number" name="dose" id="dose.'+rowCount+'" size="2" min="1" max="5000" value="${requestedOrder.dose}"/><br><span id="doseError.'+rowCount+'" class="text-danger "></span>';
+	    var doseHtml = '<input type="number" name="dose" id="dose.'+drugId+'" size="2" min="1" max="5000" value="${requestedOrder.dose}"/><br><span id="doseError.'+drugId+'" class="text-danger "></span>';
 	    
-	    var doseUnitHtml = '<select style="text-transform: capitalize" name="doseUnit" id="doseUnit.'+rowCount+'">' +
+	    var doseUnitHtml = '<select style="text-transform: capitalize" name="doseUnit" id="doseUnit.'+drugId+'">' +
 				'<c:if test="${not empty doseUnits}">' +
 				'<c:forEach var="doseUnit" items="${doseUnits}">' +
 				'<option style="text-transform: capitalize"  value="${doseUnit.conceptId}">${fn:toLowerCase(doseUnit.name)}</option>' + 
 				'</c:forEach>' +
 				'</c:if>' +
-				'</select><span id="doseUnitError.'+rowCount+'" class="text-danger "></span>';
+				'</select><span id="doseUnitError.'+drugId+'" class="text-danger "></span>';
 				
-		var frequencyHtml = '<select style="text-transform: capitalize" name="frequency" id="frequency.'+rowCount+'">' +
+		var frequencyHtml = '<select style="text-transform: capitalize" name="frequency" id="frequency.'+drugId+'">' +
 			'<option style="text-transform: capitalize" value="">Select option</option>' +
 			'<c:if test="${not empty frequencies}">' +
 			'<c:forEach var="frequency" items="${frequencies}">' +
 				'<option style="text-transform: capitalize" value="${frequency.conceptId}">${fn:toLowerCase(frequency.name)}</option>' +
 			'</c:forEach>' +
 			'</c:if>' +
-		'</select><span id="frequencyError.'+rowCount+'" class="text-danger "></span>';
+		'</select><span id="frequencyError.'+drugId+'" class="text-danger "></span>';
 		
-		var routeHtml = '<select style="text-transform: capitalize" name="route" id="route.'+rowCount+'">' +
+		var routeHtml = '<select style="text-transform: capitalize" name="route" id="route.'+drugId+'">' +
 			'<option style="text-transform: capitalize" value="${requestedOrder.route.name}">Select option</option>' +
 			'<c:if test="${not empty routes}">' +
 				'<c:forEach var="route" items="${routes}"> ' +
 					'<option style="text-transform: capitalize" value="${route.conceptId}">${fn:toLowerCase(route.name)}</option> ' +
 				'</c:forEach> ' +
 			'</c:if>' +
-		'</select><span id="routeError.'+rowCount+'" class="text-danger "></span>';
+		'</select><span id="routeError.'+drugId+'" class="text-danger "></span>';
 		
 		
-		var dateHtml  = '<input id="startDatePicker.'+rowCount+'" autocomplete="off" />' +
-		'<br><span id="startDateError.'+rowCount+'" class="text-danger "></span>'; 
+		var dateHtml  = '<input id="startDatePicker.'+drugId+'" autocomplete="off" />' +
+		'<br><span id="startDateError.'+drugId+'" class="text-danger "></span>'; 
 		
-		var durationHtml = '<input type="number" name="duration" id="duration.'+rowCount+'" size="2" min="1" max="99" value="${requestedOrder.duration}"/><span id="durationError.'+rowCount+'" class="text-danger "></span>';
+		var durationHtml = '<input type="number" name="duration" id="duration.'+drugId+'" size="2" min="1" max="99" value="${requestedOrder.duration}"/><span id="durationError.'+drugId+'" class="text-danger "></span>';
 	    
-		var durationUnitHtml = '<select style="text-transform: capitalize" name="durationUnit" id="durationUnit.'+rowCount+'">' +
-		'<option value="">Select option</option>' +
+		var durationUnitHtml = '<select style="text-transform: capitalize" name="durationUnit" id="durationUnit.'+drugId+'">' +
 		'<c:if test="${not empty durationUnits}">' +
 		'<c:forEach var="duration" items="${durationUnits}"> ' +
 		'<option style="text-transform: capitalize"  value="${duration.conceptId}">${fn:toLowerCase(duration.name)}</option>' +
 		'</c:forEach> ' +
 		'</c:if>' +
-		'</select><span id="durationUnitError.'+rowCount+'" class="text-danger "></span>';
+		'</select><span id="durationUnitError.'+drugId+'" class="text-danger "></span>';
 		
-		var instructionHtml = '<textarea rows="3" cols="10" name="ins" id="orderInstruction.'+rowCount+'" maxlength="250"></textarea>';
+		var instructionHtml = '<textarea rows="3" cols="10" name="ins" id="orderInstruction.'+drugId+'" maxlength="250"></textarea>';
 		
-	    var cell1 = row.insertCell(0);	// drug
+	    var row = table.insertRow(rowCount);
+	    
+	    var cell1 = row.insertCell(0);	// delete button + drugName
 	    var cell2 = row.insertCell(1);	// dose 
-	    var cell3 = row.insertCell(2);	// dose Unit
-	    var cell4 = row.insertCell(3);
-	    var cell5 = row.insertCell(4);
-	    var cell6 = row.insertCell(5);
-	    var cell7 = row.insertCell(6);
-	    var cell8 = row.insertCell(7);
-	    var cell9 = row.insertCell(8);
-	    cell1.innerHTML = deleteHtml + drugLabel + selectedDrug + drugIdLabel;
+	    var cell3 = row.insertCell(2);	// dose unit
+	    var cell4 = row.insertCell(3);	// frequnecy
+	    var cell5 = row.insertCell(4);	// route
+	    var cell6 = row.insertCell(5);  // duration
+	    var cell7 = row.insertCell(6);  // duration unit
+	    var cell8 = row.insertCell(7);  // instruction
+	    var cell9 = row.insertCell(8);  // start date
+	    cell1.innerHTML = deleteHtml + selectedDrug + drugLabel  + drugIdLabel;
 	    cell2.innerHTML = doseHtml;
 	    cell3.innerHTML = doseUnitHtml;
 	    cell4.innerHTML = frequencyHtml;
@@ -472,8 +413,6 @@ function addDrugToTable() {
 		});
 	    
 	    jQuery('#drugSuggestBox').val(''); 
-	    
-	    
 	}
 }
 
@@ -509,6 +448,7 @@ function getDrugOrderList(){
     var encounter =  document.getElementById('patientEncounter').value;
     var patientId = document.getElementById('patientId').value;
     var userId = document.getElementById('currentUserId').value;
+    var drugSelection = document.getElementById('drugSelection').value;
 		jQuery('#drugsTable tr').each(function(row, tr){
 			var selectedDoseUnit = jQuery(tr).find('td:eq(2) select');
 			var selectedFrequency = jQuery(tr).find('td:eq(3) select');
@@ -529,6 +469,7 @@ function getDrugOrderList(){
 		             , "patientId" : patientId
 		             , "encounterId":encounter
 		             , "userId" : userId
+		             , "drugSelection" : drugSelection
 		             
 		      }    
 	});
@@ -625,10 +566,10 @@ function saveOrder() {
 		else {
 			
 			var durationUnitSelectElement =  document.getElementById('durationUnit');
-			if(durationUnitSelectElement.selectedIndex == 0) {
+			/* if(durationUnitSelectElement.selectedIndex == 0) {
 				error = error + "<br><spring:message code='medication.regimen.durationUnitError' /> ";
 				isValid = false;
-			}
+			} */
 		}
 		
 		var frequencySelectElement =  document.getElementById('frequency');
@@ -719,91 +660,93 @@ function validate() {
 	
 	
 	jQuery('#drugsTable tr').each(function (row, tr) {
-		alert("row: " + row);
 		if(row > 0) {
 			
 			/* checking dose */
+			
+			var currentDrugId = jQuery(tr).find("label[id=drugIdLabel]").html();
+			
 			var dose = jQuery(tr).find('td:eq(1) input').val();
 			if(dose == "" || dose == null ) {
-				   document.getElementById('doseError.'+row+'').style.display= 'block';	
-				   document.getElementById('doseError.'+row+'').innerHTML = "<spring:message code='medication.regimen.missingDoseError' />";
+				   document.getElementById('doseError.'+currentDrugId+'').style.display= 'block';	
+				   document.getElementById('doseError.'+currentDrugId+'').innerHTML = "<spring:message code='medication.regimen.missingDoseError' />";
 				   isValid = false;
 		   	} else {
-		   		document.getElementById('doseError.'+row+'').style.display= 'none'; 
+		   		document.getElementById('doseError.'+currentDrugId+'').style.display= 'none'; 
 		   	}
 			
 			/* checking dose unit*/
 			var selectedDoseUnit = jQuery(tr).find('td:eq(2) select');
 			if(selectedDoseUnit.val() == "" || selectedDoseUnit.val() == null ) {
-				   document.getElementById('doseUnitError.'+row+'').style.display= 'block';	
-				   document.getElementById('doseUnitError.'+row+'').innerHTML = "<spring:message code='medication.regimen.doseUnitError' />";
+				   document.getElementById('doseUnitError.'+currentDrugId+'').style.display= 'block';	
+				   document.getElementById('doseUnitError.'+currentDrugId+'').innerHTML = "<spring:message code='medication.regimen.doseUnitError' />";
 				   isValid = false;
 		   	} else {
-		   		document.getElementById('doseUnitError.'+row+'').style.display= 'none'; 
+		   		document.getElementById('doseUnitError.'+currentDrugId+'').style.display= 'none'; 
 		   	}
 			
 			/* checking frequency*/
 			var selectedFreq = jQuery(tr).find('td:eq(3) select');
 			if(selectedFreq.val() == "" || selectedFreq.val() == null ) {
-				   document.getElementById('frequencyError.'+row+'').style.display= 'block';	
-				   document.getElementById('frequencyError.'+row+'').innerHTML = "<spring:message code='medication.regimen.frequencyError' />";
+				   document.getElementById('frequencyError.'+currentDrugId+'').style.display= 'block';	
+				   document.getElementById('frequencyError.'+currentDrugId+'').innerHTML = "<spring:message code='medication.regimen.frequencyError' />";
 				   isValid = false;
 		   	} else {
-		   		document.getElementById('frequencyError.'+row+'').style.display= 'none'; 
+		   		document.getElementById('frequencyError.'+currentDrugId+'').style.display= 'none'; 
 		   	}
 			
 			/* checking route*/
 			var selectedRoute = jQuery(tr).find('td:eq(4) select');
 			if(selectedRoute.val() == "" || selectedRoute.val() == null ) {
-				   document.getElementById('routeError.'+row+'').style.display= 'block';	
-				   document.getElementById('routeError.'+row+'').innerHTML = "<spring:message code='medication.regimen.routeError' />";
+				   document.getElementById('routeError.'+currentDrugId+'').style.display= 'block';	
+				   document.getElementById('routeError.'+currentDrugId+'').innerHTML = "<spring:message code='medication.regimen.routeError' />";
 				   isValid = false;
 		   	} else {
-		   		document.getElementById('routeError.'+row+'').style.display= 'none'; 
+		   		document.getElementById('routeError.'+currentDrugId+'').style.display= 'none'; 
 		   	}
 			
 			/* checking duration */
 			var duration = jQuery(tr).find('td:eq(5) input').val();
 			if(duration == "" || duration == null ) {
-				   document.getElementById('durationError.'+row+'').style.display= 'block';	
-				   document.getElementById('durationError.'+row+'').innerHTML = "<spring:message code='medication.regimen.missingDurationError' />";
+				   document.getElementById('durationError.'+currentDrugId+'').style.display= 'block';	
+				   document.getElementById('durationError.'+currentDrugId+'').innerHTML = "<spring:message code='medication.regimen.missingDurationError' />";
 				   isValid = false;
 		   	} else {
-		   		document.getElementById('durationError.'+row+'').style.display= 'none'; 
+		   		document.getElementById('durationError.'+currentDrugId+'').style.display= 'none'; 
 		   	}
 			
 			/* checking duration Unit */
 			var selectedDurationUnit = jQuery(tr).find('td:eq(6) select');
 			if(selectedDurationUnit.val() == "" || selectedDurationUnit.val() == null ) {
-				   document.getElementById('durationUnitError.'+row+'').style.display= 'block';	
-				   document.getElementById('durationUnitError.'+row+'').innerHTML = "<spring:message code='medication.regimen.durationUnitError' />";
+				   document.getElementById('durationUnitError.'+currentDrugId+'').style.display= 'block';	
+				   document.getElementById('durationUnitError.'+currentDrugId+'').innerHTML = "<spring:message code='medication.regimen.durationUnitError' />";
 				   isValid = false;
 		   	} else {
-		   		document.getElementById('durationUnitError.'+row+'').style.display= 'none'; 
+		   		document.getElementById('durationUnitError.'+currentDrugId+'').style.display= 'none'; 
 		   	}
 			
 			/* checking startDate */
 			var encounterDate = jQuery("#encounterDate").text();
 			var startDate = jQuery(tr).find('td:eq(8) input').val();
 			if(startDate == "" || startDate == null ) {
-				   document.getElementById('startDateError.'+row+'').style.display= 'block';	
-				   document.getElementById('startDateError.'+row+'').innerHTML = "<spring:message code='medication.regimen.startDateError' /> ";
+				   document.getElementById('startDateError.'+currentDrugId+'').style.display= 'block';	
+				   document.getElementById('startDateError.'+currentDrugId+'').innerHTML = "<spring:message code='medication.regimen.startDateError' /> ";
 				   isValid = false;
 		   	} 
 			else if(beforeSecondDate(startDate, encounterDate)) {
-					document.getElementById('startDateError.'+row+'').style.display= 'block';	
-					document.getElementById('startDateError.'+row+'').innerHTML = "<spring:message code='medication.regimen.dateError' /> ";
+					document.getElementById('startDateError.'+currentDrugId+'').style.display= 'block';	
+					document.getElementById('startDateError.'+currentDrugId+'').innerHTML = "<spring:message code='medication.regimen.dateError' /> ";
 					isValid = false;
 			}
 			else {
 				
-		   		document.getElementById('startDateError.'+row+'').style.display= 'none'; 
+		   		document.getElementById('startDateError.'+currentDrugId+'').style.display= 'none'; 
 		   	}
 			
 		}	
 	});
 	
-	return false;
+	return isValid;
 }
 
 function saveOrders() {
@@ -843,7 +786,7 @@ function saveOrders() {
 				showError(error);
 			}
 			else if(validate()) {
-		
+				
 				jQuery.ajax({
 						type : "POST",
 						url : "${pageContext.request.contextPath}/module/medicationlog/multiDrugOrder/addMultipleDrugOrders.form?patientId="+${patientId},
@@ -883,7 +826,7 @@ function saveOrders() {
 			}
 	}
 	else {
-		var error = "Please select any drug.";
+		var error = "Error! No drugs entered in table. Please enter atleast one.";
 		showError(error);
 	}
 	 
@@ -952,23 +895,19 @@ function beforeSecondDate(firstDate, secondDate) {
 	var startMonths =  datePattern.indexOf("mm");
 	var startDays = datePattern.indexOf("dd");
 	
-	alert(firstDate + " =======1====== " + secondDate);
 	
 	var convertDateFirst = firstDate.substring(startYears, startYears + 4) + "/" + firstDate.substring(startMonths, startMonths + 2) + "/" + firstDate.substring(startDays, startDays + 2);
 	var convertDateSecond = secondDate.substring(startYears, startYears + 4) + "/" + secondDate.substring(startMonths, startMonths + 2) + "/" + secondDate.substring(startDays, startDays + 2);
 
-	alert(convertDateFirst + " =======2====== " + convertDateSecond);
 	
 	var finalFirstDate = new Date(convertDateFirst);
 	var finalSecondDate = new Date(convertDateSecond);
 	
-	alert(finalFirstDate + " =======3===== " + finalSecondDate);
 	
 	if(finalFirstDate  < finalSecondDate) {
 		isBefore = true;
 	}
 	
-	alert("isBefore: " + isBefore );
 	return isBefore;
 }
 
@@ -1113,13 +1052,14 @@ jQuery(function() {
 									</tr>
 									</thead>
 								</table>
-		                    
 		            </div>
 		        </div>
     		
     		<div class="row">
 			   <div class="col-md-2">
+			   <openmrs:hasPrivilege privilege="Medication - Add Drug Orders">
 					<input type="submit" onclick = "return saveOrders()" value="Save Drug Order"></input>
+				</openmrs:hasPrivilege>
 			   </div>
 			   <div class="col-md-2">
 					<input type="button" value="Cancel" onclick="location.href='${pageContext.request.contextPath}/patientDashboard.form?patientId=${patientId}'"></input>

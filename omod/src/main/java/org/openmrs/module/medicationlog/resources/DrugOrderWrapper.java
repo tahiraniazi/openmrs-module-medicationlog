@@ -41,7 +41,7 @@ public class DrugOrderWrapper {
 	
 	private boolean asNeeded;
 	
-	private double dose;
+	private int dose;
 	
 	private String doseUnit;
 	
@@ -52,6 +52,8 @@ public class DrugOrderWrapper {
 	private int duration;
 	
 	private String durationUnit;
+	
+	private String dosingInstructions;
 	
 	private String instructions;
 	
@@ -70,8 +72,8 @@ public class DrugOrderWrapper {
 	}
 	
 	public DrugOrderWrapper(int orderId, String encounterType, Encounter orderEncounter, Date dateCreated, String orderer,
-	    String uuid, int drugId, String drugName, double dose, String doseunit, String frequency, String route,
-	    int duration, String durationUnit, Date dateActivated) {
+	    String uuid, int drugId, String drugName, int dose, String doseunit, String frequency, String route, int duration,
+	    String durationUnit, Date dateActivated) {
 		
 		this.orderId = orderId;
 		this.encounterType = encounterType;
@@ -174,7 +176,7 @@ public class DrugOrderWrapper {
 		return dose;
 	}
 	
-	public void setDose(double dose) {
+	public void setDose(int dose) {
 		this.dose = dose;
 	}
 	
@@ -216,6 +218,14 @@ public class DrugOrderWrapper {
 	
 	public void setDurationUnit(String durationUnit) {
 		this.durationUnit = durationUnit;
+	}
+	
+	public String getDosingInstructions() {
+		return dosingInstructions;
+	}
+	
+	public void setDosingInstructions(String dosingInstructions) {
+		this.dosingInstructions = dosingInstructions;
 	}
 	
 	public String getInstructions() {

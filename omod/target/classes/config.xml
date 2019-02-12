@@ -5,7 +5,7 @@
 	<!-- Base Module Properties -->
 	<id>medicationlog</id>
 	<name>Medication Log</name>
-	<version>0.2.0</version>
+	<version>1.1.1</version>
 	<package>org.openmrs.module.medicationlog</package>
 	<author>Tahira</author>
 	<description>

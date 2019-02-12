@@ -77,7 +77,11 @@ public class MultiDrugOrderController {
 	
 	public static final String SQL_DATE = "yyyy-MM-dd";
 	
+	public static final String DATE_FORMAT = "dd/MM/yyyy";
+	
 	SimpleDateFormat sdf = new SimpleDateFormat(SQL_DATE);
+	
+	SimpleDateFormat sdfDate = new SimpleDateFormat(DATE_FORMAT);
 	
 	SimpleDateFormat timeFormat = new SimpleDateFormat("HH:mm:ss");
 	
@@ -245,6 +249,7 @@ public class MultiDrugOrderController {
 			
 			for (int i = 0; i < orderArray.size(); i++) {
 				JsonObject jsonObject = orderArray.get(i).getAsJsonObject();
+				String drugSelection = jsonObject.get("drugSelection").getAsString();
 				String drugName = jsonObject.get("drugName").getAsString();
 				Integer drugId = jsonObject.get("drugId").getAsInt();
 				Double dose = jsonObject.get("dose").getAsDouble();
@@ -259,11 +264,11 @@ public class MultiDrugOrderController {
 				Integer encounterId = jsonObject.get("encounterId").getAsInt();
 				String currentUserId = jsonObject.get("userId").getAsString();
 				
-				Date startDateOrder = sdf.parse(startDateDrug);
+				Date startDateOrder = sdfDate.parse(startDateDrug);
 				
-				DrugOrder drugOrder = constructDrugOrderObject(null, currentUserId, patientId, drugId, drugName, null,
-				    encounterId, dose, doseUnit, frequency, route, dosingInstruction, startDateOrder, duration,
-				    durationUnit, null, null, null, null);
+				DrugOrder drugOrder = constructDrugOrderObject(null, currentUserId, patientId, drugId, drugName,
+				    drugSelection, encounterId, dose, doseUnit, frequency, route, dosingInstruction, startDateOrder,
+				    duration, durationUnit, null, null, null, null);
 				
 				OrderContext orderContext = new OrderContext();
 				Context.getOrderService().saveOrder(drugOrder, orderContext);

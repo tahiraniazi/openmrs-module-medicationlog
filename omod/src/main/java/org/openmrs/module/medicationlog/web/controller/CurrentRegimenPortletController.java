@@ -53,13 +53,17 @@ public class CurrentRegimenPortletController extends PortletController {
 				DrugOrderWrapper drugOrderWrapper = new DrugOrderWrapper(order.getOrderId(), order.getEncounter()
 				        .getEncounterType().getName(), order.getEncounter(), order.getDateCreated(), order.getOrderer()
 				        .getCreator().getUsername(), order.getUuid(), drugOrder.getDrug().getDrugId(), drugOrder.getDrug()
-				        .getConcept().getDisplayString().toLowerCase(), drugOrder.getDose(), drugOrder.getDoseUnits()
-				        .getDisplayString().toLowerCase(), drugOrder.getFrequency().getConcept().getDisplayString()
-				        .toLowerCase(), drugOrder.getRoute().getDisplayString().toLowerCase(), drugOrder.getDuration(),
-				        drugOrder.getDurationUnits().getDisplayString().toLowerCase(), order.getDateActivated());
+				        .getConcept().getDisplayString().toLowerCase(), (int) Math.round(drugOrder.getDose()), drugOrder
+				        .getDoseUnits().getDisplayString().toLowerCase(), drugOrder.getFrequency().getConcept()
+				        .getDisplayString().toLowerCase(), drugOrder.getRoute().getDisplayString().toLowerCase(),
+				        drugOrder.getDuration(), drugOrder.getDurationUnits().getDisplayString().toLowerCase(),
+				        order.getDateActivated());
 				
 				if (drugOrder.getAutoExpireDate() != null)
 					drugOrderWrapper.setScheduledStopDate(drugOrder.getAutoExpireDate());
+				
+				if (drugOrder.getDosingInstructions() != null && !drugOrder.getDosingInstructions().isEmpty())
+					drugOrderWrapper.setDosingInstructions(drugOrder.getDosingInstructions());
 				
 				if (drugOrder.getInstructions() != null && !drugOrder.getInstructions().isEmpty())
 					drugOrderWrapper.setInstructions(drugOrder.getInstructions());

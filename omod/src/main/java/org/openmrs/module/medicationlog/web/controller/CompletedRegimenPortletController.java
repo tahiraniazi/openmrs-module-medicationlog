@@ -54,7 +54,6 @@ public class CompletedRegimenPortletController extends PortletController {
 		List<DrugOrderWrapper> completedDrugOrders = new ArrayList<DrugOrderWrapper>();
 		for (Order order : allOrders) {
 			
-			// TODO: test this part
 			if (order instanceof DrugOrder) {
 				
 				DrugOrder drugOrder = null;
@@ -85,11 +84,11 @@ public class CompletedRegimenPortletController extends PortletController {
 					DrugOrderWrapper drugOrderWrapper = new DrugOrderWrapper(order.getOrderId(), order.getEncounter()
 					        .getEncounterType().getName(), order.getEncounter(), order.getDateCreated(), order.getOrderer()
 					        .getCreator().getUsername(), order.getUuid(), drugOrder.getDrug().getDrugId(), drugOrder
-					        .getDrug().getConcept().getDisplayString().toLowerCase(), drugOrder.getDose(), drugOrder
-					        .getDoseUnits().getDisplayString().toLowerCase(), drugOrder.getFrequency().getConcept()
-					        .getDisplayString().toLowerCase(), drugOrder.getRoute().getDisplayString().toLowerCase(),
-					        drugOrder.getDuration(), drugOrder.getDurationUnits().getDisplayString().toLowerCase(),
-					        order.getDateActivated());
+					        .getDrug().getConcept().getDisplayString().toLowerCase(), (int) Math.round(drugOrder.getDose()),
+					        drugOrder.getDoseUnits().getDisplayString().toLowerCase(), drugOrder.getFrequency().getConcept()
+					                .getDisplayString().toLowerCase(),
+					        drugOrder.getRoute().getDisplayString().toLowerCase(), drugOrder.getDuration(), drugOrder
+					                .getDurationUnits().getDisplayString().toLowerCase(), order.getDateActivated());
 					
 					if (drugOrder.getDateStopped() == null) {
 						if (drugOrder.getAutoExpireDate() != null)
@@ -98,6 +97,9 @@ public class CompletedRegimenPortletController extends PortletController {
 						drugOrderWrapper.setDateStopped(drugOrder.getDateStopped());
 						drugOrderWrapper.setScheduledStopDate(drugOrder.getDateStopped());
 					}
+					
+					if (drugOrder.getDosingInstructions() != null && !drugOrder.getDosingInstructions().isEmpty())
+						drugOrderWrapper.setDosingInstructions(drugOrder.getDosingInstructions());
 					
 					if (drugOrder.getInstructions() != null && !drugOrder.getInstructions().isEmpty())
 						drugOrderWrapper.setInstructions(drugOrder.getInstructions());

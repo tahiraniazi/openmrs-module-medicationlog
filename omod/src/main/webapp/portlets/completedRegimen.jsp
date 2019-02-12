@@ -1,4 +1,5 @@
 <%@ include file="/WEB-INF/template/include.jsp"%>
+<%@ taglib prefix = "fmt" uri = "http://java.sun.com/jsp/jstl/fmt" %>
 
 <openmrs:htmlInclude
 	file="/scripts/jquery/dataTables/css/dataTables.css" />
@@ -198,6 +199,12 @@ function viewCompletedOrder(obj) {
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A">Dosing Instructions</font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E">'+  (typeof(singleOrder.dosingInstructions) == 'undefined' ? "" : singleOrder.dosingInstructions) +'</font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
 				details = details.concat('<label ><font color="#17202A">Scheduled Stop Date</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
 				details = details.concat('<label ><font color="#5D6D7E">'+ (typeof(singleOrder.autoExpireDate) == 'undefined' ? "" : singleOrder.autoExpireDate) +'</font></label>');			 
@@ -284,6 +291,7 @@ function viewCompletedOrder(obj) {
 					<c:set var="i" value="0"/>
 						<c:forEach var="completedOrder" items="${model.completedDrugOrders}">
 						<c:if test="${! empty model.completedDrugOrders}">
+						<fmt:parseNumber var = "integerDose" type = "number" value = "${completedOrder.dose}" />
 							<tr
 							<c:if test='${not empty completedOrder.discontinueReason}'>class="discontinuedRow"</c:if>>
 							<td ><nobr>${completedOrder.orderId}</nobr></td>
@@ -297,7 +305,7 @@ function viewCompletedOrder(obj) {
 			    					<spring:message code="medication.drugOrder.noInstructions" />
 			    				</c:when>
 			    			</c:choose>" id='viewInstructions_${i}' src="/openmrs/moduleResources/medicationlog/img/info_blue_small.png" alt="info" border="0" onmouseover="document.body.style.cursor='default'" onmouseout="document.body.style.cursor='default'"/></span></td>
-							<td ><nobr>${completedOrder.dose} ${currentOrder.doseUnit}</nobr></td>
+							<td ><nobr>${integerDose} ${completedOrder.doseUnit}</nobr></td>
 							<td ><nobr>${completedOrder.route}</nobr></td>
 							<td ><nobr>${completedOrder.frequency}</nobr></td>
 							<td style="text-align: center;"><nobr><openmrs:formatDate date="${completedOrder.dateActivated}" format="${_dateFormatDisplay}"/></nobr></td>

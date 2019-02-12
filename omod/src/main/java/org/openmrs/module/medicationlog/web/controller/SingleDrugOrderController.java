@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.logging.Logger;
 
@@ -430,11 +431,12 @@ public class SingleDrugOrderController {
 			drugOrder.setDosingType(SimpleDosingInstructions.class);
 			
 			/* Note: using order_reason_non_coded for Storing "Reason for Administration", 
-			because order_reason is used by discontinueOrder(...) method as reason for stopping drug */
+			because order_reason is used by discontinueOrder(...) method as reason for stopping drug order */
 			
 			if (orderReason != null) {
-				drugOrder.setOrderReasonNonCoded(Context.getConceptService().getConcept(orderReason).getDescription()
-				        .getDescription());
+				if (orderReason != 5622)// 5622 refers to 'OTHER'
+					drugOrder.setOrderReasonNonCoded(Context.getConceptService().getConcept(orderReason).getDescription()
+					        .getDescription());
 			} else if (orderReasonOther != null && !orderReasonOther.isEmpty()) {
 				drugOrder.setOrderReasonNonCoded(orderReasonOther);
 			}

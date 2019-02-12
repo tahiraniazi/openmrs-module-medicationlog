@@ -165,12 +165,12 @@ public class MedicationAjaxController {
 		
 		DrugOrderWrapper drugOrderWrapper = new DrugOrderWrapper(order.getOrderId(), order.getEncounter().getEncounterType()
 		        .getName(), Context.getEncounterService().getEncounter(order.getEncounter().getEncounterId()),
-		        order.getDateCreated(), order.getOrderer().getCreator().getUsername(), order.getUuid(), drugOrder.getDrug()
-		                .getDrugId(), drugOrder.getDrug().getConcept().getDisplayString().toLowerCase(),
-		        drugOrder.getDose(), drugOrder.getDoseUnits().getDisplayString().toLowerCase(), drugOrder.getFrequency()
-		                .getConcept().getDisplayString().toLowerCase(), drugOrder.getRoute().getDisplayString()
-		                .toLowerCase(), drugOrder.getDuration(), drugOrder.getDurationUnits().getDisplayString()
-		                .toLowerCase(), order.getDateActivated());
+		        order.getDateCreated(), order.getOrderer().getName(), order.getUuid(), drugOrder.getDrug().getDrugId(),
+		        drugOrder.getDrug().getConcept().getDisplayString().toLowerCase(), (int) Math.round(drugOrder.getDose()),
+		        drugOrder.getDoseUnits().getDisplayString().toLowerCase(), drugOrder.getFrequency().getConcept()
+		                .getDisplayString().toLowerCase(), drugOrder.getRoute().getDisplayString().toLowerCase(),
+		        drugOrder.getDuration(), drugOrder.getDurationUnits().getDisplayString().toLowerCase(),
+		        order.getDateActivated());
 		
 		if (order.getAutoExpireDate() != null)
 			drugOrderWrapper.setAutoExpireDate(order.getAutoExpireDate());
@@ -180,6 +180,9 @@ public class MedicationAjaxController {
 		
 		if (order.getDateStopped() != null)
 			drugOrderWrapper.setDateStopped(order.getDateStopped());
+		
+		if (drugOrder.getDosingInstructions() != null && !drugOrder.getDosingInstructions().isEmpty())
+			drugOrderWrapper.setDosingInstructions(drugOrder.getDosingInstructions());
 		
 		if (drugOrder.getAsNeeded() != null)
 			drugOrderWrapper.setAsNeeded(drugOrder.getAsNeeded());
@@ -200,16 +203,16 @@ public class MedicationAjaxController {
 	@ResponseBody
 	public String getDrugOrderDetails(@RequestParam(value = "patientId", required = true) int patientId, Model model) {
 		
-		JsonObject patientUuid = new JsonObject();
+		JsonObject orderDetails = new JsonObject();
 		
 		try {
 			
 			Person person = Context.getPersonService().getPerson(patientId);
-			patientUuid.addProperty("patientUuid", person.getUuid());
+			orderDetails.addProperty("patientUuid", person.getUuid());
 		}
 		catch (APIException e) {
 			e.printStackTrace();
 		}
-		return patientUuid.toString();
+		return orderDetails.toString();
 	}
 }

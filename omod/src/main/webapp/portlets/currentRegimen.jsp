@@ -1,4 +1,5 @@
 <%@ include file="/WEB-INF/template/include.jsp"%>
+<%@ taglib prefix = "fmt" uri = "http://java.sun.com/jsp/jstl/fmt" %>
 
 <openmrs:htmlInclude
 	file="/scripts/jquery/dataTables/css/dataTables.css" />
@@ -332,6 +333,12 @@ body {
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A">Dosing Instructions</font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E">'+  (typeof(singleOrder.dosingInstructions) == 'undefined' ? "" : singleOrder.dosingInstructions) +'</font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
 				details = details.concat('<label ><font color="#17202A">Scheduled Stop Date</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
 				details = details.concat('<label ><font color="#5D6D7E">'+ (typeof(singleOrder.autoExpireDate) == 'undefined' ? "" : singleOrder.autoExpireDate) +'</font></label>');			 
@@ -460,6 +467,12 @@ body {
 				details = details.concat('</div></div>');
 				
 				details = details.concat('<div class="row"><div class="col-md-4">');
+				details = details.concat('<label ><font color="#17202A">Dosing Instructions</font></label>');
+				details = details.concat('</div><div class ="col-md-8">');
+				details = details.concat('<label ><font color="#5D6D7E">'+  (typeof(revisedOrder.dosingInstructions) == 'undefined' ? "" : revisedOrder.dosingInstructions) +'</font></label>');			 
+				details = details.concat('</div></div>');
+				
+				details = details.concat('<div class="row"><div class="col-md-4">');
 				details = details.concat('<label ><font color="#17202A">Date Stopped</font></label>');
 				details = details.concat('</div><div class ="col-md-8">');
 				details = details.concat('<label ><font color="#5D6D7E">'+revisedOrder.dateStopped+'</font></label>');			 
@@ -539,6 +552,7 @@ body {
 		<c:set var="i" value="0"/>
 			<c:forEach var="currentOrder" items="${model.currentDrugOrders}">
 			<c:if test="${! empty model.currentDrugOrders}">
+			<fmt:parseNumber var = "integerDose" type = "number" value = "${currentOrder.dose}" />
 				<tr>
 				<td ><nobr>${currentOrder.orderId}</nobr></td>
 				<td ><nobr><img title="View Order" id='viewCurrentOrder_${i}_${currentOrder.orderId}_${currentOrder.dateActivated}' onclick="viewCurrentOrder(this)" src="/openmrs/moduleResources/medicationlog/img/view_text_small.png" alt="view" border="0" onmouseover="document.body.style.cursor='pointer'" onmouseout="document.body.style.cursor='default'"/></nobr></td>
@@ -551,7 +565,7 @@ body {
     					<spring:message code="medication.drugOrder.noInstructions" />
     				</c:when>
     			</c:choose>" id='viewMore_${i}'  src="/openmrs/moduleResources/medicationlog/img/info_blue_small.png" alt="more" border="0" onmouseover="document.body.style.cursor='default'" onmouseout="document.body.style.cursor='default'"/></span></td>
-				<td ><nobr>${currentOrder.dose} ${currentOrder.doseUnit}</nobr></td>
+				<td ><nobr>${integerDose} ${currentOrder.doseUnit}</nobr></td>
 				<td ><nobr>${currentOrder.route}</nobr></td>
 				<td ><nobr>${currentOrder.frequency}</nobr></td>
 				<td style="text-align: center;"><nobr><openmrs:formatDate date="${currentOrder.dateActivated}" format="${_dateFormatDisplay}"/></nobr></td>

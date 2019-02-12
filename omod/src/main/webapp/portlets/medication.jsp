@@ -96,17 +96,26 @@ function process(date){
 <div >
 </div>
 <openmrs:hasPrivilege privilege="Medication - Add Drug Orders">
-<div id="addMedicationLink">
-<button id="addMedicationButton" onclick="location.href='${pageContext.request.contextPath}/module/medicationlog/singleDrugOrder.form?patientId=${model.patient.patientId}'">
+<div id="addMedicationLink" class="row">
+<%-- <button id="addMedicationButton" onclick="location.href='${pageContext.request.contextPath}/module/medicationlog/singleDrugOrder.form?patientId=${model.patient.patientId}'">
 	<span><openmrs:message code="medication.regimen.addMedication"/></span>
 	<span class='addMedicationImage'><img class="manImg" src="/openmrs/moduleResources/medicationlog/img/add.gif"></img></span>
 </button>
+ --%>
+<div class="col-md-2">
+<a href="${pageContext.request.contextPath}/module/medicationlog/singleDrugOrder.form?patientId=${model.patient.patientId}" ><openmrs:message code="medication.regimen.addMedication"/></a><span class='addMedicationImage'><img class="manImg" src="/openmrs/moduleResources/medicationlog/img/add.gif"></img></span>
+<br>
+</div>
 
+<div class="col-md-2">
+<a href="${pageContext.request.contextPath}/module/medicationlog/multiDrugOrder.form?patientId=${model.patient.patientId}" ><openmrs:message code="medication.regimen.addMultipleMedication"/></a><span class='addMedicationImage'><img class="manImg" src="/openmrs/moduleResources/medicationlog/img/add.gif"></img></span>
+<br>
+</div>
 
-<button id="addMultiOrderButton" onclick="location.href='${pageContext.request.contextPath}/module/medicationlog/multiDrugOrder.form?patientId=${model.patient.patientId}'">
+<%-- <button id="addMultiOrderButton" onclick="location.href='${pageContext.request.contextPath}/module/medicationlog/multiDrugOrder.form?patientId=${model.patient.patientId}'">
 	<span><openmrs:message code="medication.regimen.addMedication"/></span>
 	<span class='addMedicationImage'><img class="manImg" src="/openmrs/moduleResources/medicationlog/img/add.gif"></img></span>
-</button>
+</button> --%>
 
 </div>
 </openmrs:hasPrivilege>
