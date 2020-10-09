@@ -15,19 +15,38 @@
 <link
 	href="/openmrs/moduleResources/medicationlog/css/bootstrap.min.css"
 	rel="stylesheet" />
+<link href="/openmrs/moduleResources/medicationlog/css/chosen.css" rel="stylesheet" >
 	
 <script src="/openmrs/moduleResources/medicationlog/alertify.min.js"></script>
+<script src="/openmrs/moduleResources/medicationlog/js/jquery-ui.min.js"></script>
+<script src="/openmrs/moduleResources/medicationlog/js/bootstrap.min.js"></script>
+<script src="/openmrs/moduleResources/medicationlog/js/jquery-3.3.1.min.js"></script>
+<script src="/openmrs/moduleResources/medicationlog/js/chosen.jquery.js"></script>
 
 <style>
 
 body {
-	font-size: 12px;
+	font-size: 0.8em;
+}
+
+.form-control {
+	font-size: 1em;
+	padding: 0 !important;
+	padding-left: 0.3em !important;
+}
+
+input[type=text],[type=number], #drugSuggestBox {
+	height: 2.3em !important;
+}
+
+select.form-control {
+	height: 2.25em !important;
 }
 
 input[type=submit], [type=button] {
 	background-color: #1aac9b;
 	color: white;
-	padding: 12px 20px;
+	padding: 8px 16px;
 	border: none;
 	border-radius: 4px;
 	cursor: pointer;
@@ -62,6 +81,11 @@ input[type=text], select, textarea,radio {
 	border-radius: 2px;
 	box-sizing: border-box;
 } 
+
+#startDateDrug {
+	border: 1px solid #ced4da;
+	width: 25em;
+}
 
 </style>
 
@@ -282,6 +306,12 @@ jQuery('#drugSets').click(function() {
 		    jQuery("#drugId").val(drugKey);
 		}
 	});
+	
+	jQuery(function(){ 
+		jQuery('#patientEncounter').chosen();
+		jQuery('#frequency').chosen();
+		jQuery('#route').chosen();
+    });
 	
 });
 
@@ -611,26 +641,29 @@ jQuery(function() {
 				<div class="col-md-2">
 					<label  class="control-label"><spring:message code="medication.regimen.drugSelection" /></label>
 				</div>
-				<div class="col-md-6">
-					<input type="radio" id="drugSets" name="selection" value="<spring:message code="medication.regimen.drugSetsOption" />" ><spring:message code="medication.regimen.drugSetsOption" />  <input type="radio"  id="drugs" name="selection" value="<spring:message code="medication.regimen.drugsOption" />" ><spring:message code="medication.regimen.drugsOption" />
+				<div class="col-sm-5 col-md-5 col-lg-5">
+					<label class="radio-inline"><input type="radio" id="drugSets" name="selection" value="<spring:message code="medication.regimen.drugSetsOption" />" ><spring:message code="medication.regimen.drugSetsOption" /></label>  
+					<label class="radio-inline"><input type="radio"  id="drugs" name="selection" value="<spring:message code="medication.regimen.drugsOption" />" ><spring:message code="medication.regimen.drugsOption" /></label>
 			   	</div>
     		</div>
     		
     		<div class="row">
 				<div class="col-md-2">
-					<label id="encounterLabel"><spring:message code="medication.regimen.encounterSelection" /></label>
+					<label id="encounterLabel"><spring:message code="medication.regimen.encounterSelection" /></label><span class="required">*</span>
 					
 				</div>
-				<div class="col-md-6">
-					<select style="text-transform: capitalize" name="patientEncounter" id="patientEncounter">
+				<div class="col-sm-5 col-md-5 col-lg-5">
+					<select class="form-control" style="text-transform: capitalize" name="patientEncounter" id="patientEncounter">
 						<option style="text-transform: capitalize" value="">Select encounter</option>
 						<c:if test="${not empty encounters}">
 							<c:forEach var="encounter" items="${encounters}">
-								<option style="text-transform: capitalize" value="${encounter.encounterId}">${encounter.encounterName}</option>
+								<option style="text-transform: capitalize" value="${encounter.encounterId}"><p>${encounter.encounterName} [${encounter.encounterDate}]</p></option>
 							</c:forEach>
 							</c:if>
 						</select>
-						<font color="#2F4F4F"><span id="encounterDate"></span></font>
+			   	</div>
+			   	<div class="col-sm-2 col-md-2 col-lg-2">
+						<font color="#2F4F4F"><span id="encounterDate" style="display:none"></span></font>
 			   	</div>
     		</div>
     		
@@ -640,8 +673,8 @@ jQuery(function() {
 				<div class="col-md-2">
 					<label id="drugSetLabel"><spring:message code="medication.regimen.drugSetLabel" /></label>
 				</div>
-				<div class="col-md-6">
-					<select style="text-transform: capitalize" name="drugSetList" id="drugSetList">
+				<div class="col-sm-5 col-md-5 col-lg-5">
+					<select class="form-control" style="text-transform: capitalize" name="drugSetList" id="drugSetList">
 						<option style="text-transform: capitalize" value="">Select option</option>
 							<c:forEach var="drugSet" items="${drugSets}">
 								<option style="text-transform: capitalize" value="${drugSet.conceptId}">${fn:toLowerCase(drugSet.name)}</option>
@@ -654,10 +687,14 @@ jQuery(function() {
 				<div class="col-md-2">
 					<label id="drugSetLabel"><spring:message code="medication.regimen.drugLabel" /></label><span class="required">*</span>
 				</div>
-				<div class="col-md-6">
-					<input id="drugSuggestBox" name="drugName" style="text-transform: capitalize" value="${requestedOrder.drug.concept.name}" list="drugOptions" placeholder="Search Drug..."/>
-						<datalist class="lowercase" id="drugOptions"></datalist>
-					<input type="checkbox" name="asNeeded" id="asNeeded" value="asNeeded"><spring:message code='medication.orderset.drugOrderSetMember.asNeeded'/>	
+				<div class="col-sm-5 col-md-5 col-lg-5">
+					<input class="form-control" id="drugSuggestBox" name="drugName" style="text-transform: capitalize" value="${requestedOrder.drug.concept.name}" list="drugOptions" placeholder="Search Drug..."/>
+						<datalist class="lowercase" id="drugOptions"></datalist>	
+			   	</div>
+			   	<div class="col-sm-2 col-md-2 col-lg-2">
+			   		<div class="checkbox">
+			   			<label><input type="checkbox" name="asNeeded" id="asNeeded" value="asNeeded"><spring:message code='medication.orderset.drugOrderSetMember.asNeeded'/></label>
+			   		</div>
 			   	</div>
     		</div>
     		
@@ -667,22 +704,24 @@ jQuery(function() {
     	
     	<fieldset class="scheduler-border">
 		
-		<legend  class="scheduler-border">Patient Prescription Details</legend>
+		<legend  class="scheduler-border"><spring:message code="medication.regimen.drugPrescription"/></legend>
 			
 			<div class="row">
 				<div class="col-md-2">
 					<label  class="control-label"><spring:message code="DrugOrder.dose" /></label><span class="required">*</span>
 				</div>
-				<div class="col-md-6">
-				<fmt:parseNumber var = "integerDose" type = "number" value = "${requestedOrder.dose}" />
-					<input type="number" name="dose" id="dose" size="2" min="1" max="5000" value="${integerDose}"/>  
-					<select style="text-transform: capitalize" name="doseUnit" id="doseUnit">
-						<c:if test="${not empty doseUnits}">
-							<c:forEach var="doseUnit" items="${doseUnits}">
-								<option style="text-transform: capitalize"  value="${doseUnit.conceptId}">${fn:toLowerCase(doseUnit.name)}</option>
-							</c:forEach>
-						</c:if>
-						</select>
+				<div class="col-sm-2 col-md-2 col-lg-2">
+						<fmt:parseNumber var = "integerDose" type = "number" value = "${requestedOrder.dose}" />
+						<input class="form-control" type="number" name="dose" id="dose" size="2" min="1" max="5000" value="${integerDose}"/> 
+			   	</div>
+			   	<div class="col-sm-3 col-md-3 col-lg-3">
+			   		<select class="form-control" style="text-transform: capitalize" name="doseUnit" id="doseUnit">
+							<c:if test="${not empty doseUnits}">
+								<c:forEach var="doseUnit" items="${doseUnits}">
+									<option style="text-transform: capitalize"  value="${doseUnit.conceptId}">${fn:toLowerCase(doseUnit.name)}</option>
+								</c:forEach>
+							</c:if>
+					</select>
 			   	</div>
     		</div>
     		
@@ -690,9 +729,9 @@ jQuery(function() {
 				<div class="col-md-2">
 					<label  class="control-label"><spring:message code="DrugOrder.frequency"/></label><span class="required">*</span>
 				</div>
-				<div class="col-md-6">
-					<select style="text-transform: capitalize" name="frequency" id="frequency">
-							<option style="text-transform: capitalize" value="">Select option</option>
+				<div class="col-sm-5 col-md-5 col-lg-5">
+					<select class="form-control" style="text-transform: capitalize" name="frequency" id="frequency">
+							<option style="text-transform: capitalize" value="">Select frequency</option>
 							<c:if test="${not empty frequencies}">
 							
 							<c:forEach var="frequency" items="${frequencies}">
@@ -707,9 +746,9 @@ jQuery(function() {
 				<div class="col-md-2">
 					<label  class="control-label"><spring:message code="medication.regimen.route" /></label><span class="required">*</span>
 				</div>
-				<div class="col-md-6">
-					<select style="text-transform: capitalize" name="route" id="route">
-						<option style="text-transform: capitalize" value="${requestedOrder.route.name}">Select option</option>
+				<div class="col-sm-5 col-md-5 col-lg-5">
+					<select class="form-control" style="text-transform: capitalize" name="route" id="route">
+						<option style="text-transform: capitalize" value="${requestedOrder.route.name}">Select route</option>
 						<c:if test="${not empty routes}">
 							<c:forEach var="route" items="${routes}">
 								<option style="text-transform: capitalize" value="${route.conceptId}">${fn:toLowerCase(route.name)}</option>
@@ -723,8 +762,8 @@ jQuery(function() {
 				<div class="col-md-2">
 					<label class="control-label"><spring:message code="medication.regimen.dosingInstructions"/></label>
 				</div>
-				<div class="col-md-6">
-					<textarea rows="2" cols="30" name="dosingInstructions" id="dosingInstructions" maxlength="250">${requestedOrder.dosingInstructions}</textarea>
+				<div class="col-sm-5 col-md-5 col-lg-5">
+					<textarea class="form-control" rows="3" cols="30" name="dosingInstructions" id="dosingInstructions" maxlength="250">${requestedOrder.dosingInstructions}</textarea>
 			   	</div>
     		</div>
     		
@@ -732,7 +771,7 @@ jQuery(function() {
 				<div class="col-md-2">
 					<label class="control-label"><spring:message code="medication.orderset.field.startDay" /></label><span class="required">*</span>
 				</div>
-				<div class="col-md-6">
+				<div class="col-sm-5 col-md-5 col-lg-5">
 					<openmrs_tag:dateField formFieldName="startDateDrug" startValue=""/>
 			   	</div>
     		</div>
@@ -741,9 +780,11 @@ jQuery(function() {
 				<div class="col-md-2">
 					<label class="control-label"><spring:message code="medication.regimen.duration"/></label><span class="required">*</span>
 				</div>
-				<div class="col-md-6">
-					<input type="number" name="duration" id="duration" size="2" min="1" max="99" value="${requestedOrder.duration}"/>
-					<select style="text-transform: capitalize" name="durationUnit" id="durationUnit">
+				<div class="col-sm-2 col-md-2 col-lg-2">
+					<input class="form-control"  type="number" name="duration" id="duration" size="2" min="1" max="99" value="${requestedOrder.duration}"/>
+			   	</div>
+			   	<div class="col-sm-3 col-md-3 col-lg-3">
+			   		<select class="form-control" style="text-transform: capitalize" name="durationUnit" id="durationUnit">
 							<c:if test="${not empty durationUnits}">
 							<c:forEach var="duration" items="${durationUnits}">
 								<option style="text-transform: capitalize"  value="${duration.conceptId}">${fn:toLowerCase(duration.name)}</option>
@@ -757,8 +798,8 @@ jQuery(function() {
 				<div class="col-md-2">
 					<label class="control-label"><spring:message code="medication.regimen.reasonForOrder" /></label>
 				</div>
-				<div class="col-md-6">
-					<select style="text-transform: capitalize" name="orderReason" id="orderReason">
+				<div class="col-sm-5 col-md-5 col-lg-5">
+					<select class="form-control" style="text-transform: capitalize" name="orderReason" id="orderReason">
 							<option style="text-transform: capitalize" value="">Select option</option>
 							<c:if test="${not empty orderReasons}">
 							<c:forEach items="${orderReasons}" var="orderReason">
@@ -773,8 +814,8 @@ jQuery(function() {
 				<div class="col-md-2">
 					<label class="control-label"><spring:message code="medication.regimen.additionalReason" /></label>
 				</div>
-				<div class="col-md-6">
-					<textarea rows="2" cols="30" name="orderReasonOther" id="orderReasonOther" maxlength="250"></textarea>
+				<div class="col-sm-5 col-md-5 col-lg-5">
+					<textarea class="form-control" rows="3" cols="30" name="orderReasonOther" id="orderReasonOther" maxlength="250"></textarea>
 			   	</div>
     		</div>
     		
@@ -782,8 +823,8 @@ jQuery(function() {
 				<div class="col-md-2">
 					<label class="control-label"><spring:message code="medication.regimen.administrationInstructions" /></label>
 				</div>
-				<div class="col-md-6">
-					<textarea rows="2" cols="30" name="adminInstructions" id="adminInstructions" maxlength="250"></textarea>
+				<div class="col-sm-5 col-md-5 col-lg-5">
+					<textarea class="form-control" rows="3" cols="30" name="adminInstructions" id="adminInstructions" maxlength="250"></textarea>
 			   	</div>
     		</div>
     		
