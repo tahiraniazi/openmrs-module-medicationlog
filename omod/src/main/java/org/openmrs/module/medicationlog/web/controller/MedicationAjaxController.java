@@ -184,6 +184,9 @@ public class MedicationAjaxController {
 		if (drugOrder.getDosingInstructions() != null && !drugOrder.getDosingInstructions().isEmpty())
 			drugOrderWrapper.setDosingInstructions(drugOrder.getDosingInstructions());
 		
+		if (drugOrder.getCommentToFulfiller() != null && !drugOrder.getCommentToFulfiller().isEmpty())
+			drugOrderWrapper.setCommentsToFulfiller(drugOrder.getCommentToFulfiller());
+		
 		if (drugOrder.getAsNeeded() != null)
 			drugOrderWrapper.setAsNeeded(drugOrder.getAsNeeded());
 		

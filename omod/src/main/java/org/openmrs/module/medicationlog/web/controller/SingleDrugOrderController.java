@@ -241,13 +241,14 @@ public class SingleDrugOrderController {
 	        @RequestParam(value = "orderReason", required = false) Integer orderReason,
 	        @RequestParam(value = "orderReasonOther", required = false) String orderReasonOther,
 	        @RequestParam(value = "adminInstructions", required = false) String adminInstructions,
+	        @RequestParam(value = "commentsFulfiller", required = false) String commentsFulfiller,
 	        @RequestParam(value = "operation", required = false) String operation,
 	        @RequestParam(value = "returnPagee", required = true) String returnPage) {
 		
 		try {
 			DrugOrder drugOrder = constructDrugOrderObject(null, currentUserId, patientId, drugId, drugName, drugSelection,
 			    encounterId, dose, doseUnit, frequency, route, dosingInstruction, startDateDrug, duration, durationUnit,
-			    asNeeded, orderReason, orderReasonOther, adminInstructions);
+			    asNeeded, orderReason, orderReasonOther, adminInstructions, commentsFulfiller);
 			
 			OrderContext orderContext = new OrderContext();
 			if (orderId != null) {
@@ -262,7 +263,8 @@ public class SingleDrugOrderController {
 					// catching the same revised order object back
 					revisedDrugOrder = constructDrugOrderObject(revisedDrugOrder, currentUserId, patientId, drugId,
 					    drugName, drugSelection, encounterId, dose, doseUnit, frequency, route, dosingInstruction,
-					    startDateDrug, duration, durationUnit, asNeeded, orderReason, orderReasonOther, adminInstructions);
+					    startDateDrug, duration, durationUnit, asNeeded, orderReason, orderReasonOther, adminInstructions,
+					    commentsFulfiller);
 					
 					Context.getOrderService().saveOrder((Order) revisedDrugOrder, null);
 				}
@@ -300,7 +302,7 @@ public class SingleDrugOrderController {
 	private DrugOrder constructDrugOrderObject(DrugOrder drugOrder, String currentUserid, Integer patientId, Integer drugId,
 	        String drugName, String drugSelection, Integer encounterId, Double dose, Integer doseUnit, Integer frequency,
 	        Integer route, String dosingInstructions, Date startDateDrug, int duration, Integer durationUnit,
-	        String asNeeded, Integer orderReason, String orderReasonOther, String adminInstructions) {
+	        String asNeeded, Integer orderReason, String orderReasonOther, String adminInstructions, String commentsFulfiller) {
 		
 		if (drugOrder == null)
 			drugOrder = new DrugOrder();
@@ -443,6 +445,9 @@ public class SingleDrugOrderController {
 			
 			if (adminInstructions != null && !adminInstructions.isEmpty())
 				drugOrder.setInstructions(adminInstructions);
+			
+			if (commentsFulfiller != null && !commentsFulfiller.isEmpty())
+				drugOrder.setCommentToFulfiller(commentsFulfiller);
 		}
 		catch (APIException e) {
 			e.printStackTrace();
