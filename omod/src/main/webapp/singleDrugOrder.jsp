@@ -98,11 +98,8 @@ jQuery(document).ready(function() {
 	
 	jQuery("#doseUnit").val(jQuery("#doseUnit option:first").val());
 	jQuery("#durationUnit").val(jQuery("#durationUnit option:first").val());
-	
 	jQuery('#orderReasonOther').prop('disabled', true);
 	
-	console.log('${encounters}');
-	console.log('${requestedOrder}');
 	
 	if('${requestedOrder}' != null && '${requestedOrder}' != '') {
 		
@@ -232,7 +229,7 @@ jQuery('#drugSets').click(function() {
 		jQuery('#drugSelection').val("BY DRUG SET");
 	});
 	
-	jQuery('#drugs').click(function(){ 
+	jQuery('#drugs').click(function(){
 		
 		jQuery("#drugSuggestBox").val("");
 		jQuery('#drugSelection').val("BY DRUG");
@@ -251,12 +248,14 @@ jQuery('#drugSets').click(function() {
 				
 				if(result.length > 0) {
 					drugObject = {};
+					drugStrengthsById = {};
 					jQuery(result).each(function() {
 						var drugName = toTitleCase(this.name.toLowerCase());
 				            drugsOption = "<option value=\"" + this.id + "\">" + drugName + "</option>";
 				            jQuery('#drugOptions').append(drugsOption);
 				            drugKey = this.id; 
 				            drugObject[drugKey] = drugName;
+				            drugStrengthsById[drugKey] = this.strength;
 					});
 				}
 		});
@@ -281,12 +280,14 @@ jQuery('#drugSets').click(function() {
 					
 					if(result.length > 0) {
 						drugObject = {};
+						drugStrengthsById = {};
 						jQuery(result).each(function() {
 							var drugName = toTitleCase(this.name.toLowerCase());
 					            drugsOption = "<option value=\"" + this.id + "\">" + drugName + "</option>";
 					            jQuery('#drugOptions').append(drugsOption);
 					            drugKey = this.id; 
 					            drugObject[drugKey] = drugName;
+					            drugStrengthsById[drugKey] = this.strength;
 						});
 					}
 			});
@@ -304,6 +305,8 @@ jQuery('#drugSets').click(function() {
 		    var drugKey = jQuery(this).val();
 		    jQuery("#drugSuggestBox").val(drugObject[drugKey]);
 		    jQuery("#drugId").val(drugKey);
+		    var str = drugStrengthsById[drugKey] === null ? "Strength not found" : drugStrengthsById[drugKey];
+		    document.getElementById("strengthSpan").innerHTML= str;
 		}
 	});
 	
@@ -440,7 +443,6 @@ function saveOrder() {
 		if(operation == "") {
 		
 			var datalist = document.getElementById("drugOptions");
-			console.log(datalist.options.length);
 			var count = 0;
 			for (i = 0; i < datalist.options.length; i++) {
 				
@@ -691,10 +693,9 @@ jQuery(function() {
 					<input class="form-control" id="drugSuggestBox" name="drugName" style="text-transform: capitalize" value="${requestedOrder.drug.concept.name}" list="drugOptions" placeholder="Search Drug..."/>
 						<datalist class="lowercase" id="drugOptions"></datalist>	
 			   	</div>
-			   	<div class="col-sm-2 col-md-2 col-lg-2">
-			   		<div class="checkbox">
-			   			<label><input type="checkbox" name="asNeeded" id="asNeeded" value="asNeeded"><spring:message code='medication.orderset.drugOrderSetMember.asNeeded'/></label>
-			   		</div>
+			   	<div class="col-sm-5 col-md-5 col-lg-5" id="strengthDiv" style="padding: 0.6em; color:#757575 ">
+						<img class="manImg" src="/openmrs/moduleResources/medicationlog/img/flash.png"  title="Drug strength"></img><span id="strengthSpan" class='addMedicationImage'>Drug strength</span>
+						<br>
 			   	</div>
     		</div>
     		
