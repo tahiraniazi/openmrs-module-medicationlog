@@ -424,12 +424,12 @@ public class SingleDrugOrderController {
 			/* Note: using order_reason_non_coded for Storing "Reason for Administration", 
 			because order_reason is used by discontinueOrder(...) method as reason for stopping drug order */
 			
-			if (orderReason != null) {
-				if (orderReason != 5622)// 5622 refers to 'OTHER'
+			if (orderReasonOther != null && !orderReasonOther.isEmpty()) {
+				drugOrder.setOrderReasonNonCoded(orderReasonOther);
+			} else if (orderReason != null) {
+				if (orderReason != 5622)// 5622 refers to 'OTHER', Form is sending ID, therefore using ID instead of uuid
 					drugOrder.setOrderReasonNonCoded(Context.getConceptService().getConcept(orderReason).getDescription()
 					        .getDescription());
-			} else if (orderReasonOther != null && !orderReasonOther.isEmpty()) {
-				drugOrder.setOrderReasonNonCoded(orderReasonOther);
 			}
 			
 			if (adminInstructions != null && !adminInstructions.isEmpty())
