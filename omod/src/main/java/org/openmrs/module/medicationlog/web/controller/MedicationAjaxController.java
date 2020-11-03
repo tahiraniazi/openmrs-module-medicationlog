@@ -80,10 +80,18 @@ public class MedicationAjaxController {
 		List<Map<String, String>> drugs = new ArrayList<Map<String, String>>();
 		for (Concept drugConcept : nonRetiredDrugs) {
 			
+			List<Drug> drugList = Context.getConceptService().getDrugsByConcept(drugConcept);
+			Drug drugForConcept = null;
+			for (Drug drug : drugList) {
+				if (!drug.getRetired()) {
+					drugForConcept = drug;
+					break;
+				}
+			}
 			Map<String, String> info = new HashMap<String, String>();
 			info.put("id", Integer.toString(drugConcept.getId()));
 			info.put("name", drugConcept.getFullySpecifiedName(Locale.ENGLISH).getName());
-			
+			info.put("strength", drugForConcept.getStrength());
 			drugs.add(info);
 		}
 		
@@ -108,6 +116,7 @@ public class MedicationAjaxController {
 				Map<String, String> info = new HashMap<String, String>();
 				info.put("id", Integer.toString(drug.getDrugId()));
 				info.put("name", drugConcept.getFullySpecifiedName(Locale.ENGLISH).getName());
+				info.put("strength", drug.getStrength());
 				drugs.add(info);
 			}
 		}

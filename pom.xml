@@ -10,7 +10,7 @@
 
 	<groupId>org.openmrs.module</groupId>
 	<artifactId>medicationlog</artifactId>
-	<version>1.1.4</version>
+	<version>1.1.6</version>
 	<packaging>pom</packaging>
 	<name>Medication Log</name>
 	<description>Manages drugs prescribed to a patient.</description>
