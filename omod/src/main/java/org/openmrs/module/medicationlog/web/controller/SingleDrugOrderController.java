@@ -237,7 +237,6 @@ public class SingleDrugOrderController {
 	        @RequestParam(value = "startDateDrug", required = true) Date startDateDrug,
 	        @RequestParam(value = "duration", required = true) int duration,
 	        @RequestParam(value = "durationUnit", required = true) Integer durationUnit,
-	        @RequestParam(value = "asNeeded", required = false) String asNeeded,
 	        @RequestParam(value = "orderReason", required = false) Integer orderReason,
 	        @RequestParam(value = "orderReasonOther", required = false) String orderReasonOther,
 	        @RequestParam(value = "adminInstructions", required = false) String adminInstructions,
@@ -247,8 +246,8 @@ public class SingleDrugOrderController {
 		
 		try {
 			DrugOrder drugOrder = constructDrugOrderObject(null, currentUserId, patientId, drugId, drugName, drugSelection,
-			    encounterId, dose, doseUnit, frequency, route, dosingInstruction, startDateDrug, duration, durationUnit,
-			    asNeeded, orderReason, orderReasonOther, adminInstructions, commentsFulfiller);
+			    encounterId, dose, doseUnit, frequency, route, dosingInstruction, startDateDrug, duration, durationUnit, orderReason, orderReasonOther, adminInstructions, commentsFulfiller);
+			    orderReason, orderReasonOther, adminInstructions);
 			
 			OrderContext orderContext = new OrderContext();
 			if (orderId != null) {
@@ -263,7 +262,7 @@ public class SingleDrugOrderController {
 					// catching the same revised order object back
 					revisedDrugOrder = constructDrugOrderObject(revisedDrugOrder, currentUserId, patientId, drugId,
 					    drugName, drugSelection, encounterId, dose, doseUnit, frequency, route, dosingInstruction,
-					    startDateDrug, duration, durationUnit, asNeeded, orderReason, orderReasonOther, adminInstructions,
+					    startDateDrug, duration, durationUnit, orderReason, orderReasonOther, adminInstructions,
 					    commentsFulfiller);
 					
 					Context.getOrderService().saveOrder((Order) revisedDrugOrder, null);
@@ -302,7 +301,7 @@ public class SingleDrugOrderController {
 	private DrugOrder constructDrugOrderObject(DrugOrder drugOrder, String currentUserid, Integer patientId, Integer drugId,
 	        String drugName, String drugSelection, Integer encounterId, Double dose, Integer doseUnit, Integer frequency,
 	        Integer route, String dosingInstructions, Date startDateDrug, int duration, Integer durationUnit,
-	        String asNeeded, Integer orderReason, String orderReasonOther, String adminInstructions, String commentsFulfiller) {
+	        Integer orderReason, String orderReasonOther, String adminInstructions, String commentsFulfiller) {
 		
 		if (drugOrder == null)
 			drugOrder = new DrugOrder();
@@ -417,14 +416,6 @@ public class SingleDrugOrderController {
 			drugOrder.setQuantity(0.0);
 			drugOrder.setQuantityUnits(conceptService.getConcept(doseUnit));
 			
-			String asNeededValue = asNeeded;
-			
-			if (asNeededValue != null) {
-				drugOrder.setAsNeeded(true);
-			} else {
-				drugOrder.setAsNeeded(false);
-			}
-			
 			drugOrder.setCareSetting(Context.getOrderService().getCareSettingByName("Outpatient")); // Fetch Outpatient
 			                                                                                        // care setting
 			
@@ -435,12 +426,12 @@ public class SingleDrugOrderController {
 			/* Note: using order_reason_non_coded for Storing "Reason for Administration", 
 			because order_reason is used by discontinueOrder(...) method as reason for stopping drug order */
 			
-			if (orderReason != null) {
-				if (orderReason != 5622)// 5622 refers to 'OTHER'
+			if (orderReasonOther != null && !orderReasonOther.isEmpty()) {
+				drugOrder.setOrderReasonNonCoded(orderReasonOther);
+			} else if (orderReason != null) {
+				if (orderReason != 5622)// 5622 refers to 'OTHER', Form is sending ID, therefore using ID instead of uuid
 					drugOrder.setOrderReasonNonCoded(Context.getConceptService().getConcept(orderReason).getDescription()
 					        .getDescription());
-			} else if (orderReasonOther != null && !orderReasonOther.isEmpty()) {
-				drugOrder.setOrderReasonNonCoded(orderReasonOther);
 			}
 			
 			if (adminInstructions != null && !adminInstructions.isEmpty())

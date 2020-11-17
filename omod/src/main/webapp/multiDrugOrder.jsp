@@ -99,7 +99,11 @@ textarea[id*='orderInstruction'] {
 
 /* #drugsTable {border-collapse: collapse} */
 #drugsTable td {
-	padding: 0.25 rem !important;
+	padding: 0.35rem;
+}
+
+#drugsTable th {
+	padding: 0.35rem;
 }
 
 input[type=number]{
@@ -120,6 +124,7 @@ jQuery(document).ready(function() {
 	console.log('${requestedOrder}');
 	
 	var drugObject = {};
+	var drugStrengthsById = {}; 
 	var drugsList = null;
 	
 	/* make Drug sets option selected */
@@ -201,12 +206,14 @@ jQuery('#drugSets').click(function() {
 				
 				if(result.length > 0) {
 					drugObject = {};
+					drugStrengthsById = {};
 					jQuery(result).each(function() {
 						var drugName = toTitleCase(this.name.toLowerCase());
 				            drugsOption = "<option value=\"" + this.id + "\">" + drugName + "</option>";
 				            jQuery('#drugOptions').append(drugsOption);
 				            drugKey = this.id; 
 				            drugObject[drugKey] = drugName;
+				            drugStrengthsById[drugKey] = this.strength;
 					});
 				}
 		});
@@ -231,12 +238,14 @@ jQuery('#drugSets').click(function() {
 					
 					if(result.length > 0) {
 						drugObject = {};
+						drugStrengthsById = {};
 						jQuery(result).each(function() {
 							var drugName = toTitleCase(this.name.toLowerCase());
 					            drugsOption = "<option value=\"" + this.id + "\">" + drugName + "</option>";
 					            jQuery('#drugOptions').append(drugsOption);
 					            drugKey = this.id; 
 					            drugObject[drugKey] = drugName;
+					            drugStrengthsById[drugKey] = this.strength;
 						});
 					}
 			});
@@ -255,6 +264,7 @@ jQuery('#drugSets').click(function() {
 		    var drugKey = jQuery(this).val();
 		    jQuery("#drugSuggestBox").val(drugObject[drugKey]);
 		    jQuery("#drugId").val(drugKey);
+		    jQuery("#drugStrength").val(drugStrengthsById[drugKey]);
 		}
 	});	
 	
@@ -359,11 +369,13 @@ function addDrugToTable() {
 	if(!(selectedDrug == "") && !exists) {
 		
 		var drugId = jQuery("#drugId").val();
+		var drugStrength = jQuery("#drugStrength").val();
 	    
 	    var deleteHtml = '<img title="Delete" class="stopButton" id="deleteOrder" src="/openmrs/moduleResources/medicationlog/img/delete_very_small.png" onclick="deleteRow(this)" alt="delete" border="0" />';
 	    
 	    var drugLabel = '<label id="drugLabel" style="display: none;">'+selectedDrug+'</label>';
 	    var drugIdLabel = '<label id="drugIdLabel" style="display: none;">'+ drugId +'</label>';
+	    var strengthImg = '<img class="manImg" src="/openmrs/moduleResources/medicationlog/img/flash.png"  title="' + drugStrength + '"></img>';
 	    
 	    var doseHtml = '<input type="number" name="dose" id="dose.'+drugId+'" size="2" min="1" max="5000" value="${requestedOrder.dose}"/><br><span id="doseError.'+drugId+'" class="text-danger "></span>';
 	    
@@ -420,7 +432,7 @@ function addDrugToTable() {
 	    var cell7 = row.insertCell(6);  // duration unit
 	    var cell8 = row.insertCell(7);  // instruction
 	    var cell9 = row.insertCell(8);  // start date
-	    cell1.innerHTML = deleteHtml + selectedDrug + drugLabel  + drugIdLabel;
+	    cell1.innerHTML = deleteHtml + selectedDrug + strengthImg + drugLabel  + drugIdLabel;
 	    cell2.innerHTML = doseHtml;
 	    cell3.innerHTML = doseUnitHtml;
 	    cell4.innerHTML = frequencyHtml;
@@ -982,6 +994,7 @@ jQuery(function() {
 			<input type="hidden" name="operation" id="operation" value="${operation}"/> <!--  revise Vs renew -->
 			<input type="hidden" name="currentUserId" id="currentUserId" value="${currentUserId}"/>
 			<input type="hidden" name="drugId" id="drugId" value=""/>
+			<input type="hidden" name="drugStrength" id="drugStrength" value=""/>
 			<input type="hidden" name="drugSelection" id="drugSelection" value=""/>
 			<input type="hidden" name="orderId" id="orderId" value=""/>
 			
