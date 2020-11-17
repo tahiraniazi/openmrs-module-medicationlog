@@ -12,6 +12,7 @@
 package org.openmrs.module.medicationlog.resources;
 
 import java.util.Date;
+
 import org.openmrs.Encounter;
 
 /**
@@ -67,6 +68,10 @@ public class DrugOrderWrapper {
 	
 	private String discontinueReason;
 	
+	private String commentsToFulfiller;
+	
+	private String orderAction;
+	
 	public DrugOrderWrapper() {
 		
 	}
@@ -90,6 +95,28 @@ public class DrugOrderWrapper {
 		this.duration = duration;
 		this.durationUnit = durationUnit;
 		this.dateActivated = dateActivated;
+	}
+	
+	public DrugOrderWrapper(int orderId, String encounterType, Encounter orderEncounter, Date dateCreated, String orderer,
+	    String uuid, int drugId, String drugName, int dose, String doseunit, String frequency, String route, int duration,
+	    String durationUnit, Date dateActivated, String orderAction) {
+		
+		this.orderId = orderId;
+		this.encounterType = encounterType;
+		this.orderEncounter = orderEncounter;
+		this.dateCreated = dateCreated;
+		this.orderer = orderer;
+		this.orderUuid = uuid;
+		this.drugId = drugId;
+		this.drugName = drugName;
+		this.dose = dose;
+		this.doseUnit = doseunit;
+		this.frequency = frequency;
+		this.route = route;
+		this.duration = duration;
+		this.durationUnit = durationUnit;
+		this.dateActivated = dateActivated;
+		this.orderAction = orderAction;
 	}
 	
 	public int getOrderId() {
@@ -276,4 +303,19 @@ public class DrugOrderWrapper {
 		this.discontinueReason = discontinueReason;
 	}
 	
+	public String getCommentsToFulfiller() {
+		return commentsToFulfiller;
+	}
+	
+	public void setCommentsToFulfiller(String commentsToFulfiller) {
+		this.commentsToFulfiller = commentsToFulfiller;
+	}
+	
+	public String getOrderAction() {
+		return orderAction;
+	}
+	
+	public void setOrderAction(String orderAction) {
+		this.orderAction = orderAction;
+	}
 }

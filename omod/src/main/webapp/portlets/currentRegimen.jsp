@@ -349,11 +349,13 @@
 				details = details.concat('<label ><font color="#5D6D7E">'+ (typeof(singleOrder.autoExpireDate) == 'undefined' ? "" : singleOrder.autoExpireDate) +'</font></label>');			 
 				details = details.concat('</div></div>');
 				
-				/* details = details.concat('<div class="row"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A">Discontinue Reason</font></label>');
-				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E">'+ (typeof(singleOrder.discontinueReason) == 'undefined' ? "" : singleOrder.discontinueReason)    +'</font></label>');			 
-				details = details.concat('</div></div>'); */
+				if(singleOrder.commentsToFulfiller != undefined){					
+					details = details.concat('<div class="row viewRow"><div class="col-md-4">');
+					details = details.concat('<label ><font color="#17202A">Comments to Fulfiller</font></label>');
+					details = details.concat('</div><div class ="col-md-8">');
+					details = details.concat('<label ><font color="#5D6D7E">'+ singleOrder.commentsToFulfiller +'</font></label>');			 
+					details = details.concat('</div></div>');
+				}
 				
 			    details = details.concat('</form>');
 			    
@@ -483,11 +485,15 @@
 				details = details.concat('<label ><font color="#5D6D7E">'+revisedOrder.dateStopped+'</font></label>');			 
 				details = details.concat('</div></div>');
 				
-				details = details.concat('<div class="row viewRow"><div class="col-md-4">');
-				details = details.concat('<label ><font color="#17202A">Discontinue Reason</font></label>');
-				details = details.concat('</div><div class ="col-md-8">');
-				details = details.concat('<label ><font color="#5D6D7E">'+ (typeof(revisedOrder.discontinueReason) == 'undefined' ? "" : revisedOrder.discontinueReason)    +'</font></label>');			 
-				details = details.concat('</div></div>');
+				if(revisedOrder.discontinueReason != undefined){	
+					details = details.concat('<div class="row viewRow"><div class="col-md-4">');
+					details = details.concat('<label ><font color="#17202A">Discontinue Reason</font></label>');
+					details = details.concat('</div><div class ="col-md-8">');
+					details = details.concat('<label ><font color="#5D6D7E">'+ revisedOrder.discontinueReason   +'</font></label>');			 
+					details = details.concat('</div></div>');
+								
+				}
+				
 				
 			    details = details.concat('</form>');
 				details = details.concat(' </div>');
@@ -545,6 +551,7 @@
 			<th><spring:message code="medication.drugOrder.frequency"/></th>
 			<th><spring:message code="medication.orderset.field.startDay"/></th>
 			<th><spring:message code="medication.drugOrder.duration"/></th>
+			<th><spring:message code="medication.drugOrder.orderAction"/></th>
 			<openmrs:hasPrivilege privilege="Medication - Edit Drug Orders">
 			<th><spring:message code="medication.drugOrder.stop"/></th>
 			</openmrs:hasPrivilege>
@@ -578,7 +585,8 @@
 				<td ><nobr>${currentOrder.route}</nobr></td>
 				<td ><nobr>${currentOrder.frequency}</nobr></td>
 				<td style="text-align: center;"><nobr><openmrs:formatDate date="${currentOrder.dateActivated}" format="${_dateFormatDisplay}"/></nobr></td>
-				<td ><nobr>${currentOrder.duration} ${currentOrder.durationUnit}</nobr></td>  
+				<td ><nobr>${currentOrder.duration} ${currentOrder.durationUnit}</nobr></td>
+				<td ><nobr>${currentOrder.orderAction}</nobr></td>  
 				<openmrs:hasPrivilege privilege="Medication - Edit Drug Orders">
 				<td ><nobr><img title="Stop" class="stopButton" id='stopOrder_${i}_${currentOrder.orderId}_${currentOrder.dateActivated}' src="/openmrs/moduleResources/medicationlog/img/stop_very_small.png" alt="stop" border="0" onmouseover="document.body.style.cursor='pointer'" onmouseout="document.body.style.cursor='default'"/></nobr></td>
 				</openmrs:hasPrivilege>

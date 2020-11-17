@@ -81,6 +81,9 @@ public class CompletedRegimenPortletController extends PortletController {
 						drugOrder = (DrugOrder) order;
 					}
 					
+					Logger.getAnonymousLogger().info(
+					    "Order action is >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>> " + order.getAction().toString());
+					
 					DrugOrderWrapper drugOrderWrapper = new DrugOrderWrapper(order.getOrderId(), order.getEncounter()
 					        .getEncounterType().getName(), order.getEncounter(), order.getDateCreated(), order.getOrderer()
 					        .getCreator().getUsername(), order.getUuid(), drugOrder.getDrug().getDrugId(), drugOrder
@@ -88,7 +91,8 @@ public class CompletedRegimenPortletController extends PortletController {
 					        drugOrder.getDoseUnits().getDisplayString().toLowerCase(), drugOrder.getFrequency().getConcept()
 					                .getDisplayString().toLowerCase(),
 					        drugOrder.getRoute().getDisplayString().toLowerCase(), drugOrder.getDuration(), drugOrder
-					                .getDurationUnits().getDisplayString().toLowerCase(), order.getDateActivated());
+					                .getDurationUnits().getDisplayString().toLowerCase(), order.getDateActivated(), order
+					                .getAction().toString());
 					
 					if (drugOrder.getDateStopped() == null) {
 						if (drugOrder.getAutoExpireDate() != null)
@@ -117,6 +121,9 @@ public class CompletedRegimenPortletController extends PortletController {
 						drugOrderWrapper.setDiscontinueReason(WordUtils.capitalizeFully(discontinuationOrder
 						        .getOrderReason().getDisplayString(), delimiters));
 					}
+					
+					if (drugOrder.getCommentToFulfiller() != null && !drugOrder.getCommentToFulfiller().isEmpty())
+						drugOrderWrapper.setCommentsToFulfiller(drugOrder.getCommentToFulfiller());
 					
 					if (!containsOrder(completedDrugOrders, order.getOrderId()))
 						completedDrugOrders.add(drugOrderWrapper);

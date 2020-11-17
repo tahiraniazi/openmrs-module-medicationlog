@@ -830,6 +830,15 @@ jQuery(function() {
     		</div>
     		
     		<div class="row">
+				<div class="col-md-2">
+					<label class="control-label"><spring:message code="medication.regimen.commentsToFulfiller" /></label>
+				</div>
+				<div class="col-sm-5 col-md-5 col-lg-5">
+					<textarea class="form-control" rows="3" cols="30" name="commentsFulfiller" id="commentsFulfiller" maxlength="250"></textarea>
+			   	</div>
+    		</div>
+    		
+    		<div class="row">
 			   <div class="col-md-2">
 					<input type="submit" value="Save Drug Order"></input>
 			   </div>

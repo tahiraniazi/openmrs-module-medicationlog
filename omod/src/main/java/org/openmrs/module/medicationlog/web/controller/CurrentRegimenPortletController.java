@@ -57,7 +57,7 @@ public class CurrentRegimenPortletController extends PortletController {
 				        .getDoseUnits().getDisplayString().toLowerCase(), drugOrder.getFrequency().getConcept()
 				        .getDisplayString().toLowerCase(), drugOrder.getRoute().getDisplayString().toLowerCase(),
 				        drugOrder.getDuration(), drugOrder.getDurationUnits().getDisplayString().toLowerCase(),
-				        order.getDateActivated());
+				        order.getDateActivated(), order.getAction().toString());
 				
 				if (drugOrder.getAutoExpireDate() != null)
 					drugOrderWrapper.setScheduledStopDate(drugOrder.getAutoExpireDate());
